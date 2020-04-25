@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        sListener = new ValueEventListener() {
+        /*sListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User sender = dataSnapshot.getValue(User.class);
@@ -101,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.w("Data:", "loadPost:onCancelled", databaseError.toException());
                 Toast.makeText(MainActivity.this, "Loading Data Failed!", Toast.LENGTH_SHORT).show();
             }
-        };
-        sReference.addListenerForSingleValueEvent(sListener);
+        };*/
+        //sReference.addListenerForSingleValueEvent(sListener);
 
     }
 }

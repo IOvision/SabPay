@@ -1,46 +1,35 @@
 package com.visionio.sabpay.Models;
 
-import com.google.firebase.database.Exclude;
-import com.google.firebase.database.IgnoreExtraProperties;
-
-import java.util.HashMap;
-import java.util.Map;
-
-@IgnoreExtraProperties
 public class User {
-    private String phoneNumber;
-    private int balance;
 
-    public User(String phoneNumber, int balance) {
-        this.phoneNumber = phoneNumber;
-        this.balance = balance;
-    }
+    String name;
+    String phone;
+    String email;
 
     public User() {
-
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getName() {
+        return name;
     }
 
-    public int getBalance() {
-        return balance;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void incBalance(int amount){
-        this.balance += amount;
+    public String getPhone() {
+        return phone;
     }
 
-    public void decBalance(int amount){
-        this.balance -= amount;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    @Exclude
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("phoneNumber", phoneNumber);
-        result.put("balance", balance);
-        return result;
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

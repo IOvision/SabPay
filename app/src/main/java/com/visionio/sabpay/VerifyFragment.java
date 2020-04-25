@@ -28,12 +28,69 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
 
+import static android.content.ContentValues.TAG;
+
 public class VerifyFragment extends Fragment {
+
+    private final static String TAG = "DEBUG";
+
 
     private FirebaseAuth mAuth;
     private Button btn_verify;
     private EditText et_OTP;
     private ProgressBar progressBar;
+
+    private String mVerificationId;
+
+    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        String TAG = "Phone:";
+        @Override
+        public void onVerificationCompleted(PhoneAuthCredential credential) {
+            // This callback will be invoked in two situations:
+            // 1 - Instant verification. In some cases the phone number can be instantly
+            //     verified without needing to send or enter a verification code.
+            // 2 - Auto-retrieval. On some devices Google Play services can automatically
+            //     detect the incoming verification SMS and perform verification without
+            //     user action.
+            log("onVerificationCompleted:" + credential);
+            signInWithPhoneAuthCredential(credential);
+        }
+
+        @Override
+        public void onVerificationFailed(FirebaseException e) {
+            // This callback is invoked in an invalid request for verification is made,
+            // for instance if the the phone number format is not valid.
+           log(e.getLocalizedMessage());
+
+            if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                // Invalid request
+                // ...
+
+            } else if (e instanceof FirebaseTooManyRequestsException) {
+                // The SMS quota for the project has been exceeded
+                // ...
+
+            }
+
+            // Show a message and update the UI
+            // ...
+        }
+
+        @Override
+        public void onCodeSent(@NonNull final String verificationId,
+                               @NonNull PhoneAuthProvider.ForceResendingToken token) {
+            Log.d(TAG, "onCodeSent:" + verificationId);
+            btn_verify.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    mVerificationId = verificationId;
+
+                }
+            });
+        }
+    };
+
     public VerifyFragment() {
         // Required empty public constructor
     }
@@ -51,68 +108,35 @@ public class VerifyFragment extends Fragment {
         final EditText et_number = view.findViewById(R.id.et_number);
         Button btn_sendOTP = view.findViewById(R.id.btn_sendOtp);
         btn_verify = view.findViewById(R.id.btn_verify);
+
         btn_sendOTP.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
-                register(et_number.getText().toString().trim());
+                sentOTP(et_number.getText().toString().trim());
             }
         });
+
+        btn_verify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, et_OTP.getText().toString());
+                signInWithPhoneAuthCredential(credential);
+            }
+        });
+
+
         return view;
     }
 
-    private void register(String phone) {
-        String Phone = "+91";
-        Phone = Phone.concat(phone);
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(Phone, 60, TimeUnit.SECONDS, getActivity(), mCallbacks);
+    private void sentOTP(String phone) {
+        String mobileNumber = "+91";
+        mobileNumber = mobileNumber.concat(phone);
+        log("Otp sent");
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(mobileNumber, 60, TimeUnit.SECONDS, getActivity(), mCallbacks);
     }
 
-    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-        String TAG = "Phone:";
-        @Override
-        public void onVerificationCompleted(PhoneAuthCredential credential) {
-            // This callback will be invoked in two situations:
-            // 1 - Instant verification. In some cases the phone number can be instantly
-            //     verified without needing to send or enter a verification code.
-            // 2 - Auto-retrieval. On some devices Google Play services can automatically
-            //     detect the incoming verification SMS and perform verification without
-            //     user action.
-            Log.d(TAG, "onVerificationCompleted:" + credential);
-            signInWithPhoneAuthCredential(credential);
-        }
 
-        @Override
-        public void onVerificationFailed(FirebaseException e) {
-            // This callback is invoked in an invalid request for verification is made,
-            // for instance if the the phone number format is not valid.
-            Log.w(TAG, "onVerificationFailed", e);
-
-            if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                // Invalid request
-                // ...
-            } else if (e instanceof FirebaseTooManyRequestsException) {
-                // The SMS quota for the project has been exceeded
-                // ...
-            }
-
-            // Show a message and update the UI
-            // ...
-        }
-
-        @Override
-        public void onCodeSent(@NonNull final String verificationId,
-                               @NonNull PhoneAuthProvider.ForceResendingToken token) {
-            Log.d(TAG, "onCodeSent:" + verificationId);
-            btn_verify.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, et_OTP.getText().toString());
-                    signInWithPhoneAuthCredential(credential);
-                }
-            });
-        }
-    };
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
@@ -137,4 +161,9 @@ public class VerifyFragment extends Fragment {
                     }
                 });
     }
+
+    private void log(String msg){
+        Log.i(TAG, msg);
+    }
+
 }

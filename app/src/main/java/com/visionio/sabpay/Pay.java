@@ -20,7 +20,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.visionio.sabpay.Models.User;
 
 public class Pay extends AppCompatActivity {
 
@@ -29,7 +28,7 @@ public class Pay extends AppCompatActivity {
     ImageView back;
     EditText et_number, et_amount;
     Button btn_pay;
-    User sender;
+    //User sender;
     ProgressBar progressBar;
     ValueEventListener sListener, rListener;
 
@@ -53,7 +52,7 @@ public class Pay extends AppCompatActivity {
             }
         });
 
-        btn_pay.setOnClickListener(new View.OnClickListener() {
+        /*btn_pay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
@@ -84,13 +83,13 @@ public class Pay extends AppCompatActivity {
                 rReference.addListenerForSingleValueEvent(rListener);
                 progressBar.setVisibility(View.INVISIBLE);
             }
-        });
+        });*/
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        sListener = new ValueEventListener() {
+        /*sListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 sender = dataSnapshot.getValue(User.class);
@@ -102,7 +101,7 @@ public class Pay extends AppCompatActivity {
                 Toast.makeText(Pay.this, "Loading Data Failed!", Toast.LENGTH_SHORT).show();
             }
         };
-        sReference.addListenerForSingleValueEvent(sListener);
+        sReference.addListenerForSingleValueEvent(sListener);*/
 
     }
 }

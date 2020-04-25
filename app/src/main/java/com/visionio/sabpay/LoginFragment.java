@@ -45,6 +45,7 @@ public class LoginFragment extends Fragment {
         final EditText et_email = view.findViewById(R.id.et_login_email);
         final EditText et_password = view.findViewById(R.id.et_login_password);
         progressBar = view.findViewById(R.id.login_progressBar);
+
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

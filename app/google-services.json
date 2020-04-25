@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "50080705523",
-    "firebase_url": "https://sabpay-2ca88.firebaseio.com",
-    "project_id": "sabpay-2ca88",
-    "storage_bucket": "sabpay-2ca88.appspot.com"
+    "project_number": "101393143840",
+    "firebase_url": "https://sabpay-fdae5.firebaseio.com",
+    "project_id": "sabpay-fdae5",
+    "storage_bucket": "sabpay-fdae5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:50080705523:android:bfab16e720970cb309c086",
+        "mobilesdk_app_id": "1:101393143840:android:027bf6fcc557a72d704445",
         "android_client_info": {
           "package_name": "com.visionio.sabpay"
         }
       },
       "oauth_client": [
         {
-          "client_id": "50080705523-n98dpbgmcm0ba5a54ch21n1l0lgs9n8q.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.visionio.sabpay",
-            "certificate_hash": "f870b2b0d2bb83c3c98dcfe9f31f998686306273"
-          }
-        },
-        {
-          "client_id": "50080705523-bfoi4slg2pmc39fsn5jr3i30kgalu89r.apps.googleusercontent.com",
+          "client_id": "101393143840-253rc3no0e3klgu9pnj4ck2uu2ggf4jq.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCX95gZYcrCbb77S4Vz72mjQhPz7LUNLNQ"
+          "current_key": "AIzaSyAIvQkO9Ap22KmY9kUWHp1zhrIkoMHS1eM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "50080705523-bfoi4slg2pmc39fsn5jr3i30kgalu89r.apps.googleusercontent.com",
+              "client_id": "101393143840-253rc3no0e3klgu9pnj4ck2uu2ggf4jq.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
