@@ -1,4 +1,4 @@
-package com.visionio.sabpay;
+package com.visionio.sabpay.authentication;
 
 
 import android.os.Bundle;
@@ -25,10 +25,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.visionio.sabpay.R;
+import com.visionio.sabpay.authentication.Authentication;
 
 import java.util.concurrent.TimeUnit;
-
-import static android.content.ContentValues.TAG;
 
 public class VerifyFragment extends Fragment {
 
@@ -52,7 +52,6 @@ public class VerifyFragment extends Fragment {
             // 2 - Auto-retrieval. On some devices Google Play services can automatically
             //     detect the incoming verification SMS and perform verification without
             //     user action.
-            log("onVerificationCompleted:" + credential);
             signInWithPhoneAuthCredential(credential);
         }
 
@@ -60,7 +59,6 @@ public class VerifyFragment extends Fragment {
         public void onVerificationFailed(FirebaseException e) {
             // This callback is invoked in an invalid request for verification is made,
             // for instance if the the phone number format is not valid.
-           log(e.getLocalizedMessage());
 
             if (e instanceof FirebaseAuthInvalidCredentialsException) {
                 // Invalid request
@@ -132,7 +130,6 @@ public class VerifyFragment extends Fragment {
     private void sentOTP(String phone) {
         String mobileNumber = "+91";
         mobileNumber = mobileNumber.concat(phone);
-        log("Otp sent");
         PhoneAuthProvider.getInstance().verifyPhoneNumber(mobileNumber, 60, TimeUnit.SECONDS, getActivity(), mCallbacks);
     }
 
@@ -145,7 +142,6 @@ public class VerifyFragment extends Fragment {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("Phone:", "signInWithCredential:success");
                             FirebaseUser user = task.getResult().getUser();
                             progressBar.setVisibility(View.INVISIBLE);
                             if (user != null){
@@ -153,7 +149,6 @@ public class VerifyFragment extends Fragment {
                             }
                         } else {
                             // Sign in failed, display a message and update the UI
-                            Log.w("Phone:", "signInWithCredential:failure", task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 Toast.makeText(getContext(), "Wrong OTP!", Toast.LENGTH_SHORT).show();
                             }
@@ -162,8 +157,5 @@ public class VerifyFragment extends Fragment {
                 });
     }
 
-    private void log(String msg){
-        Log.i(TAG, msg);
-    }
 
 }

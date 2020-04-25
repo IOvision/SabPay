@@ -1,108 +1,110 @@
 package com.visionio.sabpay;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.visionio.sabpay.Models.User;
+import com.visionio.sabpay.Models.Wallet;
+import com.visionio.sabpay.authentication.Authentication;
 
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btn_signout, btn_pay;
-    TextView tv_name, tv_balance;
-    FirebaseUser mUser;
-    DatabaseReference sReference;
-    ValueEventListener sListener;
     FirebaseAuth mAuth;
-    ProgressBar balanceProgress;
+    FirebaseFirestore mRef;
+
+    TextView nameTv;
+    TextView balanceTv;
+
+    Button payBtn;
+    Button signOutBtn;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Intent intent = new Intent(this, Authentication.class);
-            startActivity(intent);
-        }
-        balanceProgress = findViewById(R.id.balanceProgress);
-        btn_signout = findViewById(R.id.btn_signout);
-        tv_name = findViewById(R.id.name);
-        mUser = FirebaseAuth.getInstance().getCurrentUser();
-        tv_balance = findViewById(R.id.tv_balance);
-        btn_pay = findViewById(R.id.btn_pay);
+        setUp();
 
-        btn_pay.setOnClickListener(new View.OnClickListener() {
+    }
+
+    void setUp(){
+        mAuth = FirebaseAuth.getInstance();
+        mRef = FirebaseFirestore.getInstance();
+
+        nameTv = findViewById(R.id.main_activity_name_tV);
+        balanceTv = findViewById(R.id.main_activity_balance_tV);
+        payBtn = findViewById(R.id.main_activity_pay_btn);
+        signOutBtn = findViewById(R.id.main_activity_signOut_btn);
+
+        signOutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, Authentication.class));
+                finish();
+            }
+        });
+
+        payBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, Pay.class));
             }
         });
 
-        mAuth = FirebaseAuth.getInstance();
-        if (mAuth.getCurrentUser() != null){
-            sReference = FirebaseDatabase.getInstance().getReference().child("users").child(Objects.requireNonNull(mAuth.getCurrentUser().getPhoneNumber()));
-            String name = "Hello, ";
-            name = name.concat(mUser.getDisplayName());
-            tv_name.setText(name);
-        }
+        loadDataFromServer();
 
+    }
 
-        btn_signout.setOnClickListener(new View.OnClickListener() {
+    void loadDataFromServer(){
+        mRef.collection("user").document(mAuth.getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                checkAuth();
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                User user = documentSnapshot.toObject(User.class);
+                nameTv.setText(user.getName());
+            }
+        });
+
+        mRef.collection("user").document(mAuth.getUid())
+                .collection("wallet").document("wallet").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                Wallet wallet = documentSnapshot.toObject(Wallet.class);
+                balanceTv.setText(wallet.getBalance().toString());
             }
         });
 
     }
 
-    void checkAuth(){
-        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Intent intent = new Intent(this, Authentication.class);
-            startActivity(intent);
-        }
-    }
+
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        /*sListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User sender = dataSnapshot.getValue(User.class);
-                String balance = "\u20B9 ";
-                balance = balance.concat(Integer.toString(sender.getBalance()));
-                tv_balance.setText(balance);
-                balanceProgress.setVisibility(View.INVISIBLE);
-                tv_balance.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w("Data:", "loadPost:onCancelled", databaseError.toException());
-                Toast.makeText(MainActivity.this, "Loading Data Failed!", Toast.LENGTH_SHORT).show();
-            }
-        };*/
-        //sReference.addListenerForSingleValueEvent(sListener);
-
+        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Intent intent = new Intent(this, Authentication.class);
+            startActivity(intent);
+        }
     }
 }

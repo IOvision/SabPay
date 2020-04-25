@@ -1,6 +1,7 @@
-package com.visionio.sabpay;
+package com.visionio.sabpay.authentication;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,8 +20,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
+import com.visionio.sabpay.R;
 
 import java.util.regex.Pattern;
 
@@ -82,7 +85,6 @@ public class RegisterFragment extends Fragment {
         }else if (!mPassword.equals(mConfirmPassword)){
             et_repassword.setError("Password didn't match");
         }else{
-            log("Initiate server");
             registerEmail();
         }
     }
@@ -92,10 +94,8 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    log("Success: email update");
                     registerPassword();
                 }else{
-                    log("Failure: EmailUpdate >> " + task.getException().getLocalizedMessage());
                 }
             }
         });
@@ -106,10 +106,8 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    log("Success: password update");
                     registerDisplayName();
                 }else{
-                    log("Failure: PasswordUpdate >> " + task.getException().getLocalizedMessage());
                 }
             }
         });
@@ -122,10 +120,8 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    log("Success: displayName update");
                     updateDatabase();
                 }else{
-                    log("Failure: DisplayNameUpdate >> " + task.getException().getLocalizedMessage());
                 }
             }
         });
@@ -145,22 +141,21 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    log("Success: User added to db");
+
                     mRef.collection("user").document(firebaseUser.getUid())
                             .collection("wallet").document("wallet")
                             .set(wallet).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
-                                log("Success: Wallet added to db");
+                                startActivity(new Intent(getActivity(), MainActivity.class));
+                                getActivity().finish();
                             }else{
-                                log("Failure: WalletUpdate >> " + task.getException().getLocalizedMessage());
                             }
                         }
                     });
 
                 }else{
-                    log("Failure: UserAddUpdate >> " + task.getException().getLocalizedMessage());
                 }
             }
         });
@@ -179,7 +174,4 @@ public class RegisterFragment extends Fragment {
         mConfirmPassword = et_repassword.getText().toString().trim();
     }
 
-    private void log(String msg){
-        Log.i(TAG, msg);
-    }
 }
