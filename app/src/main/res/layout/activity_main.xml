@@ -29,50 +29,70 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"/>
 
-    <TextView
-        android:id="@+id/main_activity_name_tV"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/activity_main_walletContainer_rl"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
         android:layout_marginTop="132dp"
-        android:layout_marginLeft="32dp"/>
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp">
 
-    <TextView
-        android:id="@+id/main_activity_balanceHeading_tV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="58dp"
-        android:text="Your Balance is"
-        android:textSize="24sp"
-        android:layout_centerInParent="true"/>
+        <ImageView
+            android:id="@+id/main_activity_walletIcon_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_wallet"/>
 
-    <TextView
-        android:id="@+id/main_activity_balance_tV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="30sp"
-        android:layout_toRightOf="@id/main_activity_balanceHeading_tV"
-        android:layout_centerInParent="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Wallet"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#000"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/avenir_pro"
+            android:layout_toRightOf="@id/main_activity_walletIcon_iv"
+            android:layout_marginLeft="16dp"/>
 
+        <TextView
+            android:id="@+id/main_activity_balance_tV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:text="Rs."
+            android:layout_below="@id/main_activity_walletIcon_iv"
+            android:padding="8dp"/>
 
-    <Button
-        android:id="@+id/main_activity_pay_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_custom_purple"
-        android:text="Pay"
-        android:textColor="@color/White"
-        android:layout_below="@id/main_activity_balanceHeading_tV"
-        android:layout_centerHorizontal="true"/>
+        <Button
+            android:id="@+id/main_activity_pay_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_custom_purple"
+            android:text="Pay"
+            android:textColor="@color/White"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
 
     <Button
         android:id="@+id/main_activity_signOut_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_custom_purple"
-        android:text="SignOut"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:textColor="@color/White"
-        android:layout_alignParentBottom="true" />
+        android:background="@drawable/ic_logout"
+        android:layout_margin="16dp"
+        android:layout_alignParentEnd="true"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/main_activity_transactions_rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/activity_main_walletContainer_rl"/>
+
+
 
 </RelativeLayout>

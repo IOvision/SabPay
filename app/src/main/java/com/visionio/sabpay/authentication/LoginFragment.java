@@ -88,6 +88,7 @@ public class LoginFragment extends Fragment {
     void updateUI(FirebaseUser user) {
         if(user != null){
             startActivity(new Intent(getContext(), MainActivity.class));
+            getActivity().finish();
         }
     }
 }
