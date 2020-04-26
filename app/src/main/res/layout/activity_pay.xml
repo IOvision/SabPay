@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/Purple"
-    tools:context=".Pay">
+    tools:context=".payment.Pay">
 
 
 
@@ -39,7 +39,7 @@
 
 
     <Button
-        android:id="@+id/btn_pay_pay"
+        android:id="@+id/pay_activity_pay_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_custom_purple"
@@ -49,11 +49,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="@id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/et_reciever"
+        app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et"
         app:layout_constraintVertical_bias="0.384" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/pay_activity_heading_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/avenir_pro"
@@ -68,7 +68,7 @@
         app:layout_constraintVertical_bias="0.191" />
 
     <EditText
-        android:id="@+id/et_reciever"
+        android:id="@+id/pay_activity_receiverPhone_et"
         android:layout_width="250dp"
         android:layout_height="40dp"
         android:layout_marginTop="80dp"
@@ -81,11 +81,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView"
+        app:layout_constraintTop_toBottomOf="@id/pay_activity_heading_tv"
         app:layout_constraintVertical_bias="0.0" />
 
     <EditText
-        android:id="@+id/et_amount"
+        android:id="@+id/pay_activity_amount_et"
         android:layout_width="250dp"
         android:layout_height="40dp"
         android:background="@drawable/et_custom"
@@ -97,7 +97,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_reciever"
+        app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et"
         app:layout_constraintVertical_bias="0.100000024" />
 
     <ProgressBar
@@ -105,13 +105,17 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="129dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="invisible"/>
+        app:layout_constraintTop_toBottomOf="@id/pay_activity_pay_btn"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
-        android:id="@+id/back"
+        android:id="@+id/pay_activity_back_iv"
         android:layout_width="47dp"
         android:layout_height="35dp"
         android:layout_marginTop="4dp"
@@ -121,7 +125,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/ic_arrow_left" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

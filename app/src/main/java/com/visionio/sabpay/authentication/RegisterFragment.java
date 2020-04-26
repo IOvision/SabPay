@@ -129,6 +129,7 @@ public class RegisterFragment extends Fragment {
 
     private void updateDatabase(){
         User user = new User();
+        user.setUid(firebaseUser.getUid());
         user.setName(mName);
         user.setEmail(mEmail);
         user.setPhone(mPhone);

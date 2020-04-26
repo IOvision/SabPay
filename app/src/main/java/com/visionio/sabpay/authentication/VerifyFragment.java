@@ -77,15 +77,7 @@ public class VerifyFragment extends Fragment {
         @Override
         public void onCodeSent(@NonNull final String verificationId,
                                @NonNull PhoneAuthProvider.ForceResendingToken token) {
-            Log.d(TAG, "onCodeSent:" + verificationId);
-            btn_verify.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    mVerificationId = verificationId;
-
-                }
-            });
+            mVerificationId = verificationId;
         }
     };
 
@@ -118,7 +110,7 @@ public class VerifyFragment extends Fragment {
         btn_verify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, et_OTP.getText().toString());
+                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, et_OTP.getText().toString().trim());
                 signInWithPhoneAuthCredential(credential);
             }
         });

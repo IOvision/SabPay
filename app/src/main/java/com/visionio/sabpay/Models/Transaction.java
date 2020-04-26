@@ -5,11 +5,20 @@ import com.google.firebase.firestore.DocumentReference;
 
 public class Transaction {
 
+    String id;
     DocumentReference from;
     DocumentReference to;
     Timestamp timestamp;
 
     public Transaction() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public DocumentReference getFrom() {

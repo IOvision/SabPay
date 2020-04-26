@@ -2,11 +2,20 @@ package com.visionio.sabpay.Models;
 
 public class User {
 
+    String uid;
     String name;
     String phone;
     String email;
 
     public User() {
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getName() {

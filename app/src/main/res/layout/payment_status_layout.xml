@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="32dp">
+
+    <ProgressBar
+        android:id="@+id/payment_status_progress_pb"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
+    <ImageView
+        android:id="@+id/payment_status_status_iv"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_confirm"
+        android:scaleY="0"
+        android:scaleX="0"/>
+
+    <TextView
+        android:id="@+id/payment_status_statusText_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_status_progress_pb"
+        android:layout_marginBottom="64dp"
+        android:text="Current status"
+        android:textSize="20sp"
+        android:textColor="#000" />
+
+    <TextView
+        android:id="@+id/payment_status_transactionHeading_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_status_statusText_tv"
+        android:text="Transaction id: "
+        android:textSize="24sp"
+        android:textColor="#000"/>
+
+    <TextView
+        android:id="@+id/payment_status_transactionId_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_status_transactionHeading_tv"
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp"
+        android:textColor="#737070"/>
+
+    <TextView
+        android:id="@+id/payment_status_dateHeading_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_status_transactionId_tv"
+        android:text="Date: "
+        android:textSize="24sp"
+        android:textColor="#000"/>
+
+    <TextView
+        android:id="@+id/payment_status_date_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_status_dateHeading_tv"
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp"
+        android:textColor="#737070"/>
+
+    <TextView
+        android:id="@+id/payment_status_balanceHeading_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_status_date_tv"
+        android:text="Wallet Balance: "
+        android:textSize="24sp"
+        android:textColor="#000"/>
+
+    <TextView
+        android:id="@+id/payment_status_balance_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/payment_status_balanceHeading_tv"
+        android:textSize="16sp"
+        android:textColor="#737070"/>
+
+    <FrameLayout
+        android:id="@+id/payment_status_overlay_fl"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:background="#fff" />
+
+    <TextView
+        android:id="@+id/payment_status_linkedWalletText_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="#000"
+        android:layout_centerInParent="true"
+        android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/payment_status_pay_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pay"
+        android:textColor="@color/White"
+        android:background="@drawable/btn_custom_purple"
+        android:layout_below="@id/payment_status_transactionHeading_tv"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"/>
+
+    <Button
+        android:id="@+id/payment_status_cancel_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:textColor="@color/White"
+        android:background="@drawable/btn_custom_purple"
+        android:layout_below="@id/payment_status_transactionHeading_tv"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="102dp"/>
+
+
+
+</RelativeLayout>
