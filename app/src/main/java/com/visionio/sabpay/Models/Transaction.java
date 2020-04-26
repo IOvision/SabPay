@@ -6,6 +6,7 @@ import com.google.firebase.firestore.DocumentReference;
 public class Transaction {
 
     String id;
+    Integer amount;
     DocumentReference from;
     DocumentReference to;
     Timestamp timestamp;
@@ -19,6 +20,14 @@ public class Transaction {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 
     public DocumentReference getFrom() {

@@ -1,7 +1,9 @@
 package com.visionio.sabpay.payment;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.app.Dialog;
+import android.os.Handler;
 import android.view.View;
 import android.content.Context;
 import android.widget.Button;
@@ -16,6 +18,7 @@ import com.visionio.sabpay.R;
 public class PaymentHandler {
 
     Context context;
+    Activity activity;
     View.OnClickListener clickListener;
 
     Dialog dialog;
@@ -37,8 +40,9 @@ public class PaymentHandler {
     ProgressBar progressBar;
 
 
-    public PaymentHandler(Context context, View.OnClickListener clickListener) {
+    public PaymentHandler(Context context, Activity activity, View.OnClickListener clickListener) {
         this.context = context;
+        this.activity = activity;
         this.clickListener = clickListener;
         setUpDialog();
     }
@@ -89,16 +93,24 @@ public class PaymentHandler {
         updateStatus(msg);
         statusImageView.setImageResource(R.drawable.ic_alert);
 
-        progressBar.animate().scaleX(0).scaleY(0).setDuration(1000).start();
-        statusImageView.animate().scaleX(1).scaleY(1).setDuration(1000).start();
+        progressBar.animate().scaleX(0).scaleY(0).setDuration(2000).start();
+        statusImageView.animate().scaleX(1).scaleY(1).setDuration(2000).start();
     }
 
     public void setSuccess(String msg){
         updateStatus(msg);
         statusImageView.setImageResource(R.drawable.ic_confirm);
 
-        progressBar.animate().scaleX(0).scaleY(0).setDuration(1000).start();
-        statusImageView.animate().scaleX(1).scaleY(1).setDuration(1000).start();
+        progressBar.animate().scaleX(0).scaleY(0).setDuration(2000).start();
+        statusImageView.animate().scaleX(1).scaleY(1).setDuration(2000).start();
+
+        (new Handler()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dismiss();
+                activity.finish();
+            }
+        }, 5000);
 
     }
 

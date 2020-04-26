@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -26,6 +27,9 @@ import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Pay extends AppCompatActivity {
 
@@ -74,7 +78,7 @@ public class Pay extends AppCompatActivity {
             }
         });
 
-        paymentHandler = new PaymentHandler(this, new View.OnClickListener() {
+        paymentHandler = new PaymentHandler(this, Pay.this, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 paymentHandler.showPayStatus();
@@ -102,7 +106,6 @@ public class Pay extends AppCompatActivity {
     }
 
     void searchUser(){
-        log(phoneNumber);
         mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -149,6 +152,7 @@ public class Pay extends AppCompatActivity {
         transaction.setId(receiversTransaction.getId());
         transaction.setFrom(senderDocRef);
         transaction.setTo(receiverDocRef);
+        transaction.setAmount(amount);
 
         mRef.runTransaction(new com.google.firebase.firestore.Transaction.Function<Void>() {
             @Nullable
@@ -185,6 +189,14 @@ public class Pay extends AppCompatActivity {
         final DocumentReference senderLastTransaction = senderDocRef.collection("transaction")
                 .document(transaction.getId());
 
+        senderLastTransaction.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                paymentHandler.setDate(sfd.format(documentSnapshot.getTimestamp("timestamp").toDate()));
+            }
+        });
+
 
         mRef.runTransaction(new com.google.firebase.firestore.Transaction.Function<Void>() {
             @Nullable
@@ -199,6 +211,7 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
+
                     updateReceiverWallet(transaction);
                 }else{
                     paymentHandler.setError("Sender wallet error");
@@ -225,6 +238,8 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
+
+
                     paymentHandler.setBalance(initialWalletAmount-amount);
                     paymentHandler.setSuccess("Done");
                 }else{
@@ -234,9 +249,6 @@ public class Pay extends AppCompatActivity {
         });
     }
 
-    void log(String msg){
-        Log.i("DEBUG", msg);
-    }
 
     void updateVariableData(){
         phoneNumber += et_number.getText().toString().trim();
