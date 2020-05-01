@@ -5,10 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -20,6 +24,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.visionio.sabpay.Models.OfflineTransaction;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.User;
@@ -36,6 +44,7 @@ public class MainActivity extends AppCompatActivity{
     FirebaseFirestore mRef;
 
     TextView balanceTv;
+    TextView wallet;
 
     Button payBtn;
     Button signOutBtn;
@@ -60,6 +69,7 @@ public class MainActivity extends AppCompatActivity{
         payBtn = findViewById(R.id.main_activity_pay_btn);
         signOutBtn = findViewById(R.id.main_activity_signOut_btn);
         recyclerView = findViewById(R.id.main_activity_transactions_rv);
+        wallet = findViewById(R.id.main_activity_wallet);
 
         signOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +87,13 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+        wallet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQR();
+            }
+        });
+
         if(mAuth.getCurrentUser() != null){
             loadDataFromServer();
             loadTransactions();
@@ -88,6 +105,30 @@ public class MainActivity extends AppCompatActivity{
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
 
+    }
+
+    private void showQR() {
+        final Dialog qrCode = new Dialog(MainActivity.this);
+        qrCode.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        qrCode.setContentView(R.layout.qr_code);
+
+        ImageView qr_code = qrCode.findViewById(R.id.iv_qr);
+        Button back = qrCode.findViewById(R.id.btn_qr);
+
+        qr_code.setEnabled(true);
+        back.setEnabled(true);
+
+        String data = mAuth.getCurrentUser().getPhoneNumber();
+        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+        try {
+            BitMatrix bitMatrix = multiFormatWriter.encode(data, BarcodeFormat.QR_CODE, 400, 400);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+            qr_code.setImageBitmap(bitmap);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        qrCode.show();
     }
 
     void loadTransactions(){
