@@ -1,2 +1,2 @@
 # SabPay
-A Simple App \_0_/
+A Payment app made using Firebase.
