@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -22,7 +23,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
@@ -47,15 +52,16 @@ public class RegisterFragment extends Fragment {
     FirebaseFirestore mRef;
     FirebaseUser firebaseUser;
     FirebaseAuth firebaseAuth;
-    DatabaseReference databaseReference;
+    DocumentReference senderDocRef;
     //FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     String mName;
     String mEmail;
     String mPassword;
     String mConfirmPassword;
-    String mPhone;
-    String mPhoneNumber;
+    //String mPhone;
+    //String mPhoneNumber;
+    String mPhoneNumber = "+91";
 
     public RegisterFragment() {
         // Required empty public constructor
@@ -127,12 +133,67 @@ public class RegisterFragment extends Fragment {
     }
 
     private void addFields(){
+        User user = new User();
+        user.setUid(firebaseUser.getUid());
+        user.setName(mName);
+        user.setEmail(mEmail);
+        //user.setPhone(mPhoneNumber);
+        user.setPhone(mPhoneNumber);
+
+        //Log.d("getPhone", "getphone function " + user.getPhone());
+
+        final Wallet wallet = new Wallet();
+        wallet.setBalance(0);
+        wallet.setLastTransaction(null);
+
+        mRef.collection("user").document(firebaseUser.getUid()).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+
+                    mRef.collection("user").document(firebaseUser.getUid())
+                            .collection("wallet").document("wallet")
+                            .set(wallet).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                final DocumentReference documentReference;
+                                documentReference = mRef.collection("user").document(firebaseAuth.getUid());
+                                documentReference.addSnapshotListener(getActivity(), new EventListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                                        Log.d("name display", "details name is " + documentSnapshot.getString("name"));
+                                        Log.d("name display", "details phone is " + documentSnapshot.getString("phone"));
+                                        Log.d("name display", "detail mail is " + documentSnapshot.getString("email"));
+
+                                    }
+                                });
+
+                                startActivity(new Intent(getActivity(), MainActivity.class));
+                                getActivity().finish();
+                            }else{
+                            }
+                        }
+                    });
+
+                }else{
+                }
+            }
+        });
+    }
+
+
+
+
+
+/*
+    private void addFields(){
         String UID = firebaseUser.getUid();
         Map<String, Object> userList = new HashMap<>();
-        userList.put("Name", mName);
-        userList.put("Phone Number", mPhoneNumber);
-        userList.put("Email Address", mEmail);
-        userList.put("ID", UID);
+        userList.put("name", mName);
+        userList.put("phone", mPhoneNumber);
+        userList.put("email", mEmail);
+        userList.put("uid", UID);
 
 
         final Wallet wallet = new Wallet();
@@ -166,51 +227,9 @@ public class RegisterFragment extends Fragment {
 
     }
 
-/*
-    private void registerEmail(){
-        firebaseUser.updateEmail(mEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    registerPassword();
-                }else{
-                }
-            }
-        });
-    }
 
  */
-/*
 
-    private void registerPassword(){
-        firebaseUser.updatePassword(mPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    registerDisplayName();
-                }else{
-                }
-            }
-        });
-    }
-
- */
-/*
-    private void registerDisplayName(){
-        UserProfileChangeRequest changeRequest = new UserProfileChangeRequest.Builder()
-                .setDisplayName(mName).build();
-        firebaseUser.updateProfile(changeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    updateDatabase();
-                }else{
-                }
-            }
-        });
-    }
-
- */
 /*
 
     private void updateDatabase(){
@@ -260,7 +279,7 @@ public class RegisterFragment extends Fragment {
         mEmail = et_email.getText().toString().trim();
         mPassword = et_password.getText().toString().trim();
         mConfirmPassword = et_repassword.getText().toString().trim();
-        mPhoneNumber = et_phonenumber.getText().toString().trim();
+        mPhoneNumber += et_phonenumber.getText().toString().trim();
         //mPhone = firebaseUser.getPhoneNumber();
         mConfirmPassword = et_repassword.getText().toString().trim();
     }

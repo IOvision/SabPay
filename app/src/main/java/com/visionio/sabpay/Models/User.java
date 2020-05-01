@@ -1,5 +1,7 @@
 package com.visionio.sabpay.Models;
 
+import android.util.Log;
+
 public class User {
 
     String uid;
@@ -26,11 +28,12 @@ public class User {
         this.name = name;
     }
 
-    //public String getPhone() {return phone;    }
-
     public void setPhone(String phone) {
+        Log.d("setPhone ", "Entered into setPhone function");
         this.phone = phone;
     }
+
+    public String getPhone(){ return phone;}
 
     public String getEmail() {
         return email;

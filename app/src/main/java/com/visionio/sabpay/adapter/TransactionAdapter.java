@@ -59,13 +59,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
         if(to.getUid().equals(mAuth.getUid())){
             // received case
-            holder.description.setText("Receiver from:\n"+from.getName());
+            //holder.description.setText("Receiver from:\n"+from.getName());
             holder.amount.setTextColor(Color.GREEN);
             holder.amount.setText("+ Rs. "+current.getAmount());
             holder.imageView.setRotation(180);
         }else{
             // sent case
-            holder.description.setText("Sent to:\n"+to.getName());
+            //holder.description.setText("Sent to:\n"+to.getName());
             holder.amount.setText("- Rs. "+current.getAmount());
         }
 
