@@ -47,6 +47,20 @@
         android:textSize="15sp" />
 
     <EditText
+        android:id="@+id/et_register_phoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Phone Number"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:padding="15dp"
+        android:fontFamily="@font/roboto_regular"
+        android:inputType="phone"
+        android:background="@drawable/et_custom"
+        android:textSize="15sp"/>
+
+    <EditText
         android:id="@+id/et_register_email"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -81,11 +95,14 @@
         android:hint="@string/re_type_password"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
         android:padding="15dp"
         android:fontFamily="@font/roboto_regular"
         android:inputType="textPassword"
         android:background="@drawable/et_custom"
         android:textSize="15sp" />
+
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -105,5 +122,13 @@
             android:textColor="@color/Purple"
             android:text="@string/register"/>
     </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="20dp"
+        android:visibility="gone" />
 
 </LinearLayout>

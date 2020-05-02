@@ -25,9 +25,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -151,7 +153,28 @@ public class Pay extends AppCompatActivity {
         searchUser();
     }
 
+
+
+
     void searchUser(){
+/*
+        mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                Log.d("pay.java", document.getId() + " => "+ document.getData());
+                            }
+                        }else{
+                            Log.d("pay.java", "error getting document: " + task.getException());
+                        }
+                    }
+                });
+
+ */
+
+
         mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -167,6 +190,8 @@ public class Pay extends AppCompatActivity {
                 }
             }
         });
+
+
     }
 
     void initiatePayToUser(){
@@ -301,7 +326,7 @@ public class Pay extends AppCompatActivity {
         try{
             amount = Integer.parseInt(et_amount.getText().toString());
         }catch (Exception e){
-
+            //
         }
     }
 

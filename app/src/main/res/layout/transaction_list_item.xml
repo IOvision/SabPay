@@ -19,13 +19,13 @@
         android:id="@+id/transaction_list_item_description_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:text="Sent to: Danish"
-        android:fontFamily="@font/roboto_regular"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/transaction_list_item_icon_iv"
         android:layout_marginLeft="16dp"
-        android:textSize="18sp"/>
+        android:layout_toRightOf="@id/transaction_list_item_icon_iv"
+        android:fontFamily="@font/roboto_regular"
+        android:text="Sent to: Danish"
+        android:textColor="#000"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/transaction_list_item_dateTime_tv"

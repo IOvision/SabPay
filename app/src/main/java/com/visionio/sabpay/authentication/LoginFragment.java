@@ -62,7 +62,7 @@ public class LoginFragment extends Fragment {
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((Authentication)getActivity()).verifyFragment();
+                ((Authentication)getActivity()).registerFragment();
             }
         });
         return view;
