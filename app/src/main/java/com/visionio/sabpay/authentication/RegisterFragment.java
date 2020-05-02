@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
@@ -108,8 +110,18 @@ public class RegisterFragment extends Fragment {
             et_repassword.setError("Password didn't match");
         }else{
             progressBar.setVisibility(View.VISIBLE);
-            register();
-            //registerEmail();
+            mRef.collection("user").whereEqualTo("phone", mPhoneNumber).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if(task.isSuccessful()){
+                                Toast.makeText(getActivity(), "Phone Number already registered", Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE);
+                            }else{
+                                register();
+                            }
+                        }
+                    });
         }
     }
 

@@ -175,18 +175,24 @@ public class Pay extends AppCompatActivity {
  */
 
 
+
         mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
+
                     DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                    if(snapshot != null){
                     paymentHandler.setLinkedWallet(snapshot.getString("name"));
                     receiverDocRef = snapshot.getReference();
+                    } else {
+                        paymentHandler.showPayStatus();
+                        paymentHandler.setError("No wallet linked to this number!!");
+                    }
 
                 }else{
-                    paymentHandler.showPayStatus();
-                    paymentHandler.setError("No wallet linked to this number!!");
+                    //
                 }
             }
         });
