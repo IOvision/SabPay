@@ -118,10 +118,7 @@ public class MainActivity extends AppCompatActivity{
         qrCode.setContentView(R.layout.qr_code);
 
         final ImageView qr_code = qrCode.findViewById(R.id.iv_qr);
-        final Button back = qrCode.findViewById(R.id.btn_qr);
-
         qr_code.setEnabled(true);
-        back.setEnabled(true);
 
         DocRef = mRef.collection("user").document(mAuth.getCurrentUser().getUid());
         DocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -205,4 +202,9 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadDataFromServer();
+    }
 }

@@ -8,14 +8,13 @@
     tools:context=".payment.Pay">
 
 
-
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_width="416dp"
+        android:layout_height="614dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
@@ -31,12 +30,10 @@
         android:textSize="60sp"
         app:layout_constraintBottom_toTopOf="@id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.769"
-        />
-
+        app:layout_constraintVertical_bias="0.467" />
 
     <Button
         android:id="@+id/pay_activity_pay_btn"
@@ -59,10 +56,9 @@
         android:fontFamily="@font/avenir_pro"
         android:text="Transfer Money"
         android:textColor="@color/Purple"
-        android:textSize="30sp"
+        android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.186"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/imageView"
         app:layout_constraintVertical_bias="0.191" />
@@ -132,12 +128,13 @@
         android:id="@+id/pay_activity_qrcode_scan"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginTop="80dp"
         android:background="@drawable/ic_qr_scan"
         android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.243"
+        app:layout_constraintHorizontal_bias="0.164"
         app:layout_constraintStart_toEndOf="@+id/pay_activity_receiverPhone_et"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.512"/>
+        app:layout_constraintTop_toBottomOf="@+id/pay_activity_heading_tv"
+        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>
