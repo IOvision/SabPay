@@ -61,7 +61,7 @@ public class RegisterFragment extends Fragment {
     String mConfirmPassword;
     //String mPhone;
     //String mPhoneNumber;
-    String mPhoneNumber = "+91";
+    String mPhoneNumber;
 
     public RegisterFragment() {
         // Required empty public constructor
@@ -102,6 +102,8 @@ public class RegisterFragment extends Fragment {
         updateVariableData();
         if(!isValidEmail(mEmail)){
             et_email.setError("Invalid email");
+        }else if(mPhoneNumber.length()!=13){
+            et_phonenumber.setError("Invalid Phone Number");
         }else if (!mPassword.equals(mConfirmPassword)){
             et_repassword.setError("Password didn't match");
         }else{
@@ -126,6 +128,7 @@ public class RegisterFragment extends Fragment {
                             //startActivity(new Intent(getActivity(), MainActivity.class));
                         }else{
                              Log.d("Authentication", "Authentication Failed");
+                             progressBar.setVisibility(View.INVISIBLE);
                         }
 
                     }
@@ -275,6 +278,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void updateVariableData(){
+        mPhoneNumber = "+91";
         mName = et_name.getText().toString().trim();
         mEmail = et_email.getText().toString().trim();
         mPassword = et_password.getText().toString().trim();
