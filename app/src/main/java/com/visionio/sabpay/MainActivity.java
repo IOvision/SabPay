@@ -1,5 +1,6 @@
 package com.visionio.sabpay;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,13 +10,16 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -42,6 +46,7 @@ public class MainActivity extends AppCompatActivity{
 
     FirebaseAuth mAuth;
     FirebaseFirestore mRef;
+    DocumentReference DocRef;
 
     TextView balanceTv;
     TextView wallet;
@@ -112,23 +117,33 @@ public class MainActivity extends AppCompatActivity{
         qrCode.requestWindowFeature(Window.FEATURE_NO_TITLE);
         qrCode.setContentView(R.layout.qr_code);
 
-        ImageView qr_code = qrCode.findViewById(R.id.iv_qr);
-        Button back = qrCode.findViewById(R.id.btn_qr);
+        final ImageView qr_code = qrCode.findViewById(R.id.iv_qr);
+        final Button back = qrCode.findViewById(R.id.btn_qr);
 
         qr_code.setEnabled(true);
         back.setEnabled(true);
 
-        String data = mAuth.getCurrentUser().getPhoneNumber();
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try {
-            BitMatrix bitMatrix = multiFormatWriter.encode(data, BarcodeFormat.QR_CODE, 400, 400);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            qr_code.setImageBitmap(bitmap);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        qrCode.show();
+        DocRef = mRef.collection("user").document(mAuth.getCurrentUser().getUid());
+        DocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    User user = task.getResult().toObject(User.class);
+                    MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+                    try {
+                        BitMatrix bitMatrix = multiFormatWriter.encode(user.getPhone(), BarcodeFormat.QR_CODE, 400, 400);
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                        qr_code.setImageBitmap(bitmap);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    qrCode.show();
+                } else {
+                    Log.d("Document", "get failed", task.getException());
+                }
+            }
+        });
     }
 
     void loadTransactions(){
