@@ -62,7 +62,7 @@ public class Pay extends AppCompatActivity {
 
     DocumentReference senderDocRef;
 
-    private static int CAMERA_PERMISSION_CODE = 101;
+    private static final int CAMERA_PERMISSION_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +92,7 @@ public class Pay extends AppCompatActivity {
                     if (checkPermission(Manifest.permission.CAMERA)){
                         openScanner();
                     } else {
-                        requestPermission(Manifest.permission.CAMERA, 101);
+                        requestPermission(Manifest.permission.CAMERA, CAMERA_PERMISSION_CODE);
                     }
                 } else {
                     openScanner();
@@ -104,6 +104,7 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(Pay.this, MainActivity.class));
+                finish();
             }
         });
 
@@ -123,7 +124,6 @@ public class Pay extends AppCompatActivity {
         });
 
     }
-
     private void openScanner() {
         new IntentIntegrator(Pay.this).initiateScan();
     }
@@ -181,12 +181,11 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
-
-                    DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-                    if(snapshot != null){
-                    paymentHandler.setLinkedWallet(snapshot.getString("name"));
-                    receiverDocRef = snapshot.getReference();
-                    } else {
+                    if(!task.getResult().getDocuments().isEmpty()){
+                        DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                        paymentHandler.setLinkedWallet(snapshot.getString("name"));
+                        receiverDocRef = snapshot.getReference();
+                    }else{
                         paymentHandler.showPayStatus();
                         paymentHandler.setError("No wallet linked to this number!!");
                     }
@@ -315,8 +314,6 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-
-
                     paymentHandler.setBalance(initialWalletAmount-amount);
                     paymentHandler.setSuccess("Done");
                 }else{
@@ -357,10 +354,16 @@ public class Pay extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode){
-            case 101:
+            case CAMERA_PERMISSION_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     openScanner();
                 }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(Pay.this, MainActivity.class));
     }
 }

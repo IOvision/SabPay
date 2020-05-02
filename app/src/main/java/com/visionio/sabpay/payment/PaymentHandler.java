@@ -3,6 +3,7 @@ package com.visionio.sabpay.payment;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Handler;
 import android.view.View;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.R;
 
 public class PaymentHandler {
@@ -108,7 +110,8 @@ public class PaymentHandler {
             @Override
             public void run() {
                 dismiss();
-                activity.finish();
+                Intent i1 = new Intent (context, MainActivity.class);
+                context.startActivity(i1);
             }
         }, 5000);
 

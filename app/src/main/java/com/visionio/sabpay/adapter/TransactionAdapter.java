@@ -58,7 +58,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         User to = current.getTo();
 
         if(to.getUid().equals(mAuth.getUid())){
-            // received case
+            // received case(
             holder.description.setText("Receiver from:\n"+from.getName());
             holder.amount.setTextColor(Color.GREEN);
             holder.amount.setText("+ Rs. "+current.getAmount());
@@ -72,7 +72,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.dateTime.setText(current.getDate());
     }
 
-
+    public void clear() {
+        transactions.clear();
+    }
 
     public class TransactionViewHolder extends RecyclerView.ViewHolder{
 
