@@ -44,16 +44,17 @@
             android:src="@drawable/ic_wallet"/>
 
         <TextView
+            android:id="@+id/main_activity_wallet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="My Wallet"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000"
+            android:layout_marginLeft="16dp"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/avenir_pro"
             android:layout_toRightOf="@id/main_activity_walletIcon_iv"
-            android:layout_marginLeft="16dp"/>
+            android:fontFamily="@font/avenir_pro"
+            android:text="My Wallet"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/main_activity_balance_tV"

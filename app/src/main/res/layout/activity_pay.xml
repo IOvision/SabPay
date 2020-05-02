@@ -79,7 +79,7 @@
         android:paddingLeft="10dp"
         app:layout_constraintBottom_toBottomOf="@id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintHorizontal_bias="0.335"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pay_activity_heading_tv"
         app:layout_constraintVertical_bias="0.0" />
@@ -128,4 +128,16 @@
         app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/ic_arrow_left" />
 
+    <ImageView
+        android:id="@+id/pay_activity_qrcode_scan"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/ic_qr_scan"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.243"
+        app:layout_constraintStart_toEndOf="@+id/pay_activity_receiverPhone_et"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.512"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

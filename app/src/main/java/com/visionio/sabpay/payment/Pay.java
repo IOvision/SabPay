@@ -3,14 +3,21 @@ package com.visionio.sabpay.payment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,6 +32,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.ServerTimestamp;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.Wallet;
@@ -38,7 +47,7 @@ public class Pay extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseFirestore mRef;
 
-    ImageView back;
+    ImageView back, qr_scan;
     EditText et_number, et_amount;
     Button btn_pay;
 
@@ -52,6 +61,8 @@ public class Pay extends AppCompatActivity {
     DocumentReference receiverDocRef;
 
     DocumentReference senderDocRef;
+
+    private static int CAMERA_PERMISSION_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +83,22 @@ public class Pay extends AppCompatActivity {
         et_number = findViewById(R.id.pay_activity_receiverPhone_et);
         et_amount = findViewById(R.id.pay_activity_amount_et);
         btn_pay = findViewById(R.id.pay_activity_pay_btn);
+        qr_scan = findViewById(R.id.pay_activity_qrcode_scan);
+
+        qr_scan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Build.VERSION.SDK_INT > 23){
+                    if (checkPermission(Manifest.permission.CAMERA)){
+                        openScanner();
+                    } else {
+                        requestPermission(Manifest.permission.CAMERA, 101);
+                    }
+                } else {
+                    openScanner();
+                }
+            }
+        });
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +122,25 @@ public class Pay extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void openScanner() {
+        new IntentIntegrator(Pay.this).initiateScan();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null){
+            if (result.getContents()==null){
+                Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
+            } else {
+                et_number.setText(result.getContents());
+            }
+        } else {
+            Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
+        }
     }
 
     void initiateServer(){
@@ -282,6 +328,33 @@ public class Pay extends AppCompatActivity {
         }catch (Exception e){
             //
         }
+    }
 
+    private boolean checkPermission(String permission){
+        int result = ContextCompat.checkSelfPermission(Pay.this, permission);
+        if( result == PackageManager.PERMISSION_GRANTED){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void requestPermission(String permission, int code){
+        if(ActivityCompat.shouldShowRequestPermissionRationale(Pay.this, permission)){
+
+        } else {
+            ActivityCompat.requestPermissions(Pay.this, new String[]{permission}, code);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case 101:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    openScanner();
+                }
+        }
     }
 }
