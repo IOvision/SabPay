@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.view.View;
 import android.content.Context;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -32,6 +33,8 @@ public class PaymentHandler {
     TextView balance;
 
     TextView linkedWallet;
+
+    EditText amount;
 
     Button pay;
     Button cancel;
@@ -65,6 +68,7 @@ public class PaymentHandler {
         pay = dialog.findViewById(R.id.payment_status_pay_btn);
         cancel = dialog.findViewById(R.id.payment_status_cancel_btn);
         linkedWallet = dialog.findViewById(R.id.payment_status_linkedWalletText_tv);
+        amount = dialog.findViewById(R.id.payment_status_amount);
 
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +84,7 @@ public class PaymentHandler {
         cancel.setVisibility(View.GONE);
         linkedWallet.setVisibility(View.GONE);
         overlay.setVisibility(View.GONE);
+        amount.setVisibility(View.GONE);
     }
 
     public void setLinkedWallet(String name){
@@ -132,5 +137,14 @@ public class PaymentHandler {
     public void init(){ dialog.show(); }
 
     public void dismiss(){ dialog.dismiss(); }
+
+    public int getAmount() {
+        if(!amount.getText().toString().isEmpty()) {
+            return Integer.parseInt(amount.getText().toString());
+        }else{
+            amount.setError("Amount cannot be empty");
+        }
+        return -1;
+    }
 
 }

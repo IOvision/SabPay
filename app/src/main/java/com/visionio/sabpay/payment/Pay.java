@@ -48,7 +48,7 @@ public class Pay extends AppCompatActivity {
     FirebaseFirestore mRef;
 
     ImageView back, qr_scan;
-    EditText et_number, et_amount;
+    EditText et_number;
     Button btn_pay;
 
     String phoneNumber = "+91";
@@ -81,7 +81,6 @@ public class Pay extends AppCompatActivity {
 
         back = findViewById(R.id.pay_activity_back_iv);
         et_number = findViewById(R.id.pay_activity_receiverPhone_et);
-        et_amount = findViewById(R.id.pay_activity_amount_et);
         btn_pay = findViewById(R.id.pay_activity_pay_btn);
         qr_scan = findViewById(R.id.pay_activity_qrcode_scan);
 
@@ -112,7 +111,10 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 paymentHandler.showPayStatus();
-                initiatePayToUser();
+                if(paymentHandler.getAmount() != -1) {
+                    amount = paymentHandler.getAmount();
+                    initiatePayToUser();
+                }
             }
         });
 
@@ -137,6 +139,7 @@ public class Pay extends AppCompatActivity {
                 Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
             } else {
                 et_number.setText(result.getContents());
+                initiateServer();
             }
         } else {
             Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
@@ -145,10 +148,6 @@ public class Pay extends AppCompatActivity {
 
     void initiateServer(){
         updateVariableData();
-        if(amount == 0){
-            et_amount.setError("Amount can't be empty");
-            return;
-        }
         paymentHandler.init();
         searchUser();
     }
@@ -326,11 +325,6 @@ public class Pay extends AppCompatActivity {
 
     void updateVariableData(){
         phoneNumber += et_number.getText().toString().trim();
-        try{
-            amount = Integer.parseInt(et_amount.getText().toString());
-        }catch (Exception e){
-            //
-        }
     }
 
     private boolean checkPermission(String permission){

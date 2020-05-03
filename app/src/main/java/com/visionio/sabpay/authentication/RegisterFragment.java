@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
@@ -115,10 +116,14 @@ public class RegisterFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if(task.isSuccessful()){
-                                Toast.makeText(getActivity(), "Phone Number already registered", Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
+                                if(!task.getResult().getDocuments().isEmpty()) {
+                                    et_phonenumber.setError("Phone Number already registered");
+                                    progressBar.setVisibility(View.GONE);
+                                }else{
+                                    register();
+                                }
                             }else{
-                                register();
+                                //
                             }
                         }
                     });
@@ -137,10 +142,12 @@ public class RegisterFragment extends Fragment {
                             firebaseUser = firebaseAuth.getCurrentUser();
                             addFields();
 
-                            //startActivity(new Intent(getActivity(), MainActivity.class));
-                        }else{
-                             Log.d("Authentication", "Authentication Failed");
+                        }else if(task.getException() instanceof FirebaseAuthUserCollisionException){
+                             et_email.setError("User with this email already exists");
                              progressBar.setVisibility(View.INVISIBLE);
+                        }else{
+                            Log.d("Authentication", "Authentication Failed");
+                            progressBar.setVisibility(View.GONE);
                         }
 
                     }

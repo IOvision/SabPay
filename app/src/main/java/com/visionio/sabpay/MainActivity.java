@@ -195,7 +195,11 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onStart() {
-        super.onStart();
 
+        super.onStart();
+        if(mAuth.getCurrentUser() == null){
+            startActivity(new Intent(MainActivity.this, Authentication.class));
+            finish();
+        }
     }
 }

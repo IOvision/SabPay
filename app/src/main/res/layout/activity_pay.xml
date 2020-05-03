@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_custom_purple"
-        android:text="Pay"
+        android:text="Next"
         android:textColor="@color/White"
         app:layout_constraintBottom_toBottomOf="@id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,21 +80,6 @@
         app:layout_constraintTop_toBottomOf="@id/pay_activity_heading_tv"
         app:layout_constraintVertical_bias="0.0" />
 
-    <EditText
-        android:id="@+id/pay_activity_amount_et"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:background="@drawable/et_custom"
-        android:ems="10"
-        android:hint="Amount"
-        android:inputType="number"
-        android:paddingLeft="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et"
-        app:layout_constraintVertical_bias="0.100000024" />
 
     <ProgressBar
         android:id="@+id/payProgress"

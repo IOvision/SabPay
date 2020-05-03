@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.Authentication;
+import com.visionio.sabpay.payment.Pay;
 
 public class LoginFragment extends Fragment {
 
@@ -49,13 +50,19 @@ public class LoginFragment extends Fragment {
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
                 String email = et_email.getText().toString().trim();
                 String password = et_password.getText().toString().trim();
-                if (email.isEmpty() || password.isEmpty())
-                    Toast.makeText(getContext(), "email is empty", Toast.LENGTH_SHORT).show();
-                if (!email.isEmpty() && !password.isEmpty())
-                   login(email, password);
+                if (email.isEmpty() && password.isEmpty()){
+                    et_email.setError("Email cannot be empty");
+                    et_password.setError("Password cannot be empty");
+                }else if(email.isEmpty()){
+                    et_email.setError("Email cannot be empty");
+                }else if(password.isEmpty()){
+                    et_password.setError("Password cannot be empty");
+                }else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    login(email, password);
+                }
             }
         });
 
@@ -80,6 +87,7 @@ public class LoginFragment extends Fragment {
                         } else {
                             Log.w("Login:", "signInWithEmail:failure", task.getException());
                             Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });

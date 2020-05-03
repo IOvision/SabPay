@@ -93,19 +93,32 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:textColor="#000"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
         android:textAlignment="center"/>
+
+    <EditText
+        android:id="@+id/payment_status_amount"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:background="@drawable/et_custom"
+        android:layout_marginTop="250dp"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:hint="Amount"
+        android:inputType="number"
+        />
 
     <Button
         android:id="@+id/payment_status_pay_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Pay"
+        android:layout_marginHorizontal="75dp"
         android:textColor="@color/White"
         android:background="@drawable/btn_custom_purple"
         android:layout_below="@id/payment_status_transactionHeading_tv"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="32dp"/>
+        android:layout_marginTop="102dp"/>
 
     <Button
         android:id="@+id/payment_status_cancel_btn"
@@ -115,8 +128,9 @@
         android:textColor="@color/White"
         android:background="@drawable/btn_custom_purple"
         android:layout_below="@id/payment_status_transactionHeading_tv"
-        android:layout_centerHorizontal="true"
+        android:layout_marginHorizontal="200dp"
         android:layout_marginTop="102dp"/>
+
 
 
 
