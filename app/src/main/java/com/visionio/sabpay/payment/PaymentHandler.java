@@ -102,6 +102,12 @@ public class PaymentHandler {
 
         progressBar.animate().scaleX(0).scaleY(0).setDuration(2000).start();
         statusImageView.animate().scaleX(1).scaleY(1).setDuration(2000).start();
+        (new Handler()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dismiss();
+            }
+        }, 2500);
     }
 
     public void setSuccess(String msg){

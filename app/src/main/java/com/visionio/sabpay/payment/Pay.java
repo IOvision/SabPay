@@ -51,7 +51,7 @@ public class Pay extends AppCompatActivity {
     EditText et_number;
     Button btn_pay;
 
-    String phoneNumber = "+91";
+    String phoneNumber;
     Integer amount = 0;
 
     Integer initialWalletAmount;
@@ -107,6 +107,22 @@ public class Pay extends AppCompatActivity {
             }
         });
 
+
+
+        btn_pay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initPaymentHandler();
+                initiateServer();
+            }
+        });
+
+    }
+    private void openScanner() {
+        new IntentIntegrator(Pay.this).initiateScan();
+    }
+
+    private void initPaymentHandler(){
         paymentHandler = new PaymentHandler(this, Pay.this, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,17 +133,6 @@ public class Pay extends AppCompatActivity {
                 }
             }
         });
-
-        btn_pay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                initiateServer();
-            }
-        });
-
-    }
-    private void openScanner() {
-        new IntentIntegrator(Pay.this).initiateScan();
     }
 
     @Override
@@ -286,7 +291,6 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-
                     updateReceiverWallet(transaction);
                 }else{
                     paymentHandler.setError("Sender wallet error");
@@ -324,6 +328,7 @@ public class Pay extends AppCompatActivity {
 
 
     void updateVariableData(){
+        phoneNumber = "+91";
         phoneNumber += et_number.getText().toString().trim();
     }
 

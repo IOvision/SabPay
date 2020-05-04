@@ -298,7 +298,7 @@ public class RegisterFragment extends Fragment {
 
     private void updateVariableData(){
         mPhoneNumber = "+91";
-        mName = et_name.getText().toString().trim();
+        mName = capitalize(et_name.getText().toString().trim());
         mEmail = et_email.getText().toString().trim();
         mPassword = et_password.getText().toString().trim();
         mConfirmPassword = et_repassword.getText().toString().trim();
@@ -307,4 +307,24 @@ public class RegisterFragment extends Fragment {
         mConfirmPassword = et_repassword.getText().toString().trim();
     }
 
+    public static String capitalize(String s) {
+        if ((s == null) || (s.trim().length() == 0)) {
+            return s;
+        }
+        s = s.toLowerCase();
+        char[] cArr = s.trim().toCharArray();
+        cArr[0] = Character.toUpperCase(cArr[0]);
+        for (int i = 0; i < cArr.length; i++) {
+            if (cArr[i] == ' ' && (i + 1) < cArr.length) {
+                cArr[i + 1] = Character.toUpperCase(cArr[i + 1]);
+            }
+            if (cArr[i] == '-' && (i + 1) < cArr.length) {
+                cArr[i + 1] = Character.toUpperCase(cArr[i + 1]);
+            }
+            if (cArr[i] == '\'' && (i + 1) < cArr.length) {
+                cArr[i + 1] = Character.toUpperCase(cArr[i + 1]);
+            }
+        }
+        return new String(cArr);
+    }
 }
