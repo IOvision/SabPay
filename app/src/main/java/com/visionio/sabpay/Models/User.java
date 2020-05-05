@@ -8,6 +8,7 @@ public class User {
     String name;
     String phone;
     String email;
+    Boolean login;
 
     public User() {
     }
@@ -41,5 +42,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Boolean getLogin() {
+        return login;
+    }
+
+    public void setLogin(Boolean login) {
+        this.login = login;
     }
 }

@@ -21,7 +21,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.MainActivity;
+import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.Authentication;
 import com.visionio.sabpay.payment.Pay;
@@ -94,9 +97,26 @@ public class LoginFragment extends Fragment {
     }
 
     void updateUI(FirebaseUser user) {
-        if(user != null){
-            startActivity(new Intent(getContext(), MainActivity.class));
-            getActivity().finish();
-        }
+        final FirebaseFirestore mRef = FirebaseFirestore.getInstance();
+        mRef.collection("user").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    User user = task.getResult().toObject(User.class);
+                    if(!user.getLogin()){
+                        if(user != null){
+                            mRef.collection("user").document(user.getUid()).update("login", true);
+                            startActivity(new Intent(getContext(), MainActivity.class));
+                            getActivity().finish();
+                        }
+                    }else{
+                        Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 }

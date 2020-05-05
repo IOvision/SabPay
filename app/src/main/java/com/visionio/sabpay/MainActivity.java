@@ -16,6 +16,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -86,9 +87,7 @@ public class MainActivity extends AppCompatActivity{
         signOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAuth.signOut();
-                startActivity(new Intent(MainActivity.this, Authentication.class));
-                finish();
+                signOut();
             }
         });
 
@@ -117,6 +116,22 @@ public class MainActivity extends AppCompatActivity{
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
 
+    }
+
+    void signOut(){
+        mRef.collection("user").document(mAuth.getUid()).update("login", false)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    mAuth.signOut();
+                    startActivity(new Intent(MainActivity.this, Authentication.class));
+                    finish();
+                }else{
+                    Toast.makeText(MainActivity.this, "Could not sign out", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void showQR() {
@@ -202,6 +217,6 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onStart() {
         super.onStart();
-
+        Log.i("Start", "main Activity started");
     }
 }
