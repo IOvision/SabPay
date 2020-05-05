@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/Purple"
-    tools:context=".payment.Pay">
+    tools:context=".payment.PayActivity">
 
 
     <Button
@@ -84,13 +84,13 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/pay_activity_contacts_rv"
-        android:layout_width="350dp"
-        android:layout_height="430dp"
-        android:layout_marginTop="1dp"
-        app:layout_constraintBottom_toTopOf="@+id/pay_activity_pay_btn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="200dp"
+        android:background="@color/White"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/White"
         app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et" />
-    0
+
 </androidx.constraintlayout.widget.ConstraintLayout>

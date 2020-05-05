@@ -26,8 +26,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.authentication.Authentication;
-import com.visionio.sabpay.payment.Pay;
 
 public class LoginFragment extends Fragment {
 

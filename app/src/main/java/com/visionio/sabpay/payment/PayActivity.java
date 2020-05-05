@@ -9,16 +9,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,27 +29,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.ServerTimestamp;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.Contact;
 import com.visionio.sabpay.Models.Transaction;
+import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
+import com.visionio.sabpay.interfaces.OnContactItemClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
-public class Pay extends AppCompatActivity {
+public class PayActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     FirebaseFirestore mRef;
@@ -76,6 +72,9 @@ public class Pay extends AppCompatActivity {
     private static final int CAMERA_PERMISSION_CODE = 101;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
+    static final int FLAG_MODE_DIRECT_PAY = -1;
+    static final int FLAG_MODE_SEARCH_AND_PAY = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +99,14 @@ public class Pay extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
-        adapter = new ContactAdapter(this, new ArrayList<Contact>());
+        adapter = new ContactAdapter(this, new ArrayList<Contact>(), new ArrayList<Contact>());
+        adapter.setClickListener(new OnContactItemClickListener() {
+            @Override
+            public void onItemClicked(Contact contact) {
+                initPaymentHandler();
+                initiateServer(FLAG_MODE_DIRECT_PAY, contact);
+            }
+        });
 
         recyclerView.setAdapter(adapter);
 
@@ -131,13 +137,28 @@ public class Pay extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 initPaymentHandler();
-                initiateServer();
+                initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
+            }
+        });
+
+        et_number.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                adapter.applyFilter(s.toString().trim().toLowerCase());
             }
         });
 
         showContacts();
-
-
     }
 
     private void showContacts(){
@@ -157,21 +178,37 @@ public class Pay extends AppCompatActivity {
                 String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
                 Contact contact = new Contact(id, name, phoneNumber);
-                adapter.add(contact);
-
-                Log.i("Contact Data", "Id: "+id+", Name: "+name+", Phone: "+phoneNumber);
+                addIfContactIsRegistered(contact);
             }
         }
+    }
 
-
+    private void addIfContactIsRegistered(final Contact contact){
+        // FIXME(BUG) contact is shown multiple times
+        /* this function checks if contact from local mobile is registered with our app or not
+        * if yes then we add it to adapter else do nothing
+        * */
+        mRef.collection("user").whereEqualTo("phone", contact.getNumber())
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if(queryDocumentSnapshots.getDocuments().size()==1){
+                    DocumentSnapshot snapshot = queryDocumentSnapshots.getDocuments().get(0);
+                    User u = snapshot.toObject(User.class);
+                    contact.setUser(u);
+                    contact.setReference(snapshot.getReference());
+                    adapter.add(contact);
+                }
+            }
+        });
     }
 
     private void openScanner() {
-        new IntentIntegrator(Pay.this).initiateScan();
+        new IntentIntegrator(PayActivity.this).initiateScan();
     }
 
     private void initPaymentHandler(){
-        paymentHandler = new PaymentHandler(this, Pay.this, new View.OnClickListener() {
+        paymentHandler = new PaymentHandler(this, PayActivity.this, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 paymentHandler.showPayStatus();
@@ -182,7 +219,7 @@ public class Pay extends AppCompatActivity {
             }
         });
     }
-
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -192,17 +229,28 @@ public class Pay extends AppCompatActivity {
                 Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
             } else {
                 et_number.setText(result.getContents());
-                initiateServer();
+                initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
             }
         } else {
             Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
         }
     }
 
-    void initiateServer(){
-        updateVariableData();
+    void initiateServer(int flag, Contact contact){
+        // info: if flag is @FLAG_MODE_SEARCH_AND_PAY then contact will be null
+        if(flag == FLAG_MODE_SEARCH_AND_PAY){
+            updateVariableData();
+            searchUser();
+        }else{
+            directPay(contact);
+        }
         paymentHandler.init();
-        searchUser();
+
+    }
+
+    void directPay(Contact contact){
+        paymentHandler.setLinkedWallet(contact.getUser().getName());
+        receiverDocRef = contact.getReference();
     }
 
     void searchUser(){
@@ -352,14 +400,13 @@ public class Pay extends AppCompatActivity {
         });
     }
 
-
     void updateVariableData(){
         phoneNumber = "+91";
-        phoneNumber += et_number.getText().toString().trim();
+        phoneNumber += et_number.getText().toString().trim().replaceAll("\\s", "");
     }
 
     private boolean checkPermission(String permission){
-        int result = ContextCompat.checkSelfPermission(Pay.this, permission);
+        int result = ContextCompat.checkSelfPermission(PayActivity.this, permission);
         if( result == PackageManager.PERMISSION_GRANTED){
             return true;
         } else {
@@ -368,10 +415,10 @@ public class Pay extends AppCompatActivity {
     }
 
     private void requestPermission(String permission, int code){
-        if(ActivityCompat.shouldShowRequestPermissionRationale(Pay.this, permission)){
+        if(ActivityCompat.shouldShowRequestPermissionRationale(PayActivity.this, permission)){
 
         } else {
-            ActivityCompat.requestPermissions(Pay.this, new String[]{permission}, code);
+            ActivityCompat.requestPermissions(PayActivity.this, new String[]{permission}, code);
         }
     }
 

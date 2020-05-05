@@ -39,7 +39,7 @@ import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.Authentication;
-import com.visionio.sabpay.payment.Pay;
+import com.visionio.sabpay.payment.PayActivity;
 
 import java.util.ArrayList;
 
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity{
         payBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, Pay.class));
+                startActivity(new Intent(MainActivity.this, PayActivity.class));
             }
         });
 
