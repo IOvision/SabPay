@@ -5,15 +5,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -35,11 +40,14 @@ import com.google.firebase.firestore.ServerTimestamp;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.visionio.sabpay.MainActivity;
+import com.visionio.sabpay.Models.Contact;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.adapter.ContactAdapter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Pay extends AppCompatActivity {
@@ -50,6 +58,9 @@ public class Pay extends AppCompatActivity {
     ImageView back, qr_scan;
     EditText et_number;
     Button btn_pay;
+
+    RecyclerView recyclerView;
+    ContactAdapter adapter;
 
     String phoneNumber;
     Integer amount = 0;
@@ -63,6 +74,7 @@ public class Pay extends AppCompatActivity {
     DocumentReference senderDocRef;
 
     private static final int CAMERA_PERMISSION_CODE = 101;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +95,15 @@ public class Pay extends AppCompatActivity {
         et_number = findViewById(R.id.pay_activity_receiverPhone_et);
         btn_pay = findViewById(R.id.pay_activity_pay_btn);
         qr_scan = findViewById(R.id.pay_activity_qrcode_scan);
+        recyclerView = findViewById(R.id.pay_activity_contacts_rv);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(false);
+
+        adapter = new ContactAdapter(this, new ArrayList<Contact>());
+
+        recyclerView.setAdapter(adapter);
+
 
         qr_scan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,12 +123,9 @@ public class Pay extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Pay.this, MainActivity.class));
-                finish();
+                onBackPressed();
             }
         });
-
-
 
         btn_pay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +135,37 @@ public class Pay extends AppCompatActivity {
             }
         });
 
+        showContacts();
+
+
     }
+
+    private void showContacts(){
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+        } else {
+            // Android version is lesser than 6.0 or the permission is already granted.
+            Cursor phones = getApplicationContext().getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+            while (phones.moveToNext()){
+                String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+                String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+                Contact contact = new Contact(id, name, phoneNumber);
+                adapter.add(contact);
+
+                Log.i("Contact Data", "Id: "+id+", Name: "+name+", Phone: "+phoneNumber);
+            }
+        }
+
+
+    }
+
     private void openScanner() {
         new IntentIntegrator(Pay.this).initiateScan();
     }
@@ -157,29 +205,7 @@ public class Pay extends AppCompatActivity {
         searchUser();
     }
 
-
-
-
     void searchUser(){
-/*
-        mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
-                            for(QueryDocumentSnapshot document : task.getResult()){
-                                Log.d("pay.java", document.getId() + " => "+ document.getData());
-                            }
-                        }else{
-                            Log.d("pay.java", "error getting document: " + task.getException());
-                        }
-                    }
-                });
-
- */
-
-
-
         mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -357,12 +383,18 @@ public class Pay extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     openScanner();
                 }
+            case PERMISSIONS_REQUEST_READ_CONTACTS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission is granted
+                showContacts();
+            }
         }
     }
 
     @Override
     public void onBackPressed() {
+        int v= 1;
         super.onBackPressed();
-        startActivity(new Intent(Pay.this, MainActivity.class));
+
     }
 }

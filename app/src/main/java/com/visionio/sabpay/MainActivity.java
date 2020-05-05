@@ -62,7 +62,14 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("MainActivity", "Activity Started." + getCallingActivity());
+
+        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+            startActivity(new Intent(MainActivity.this, Authentication.class));
+            finish();
+        }
+
         setUp();
+
 
     }
 
@@ -89,7 +96,6 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, Pay.class));
-                finish();
             }
         });
 
@@ -195,11 +201,7 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onStart() {
-
         super.onStart();
-        if(mAuth.getCurrentUser() == null){
-            startActivity(new Intent(MainActivity.this, Authentication.class));
-            finish();
-        }
+
     }
 }

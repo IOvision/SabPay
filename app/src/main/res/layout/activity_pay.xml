@@ -82,7 +82,8 @@
         app:layout_constraintTop_toBottomOf="@+id/pay_activity_heading_tv"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pay_activity_contacts_rv"
         android:layout_width="350dp"
         android:layout_height="430dp"
         android:layout_marginTop="1dp"
@@ -91,4 +92,5 @@
         app:layout_constraintStart_toStartOf="parent"
         android:background="@color/White"
         app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et" />
+    0
 </androidx.constraintlayout.widget.ConstraintLayout>
