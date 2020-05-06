@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -45,6 +46,8 @@ import com.visionio.sabpay.interfaces.OnContactItemClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PayActivity extends AppCompatActivity {
 
@@ -288,10 +291,40 @@ public class PayActivity extends AppCompatActivity {
                         paymentHandler.setError("Insufficient balance\\n");
                         paymentHandler.setBalance(wallet.getBalance());
                     }else {
-                        payToUser();
+                        //payToUser();
+                        payToUserUsingCloudFunction();
                     }
                 }else{
                     paymentHandler.setError("Error fetching wallet data");
+                }
+            }
+        });
+    }
+
+    void payToUserUsingCloudFunction(){
+        final Transaction transaction = new Transaction();
+        transaction.setId(senderDocRef.collection("transaction").document().getId());
+        transaction.setFrom(senderDocRef);
+        transaction.setTo(receiverDocRef);
+        transaction.setAmount(amount);
+
+
+        Map<String, Object> value = new HashMap<>();
+        value.put("id", transaction.getId());
+        value.put("amount", transaction.getAmount());
+        value.put("from", transaction.getFrom());
+        value.put("to", transaction.getTo());
+        value.put("timestamp", ServerValue.TIMESTAMP);
+
+        senderDocRef.collection("pending_transaction").document("transaction")
+                .set(value).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(PayActivity.this, "Done", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(PayActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
