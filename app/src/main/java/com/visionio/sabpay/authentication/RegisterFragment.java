@@ -3,11 +3,9 @@ package com.visionio.sabpay.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,29 +14,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.User;
+import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.R;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.List;
 
 
 /**
@@ -48,7 +41,7 @@ public class RegisterFragment extends Fragment {
 
     private final static String TAG = "DEBUG";
 
-    private EditText et_name, et_email, et_password, et_repassword, et_phonenumber;
+    private EditText et_first_name, et_last_name, et_email, et_password, et_repassword, et_phonenumber;
     private Button btn_register;
     ProgressBar progressBar;
 
@@ -58,12 +51,11 @@ public class RegisterFragment extends Fragment {
     DocumentReference senderDocRef;
     //FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    String mName;
+    String mFirstName;
+    String mLastName;
     String mEmail;
     String mPassword;
     String mConfirmPassword;
-    //String mPhone;
-    //String mPhoneNumber;
     String mPhoneNumber;
 
     public RegisterFragment() {
@@ -77,7 +69,8 @@ public class RegisterFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        et_name = view.findViewById(R.id.et_register_name);
+        et_first_name = view.findViewById(R.id.et_register_first_name);
+        et_last_name = view.findViewById(R.id.et_register_last_name);
         et_email = view.findViewById(R.id.et_register_email);
         et_password = view.findViewById(R.id.et_register_password);
         et_repassword = view.findViewById(R.id.et_register_repassword);
@@ -103,34 +96,30 @@ public class RegisterFragment extends Fragment {
 
     private void updateUser() {
         updateVariableData();
-        if(!isValidEmail(mEmail)){
-            et_email.setError("Invalid email");
-        }else if(mPhoneNumber.length()!=13){
-            et_phonenumber.setError("Invalid Phone Number");
-        }else if (!mPassword.equals(mConfirmPassword)){
-            et_repassword.setError("Password didn't match");
-        }else{
+        if(validateData()){
             progressBar.setVisibility(View.VISIBLE);
-            mRef.collection("user").whereEqualTo("phone", mPhoneNumber).get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if(task.isSuccessful()){
-                                if(!task.getResult().getDocuments().isEmpty()) {
-                                    et_phonenumber.setError("Phone Number already registered");
-                                    progressBar.setVisibility(View.GONE);
-                                }else{
-                                    register();
-                                }
-                            }else{
-                                //
-                            }
+            mRef.collection("public").document("registeredPhone").get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        List<String> numbers = (List<String>) task.getResult().get("number");
+                        if(numbers.contains(mPhoneNumber)){
+                            et_phonenumber.setError("Phone Number already registered");
+                            progressBar.setVisibility(View.GONE);
+                        }else {
+                            register();
                         }
-                    });
+                    }else {
+                        Utils.toast(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG);
+                    }
+
+                }
+            });
+
         }
+
     }
-
-
 
     private void register() {
         firebaseAuth.createUserWithEmailAndPassword(mEmail, mPassword)
@@ -147,7 +136,7 @@ public class RegisterFragment extends Fragment {
                              progressBar.setVisibility(View.INVISIBLE);
                         }else{
                             Log.d("Authentication", "Authentication Failed");
-                            progressBar.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.INVISIBLE);
                         }
 
                     }
@@ -155,156 +144,119 @@ public class RegisterFragment extends Fragment {
     }
 
     private void addFields(){
-        User user = new User();
+        final User user = new User();
         user.setUid(firebaseUser.getUid());
-        user.setName(mName);
-        user.setEmail(mEmail);
-        //user.setPhone(mPhoneNumber);
-        user.setPhone(mPhoneNumber);
-
-        //Log.d("getPhone", "getphone function " + user.getPhone());
-
-        final Wallet wallet = new Wallet();
-        wallet.setBalance(0);
-        wallet.setLastTransaction(null);
-
-        mRef.collection("user").document(firebaseUser.getUid()).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-
-                    mRef.collection("user").document(firebaseUser.getUid())
-                            .collection("wallet").document("wallet")
-                            .set(wallet).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                final DocumentReference documentReference;
-                                documentReference = mRef.collection("user").document(firebaseAuth.getUid());
-                                documentReference.addSnapshotListener(getActivity(), new EventListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                                        Log.d("name display", "details name is " + documentSnapshot.getString("name"));
-                                        Log.d("name display", "details phone is " + documentSnapshot.getString("phone"));
-                                        Log.d("name display", "detail mail is " + documentSnapshot.getString("email"));
-
-                                    }
-                                });
-
-                                startActivity(new Intent(getActivity(), MainActivity.class));
-                                getActivity().finish();
-                            }else{
-                            }
-                        }
-                    });
-
-                }else{
-                }
-            }
-        });
-    }
-
-
-
-
-
-/*
-    private void addFields(){
-        String UID = firebaseUser.getUid();
-        Map<String, Object> userList = new HashMap<>();
-        userList.put("name", mName);
-        userList.put("phone", mPhoneNumber);
-        userList.put("email", mEmail);
-        userList.put("uid", UID);
-
-
-        final Wallet wallet = new Wallet();
-        wallet.setBalance(0);
-        wallet.setLastTransaction(null);
-
-        mRef.collection("user").document(firebaseUser.getUid()).set(userList).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-
-                    mRef.collection("user").document(firebaseUser.getUid())
-                            .collection("wallet").document("wallet")
-                            .set(wallet).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                Log.d(TAG, "Document Snapshot added with ID: ");
-                                startActivity(new Intent(getActivity(), MainActivity.class));
-                                getActivity().finish();
-                            }else{
-                                Log.w(TAG, "Error adding document: ");
-                            }
-                        }
-                    });
-
-                }else{
-                }
-            }
-        });
-
-    }
-
-
- */
-
-/*
-
-    private void updateDatabase(){
-        User user = new User();
-        user.setUid(firebaseUser.getUid());
-        user.setName(mName);
+        user.setFirstName(mFirstName);
+        user.setLastName(mLastName);
         user.setEmail(mEmail);
         user.setPhone(mPhoneNumber);
-        //user.setPhone(mPhone);
+        user.setLogin(true);
 
         final Wallet wallet = new Wallet();
-        wallet.setBalance(0);
+        wallet.setBalance(Utils.WELCOME_BALANCE);
         wallet.setLastTransaction(null);
 
-        mRef.collection("user").document(firebaseUser.getUid()).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mRef.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                transaction.set(mRef.collection("user").document(user.getUid()), user);
+                transaction.update(mRef.collection("public").document("registeredPhone"),"number", FieldValue.arrayUnion(mPhoneNumber));
+
+                return null;
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
 
-                    mRef.collection("user").document(firebaseUser.getUid())
-                            .collection("wallet").document("wallet")
-                            .set(wallet).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                startActivity(new Intent(getActivity(), MainActivity.class));
-                                getActivity().finish();
-                            }else{
-                            }
-                        }
-                    });
-
-                }else{
+                if(!task.isSuccessful()){
+                    Utils.toast(getContext(), task.getException().getMessage(), Toast.LENGTH_LONG);
+                    return;
                 }
+
+                mRef.collection("user").document(user.getUid())
+                        .collection("wallet").document("wallet").set(wallet)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            startActivity(new Intent(getActivity(), MainActivity.class));
+                            getActivity().finish();
+                        }else{
+                            Utils.toast(getContext(), task.getException().getMessage(), Toast.LENGTH_LONG);
+                            progressBar.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+
             }
         });
-    }
-
- */
-
-    private Boolean isValidEmail(String email){
-        return ((Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$")).matcher(email)).matches();
     }
 
     private void updateVariableData(){
-        mPhoneNumber = "+91";
-        mName = capitalize(et_name.getText().toString().trim());
+        mFirstName = capitalize(et_first_name.getText().toString().trim());
+        mLastName = capitalize(et_last_name.getText().toString().trim());
         mEmail = et_email.getText().toString().trim();
         mPassword = et_password.getText().toString().trim();
         mConfirmPassword = et_repassword.getText().toString().trim();
-        mPhoneNumber += et_phonenumber.getText().toString().trim();
-        //mPhone = firebaseUser.getPhoneNumber();
-        mConfirmPassword = et_repassword.getText().toString().trim();
+        mPhoneNumber = Utils.formatNumber(et_phonenumber.getText().toString().trim(), 0);
+
+    }
+
+    private boolean validateData(){
+        // checking empty cases
+        if(Utils.isEmpty(mFirstName)){
+            et_first_name.setError("Can't be empty");
+            return false;
+        }
+        if(Utils.isEmpty(mLastName)){
+            et_last_name.setError("Can't be empty");
+            return false;
+        }
+        if(Utils.isEmpty(mPhoneNumber) || mPhoneNumber.equals("+91")){
+            et_phonenumber.setError("Can't be empty");
+            return false;
+        }
+        if(Utils.isEmpty(mEmail)){
+            et_email.setError("Can't be empty");
+            return false;
+        }
+        if(Utils.isEmpty(mPassword)){
+            et_password.setError("Can't be empty");
+            return false;
+        }
+        if(Utils.isEmpty(mConfirmPassword)){
+            et_repassword.setError("Can't be empty");
+            return false;
+        }
+
+        //phone check
+        if(mPhoneNumber.length()!=13){
+            et_phonenumber.setError("Invalid number");
+            return false;
+        }
+
+        //email check
+        if(!Utils.isValidEmail(mEmail)){
+            et_email.setError("Email badly formatted");
+            return false;
+        }
+
+
+        //password miss-match and length check
+        if(mPassword.length() < 6){
+            et_password.setError("Min 6 digit required");
+            return false;
+        }
+        if(!mPassword.equals(mConfirmPassword)){
+            et_repassword.setError("Password didn't match");
+            return false;
+        }
+
+
+
+        return true;
     }
 
     public static String capitalize(String s) {
@@ -327,4 +279,5 @@ public class RegisterFragment extends Fragment {
         }
         return new String(cArr);
     }
+
 }

@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".payment.PayActivity" />
-        <activity android:name=".authentication.Authentication" />
+        <activity android:name=".authentication.AuthenticationActivity" />
         <activity android:name=".MainActivity" >
 
         </activity>

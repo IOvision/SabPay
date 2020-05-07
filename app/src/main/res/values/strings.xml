@@ -11,7 +11,8 @@
     <string name="swipe_right_for_login">Swipe Right for Login</string>
     <string name="register">Register</string>
     <string name="re_type_password">Re-type Password</string>
-    <string name="your_name">Full Name</string>
+    <string name="your_first_name">First Name</string>
+    <string name="your_last_name">Last Name</string>
     <string name="verify">Verify Phone</string>
     <string name="your_number">Phone Number</string>
     <string name="sendotp">Send OTP</string>
