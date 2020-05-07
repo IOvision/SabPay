@@ -26,13 +26,16 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -46,6 +49,7 @@ import com.visionio.sabpay.interfaces.OnContactItemClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -307,22 +311,31 @@ public class PayActivity extends AppCompatActivity {
         transaction.setFrom(senderDocRef);
         transaction.setTo(receiverDocRef);
         transaction.setAmount(amount);
+        transaction.setTimestamp(new Timestamp(new Date()));
 
+        final ListenerRegistration[] lr = {null};
 
-        Map<String, Object> value = new HashMap<>();
-        value.put("id", transaction.getId());
-        value.put("amount", transaction.getAmount());
-        value.put("from", transaction.getFrom());
-        value.put("to", transaction.getTo());
-        value.put("timestamp", ServerValue.TIMESTAMP);
 
         senderDocRef.collection("pending_transaction").document("transaction")
-                .set(value).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .set(transaction).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     Toast.makeText(PayActivity.this, "Done", Toast.LENGTH_SHORT).show();
-
+                    lr[0] = senderDocRef.collection("wallet").document("wallet").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                            Wallet wallet = documentSnapshot.toObject(Wallet.class);
+                            if(wallet.getBalance() == initialWalletAmount-amount){
+                                paymentHandler.setTransactionId(transaction.getId());
+                                SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                                paymentHandler.setDate(sfd.format(transaction.getTimestamp().toDate()));
+                                paymentHandler.setBalance(wallet.getBalance());
+                                paymentHandler.setSuccess("Done");
+                                lr[0].remove();
+                            }
+                        }
+                    });
                 } else {
                     Toast.makeText(PayActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
