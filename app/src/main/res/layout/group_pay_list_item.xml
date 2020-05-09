@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp">
+
+    <RelativeLayout
+        android:id="@+id/gPay_item_mainContainer_rl"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#0f0"
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/gPay_item_id_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/avenir_pro"
+                android:text="EdNzcbo2EJXgURS0BHjf"
+                android:textColor="#000"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/gPay_item_amount_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. 1000"
+                android:textSize="12sp"
+                android:fontFamily="monospace"
+                android:textColor="#616060"/>
+
+
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/gPay_item_parts_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"/>
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/gPay_item_parts_rv"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="#46000000"
+        android:layout_below="@id/gPay_item_mainContainer_rl"
+        tools:listitem="@layout/group_pay_transaction_list_item"
+        android:visibility="gone"/>
+
+</RelativeLayout>

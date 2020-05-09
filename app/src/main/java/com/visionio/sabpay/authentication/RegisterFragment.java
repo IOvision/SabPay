@@ -31,7 +31,10 @@ import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.R;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -151,6 +154,7 @@ public class RegisterFragment extends Fragment {
         user.setEmail(mEmail);
         user.setPhone(mPhoneNumber);
         user.setLogin(true);
+
 
         final Wallet wallet = new Wallet();
         wallet.setBalance(Utils.WELCOME_BALANCE);

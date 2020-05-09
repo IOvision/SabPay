@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="75dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp">
+
+    <ImageView
+        android:id="@+id/gPay_transaction_list_item_icon_iv"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:src="@drawable/ic_up_arrow"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:rotation="180"/>
+
+    <TextView
+        android:id="@+id/gPay_transaction_list_item_description_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@id/gPay_transaction_list_item_icon_iv"
+        android:fontFamily="@font/roboto_regular"
+        android:text="From: Danish"
+        android:textColor="#000"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/gPay_transaction_list_item_dateTime_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#60000000"
+        android:text="9th Feb 5:00 PM"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/gPay_transaction_list_item_icon_iv"
+        android:layout_marginLeft="16dp"
+        android:textSize="12sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/gPay_transaction_list_item_amount_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#0f0"
+        android:text="+ Rs. 100.00"
+        android:fontFamily="@font/avenir_pro"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="16dp"
+        android:textSize="20sp"/>
+
+</RelativeLayout>

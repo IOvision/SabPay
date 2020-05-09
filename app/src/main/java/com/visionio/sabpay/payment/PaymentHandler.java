@@ -124,6 +124,7 @@ public class PaymentHandler {
                 dismiss();
                 Intent i1 = new Intent (context, MainActivity.class);
                 context.startActivity(i1);
+                activity.finish();
             }
         }, 5000);
 

@@ -2,6 +2,7 @@ package com.visionio.sabpay.Models;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.visionio.sabpay.adapter.TransactionAdapter;
 
 import java.text.SimpleDateFormat;
 
@@ -64,4 +65,23 @@ public class OfflineTransaction {
     public void setDate(String date) {
         this.date = date;
     }
+
+    public void getUserFromReference(final TransactionAdapter adapter){
+        /*from.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                user_from = documentSnapshot.toObject(User.class);
+                adapter.notify();
+            }
+        });
+        to.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                user_from = documentSnapshot.toObject(User.class);
+                adapter.notify();
+            }
+        });*/
+        adapter.notifyDataSetChanged();
+    }
+
 }

@@ -319,11 +319,20 @@ public class PayActivity extends AppCompatActivity {
         transaction.setAmount(amount);
         transaction.setTimestamp(new Timestamp(new Date()));
 
+        Map<String, Object> transactionMap = new HashMap<String, Object>(){{
+            put("id", transaction.getId());
+            put("type", 0);
+            put("amount", transaction.getAmount());
+            put("from", senderDocRef);
+            put("to", receiverDocRef);
+            put("timestamp", new Timestamp(new Date()));
+        }};
+
         final ListenerRegistration[] lr = {null};
 
 
         senderDocRef.collection("pending_transaction").document("transaction")
-                .set(transaction).addOnCompleteListener(new OnCompleteListener<Void>() {
+                .set(transactionMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){

@@ -11,17 +11,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".OfferDisplayActivity"></activity>
+
+        <activity android:name=".GroupPayActivity">
+
+        </activity>
         <activity android:name=".SplashActivity">
+
+        </activity>
+        <activity android:name=".payment.PayActivity" />
+        <activity android:name=".authentication.AuthenticationActivity" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".payment.PayActivity" />
-        <activity android:name=".authentication.Authentication" />
-        <activity android:name=".MainActivity"></activity>
     </application>
 
 </manifest>

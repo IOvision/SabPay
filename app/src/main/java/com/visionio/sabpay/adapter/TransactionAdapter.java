@@ -20,11 +20,11 @@ import java.util.List;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
 
-    List<OfflineTransaction> transactions;
+    List<Transaction> transactions;
 
     FirebaseAuth mAuth;
 
-    public TransactionAdapter(List<OfflineTransaction> transactions) {
+    public TransactionAdapter(List<Transaction> transactions) {
         this.transactions = transactions;
         mAuth = FirebaseAuth.getInstance();
     }
@@ -38,8 +38,19 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
-        OfflineTransaction current = transactions.get(position);
-        setData(current, holder);
+        Transaction current = transactions.get(position);
+
+        if(!current.isSendByMe()){
+            holder.imageView.setRotation(180);
+            holder.amount.setTextColor(Color.GREEN);
+            holder.amount.setText("+ Rs. "+current.getAmount());
+        }else {
+            holder.amount.setText("- Rs. "+current.getAmount());
+        }
+
+        holder.description.setText(current.getDescription());
+        holder.dateTime.setText(current.getDate());
+
 
     }
 
@@ -48,12 +59,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return transactions.size();
     }
 
-    public void add(OfflineTransaction transaction){
+    public void add(Transaction transaction){
         transactions.add(transaction);
-        notifyDataSetChanged();
+        //notifyDataSetChanged();
     }
 
-    private void setData(OfflineTransaction current, TransactionViewHolder holder){
+    /*private void setData(OfflineTransaction current, TransactionViewHolder holder){
         User from = current.getFrom();
         User to = current.getTo();
 
@@ -70,7 +81,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         }
 
         holder.dateTime.setText(current.getDate());
-    }
+
+        current.getUserFromReference(this);
+    }*/
 
     public void clear() {
         transactions.clear();

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -71,6 +72,10 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("MainActivity", "Activity Started." + getCallingActivity());
+
+        // TODO: after mainActivity show data in list Item of transaction of group pay
+        //startActivity(new Intent(this, GroupPayActivity.class));
+        //finish();
 
         setUp();
 
@@ -126,7 +131,7 @@ public class MainActivity extends AppCompatActivity{
             loadTransactions();
         }
 
-        adapter = new TransactionAdapter(new ArrayList<OfflineTransaction>());
+        adapter = new TransactionAdapter(new ArrayList<Transaction>());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
@@ -184,39 +189,35 @@ public class MainActivity extends AppCompatActivity{
 
     void loadTransactions(){
         mRef.collection("user").document(mAuth.getUid()).collection("transaction")
+                // TODO: check the filter thing
+                .whereEqualTo("type", 0)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (DocumentSnapshot snapshot: queryDocumentSnapshots){
                     Transaction currentTransaction = snapshot.toObject(Transaction.class);
-                    mapOfflineTransaction(currentTransaction);
-                }
-            }
-        });
-    }
 
-    void mapOfflineTransaction(final Transaction transaction){
-        final OfflineTransaction offlineTransaction = new OfflineTransaction();
+                    // TODO: fix getType thing and test the transaction item
 
-        offlineTransaction.setId(transaction.getId());
-        offlineTransaction.setAmount(transaction.getAmount());
-        offlineTransaction.setTimestamp(transaction.getTimestamp());
 
-        transaction.getFrom().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                offlineTransaction.setFrom(documentSnapshot.toObject(User.class));
-                transaction.getTo().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        offlineTransaction.setTo(documentSnapshot.toObject(User.class));
-                        adapter.add(offlineTransaction);
+                    if(currentTransaction.getFrom().getId().equals(mAuth.getUid())){
+                        currentTransaction.setSendByMe(true);
+                    }else{
+                        currentTransaction.setSendByMe(false);
                     }
-                });
+                    Log.i("Testing", currentTransaction.getFrom().getId()+">>"+currentTransaction.isSendByMe());
+                    currentTransaction.getUserFromReference(adapter);
+                    adapter.add(currentTransaction);
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i("Testing", e.getLocalizedMessage());
             }
         });
-
     }
 
     void loadDataFromServer(){
