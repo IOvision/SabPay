@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <activity android:name=".OfferDisplayActivity"></activity>
         <activity android:name=".GroupPayActivity">
 
         </activity>
