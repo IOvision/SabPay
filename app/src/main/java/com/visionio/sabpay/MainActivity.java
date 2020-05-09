@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity{
 
     Button payBtn;
     Button signOutBtn;
+    Button offerBtn;
 
     RecyclerView recyclerView;
     TransactionAdapter adapter;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity{
         balanceTv = findViewById(R.id.main_activity_balance_tV);
         payBtn = findViewById(R.id.main_activity_pay_btn);
         signOutBtn = findViewById(R.id.main_activity_signOut_btn);
+        offerBtn = findViewById(R.id.main_activity_offer_btn);
         recyclerView = findViewById(R.id.main_activity_transactions_rv);
         wallet = findViewById(R.id.main_activity_wallet);
 
@@ -95,6 +97,13 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, PayActivity.class));
+            }
+        });
+
+        offerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, OfferDisplayActivity.class));
             }
         });
 
