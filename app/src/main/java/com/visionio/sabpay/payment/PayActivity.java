@@ -211,7 +211,12 @@ public class PayActivity extends AppCompatActivity {
     }
 
     private void openScanner() {
-        new IntentIntegrator(PayActivity.this).initiateScan();
+        IntentIntegrator integrator = new IntentIntegrator(PayActivity.this);
+        integrator.setPrompt("Scan to pay");
+        integrator.setOrientationLocked(false);
+        integrator.setBeepEnabled(false);
+        integrator.setBarcodeImageEnabled(true);
+        integrator.initiateScan();
     }
 
     private void initPaymentHandler(){
@@ -236,6 +241,7 @@ public class PayActivity extends AppCompatActivity {
                 Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
             } else {
                 et_number.setText(result.getContents());
+                initPaymentHandler();
                 initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
             }
         } else {

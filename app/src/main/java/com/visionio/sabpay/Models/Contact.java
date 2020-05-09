@@ -64,27 +64,7 @@ public class Contact {
     }
 
     private void formatNumber(){
-        /*
-        * possible cases
-        * 1. 9264966639
-        * 2. 09450546077
-        * 3. +918196853905
-         */
-        number = number.replaceAll("\\s", "");
-
-        String reverse = "";
-        for(int i=number.length()-1; i>=0; i--){
-            if(reverse.length()==10){
-                break;
-            }
-            reverse += number.charAt(i);
-        }
-
-        number = "";
-
-        for(int i=reverse.length()-1; i>=0; i--){
-            number += reverse.charAt(i);
-        }number = "+91"+number;
-
+        number = Utils.formatNumber(number, 0);
+        // 0 for including +91 in returned string: expectedOutput +911234567890
     }
 }

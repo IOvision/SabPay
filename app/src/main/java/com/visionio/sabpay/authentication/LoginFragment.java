@@ -31,6 +31,7 @@ public class LoginFragment extends Fragment {
 
     FirebaseAuth mAuth;
     ProgressBar progressBar;
+
     public LoginFragment() {
         // Required empty public constructor
     }
@@ -70,7 +71,7 @@ public class LoginFragment extends Fragment {
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((Authentication)getActivity()).registerFragment();
+                ((AuthenticationActivity)getActivity()).registerFragment();
             }
         });
         return view;

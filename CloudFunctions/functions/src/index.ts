@@ -62,3 +62,95 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
         console.log(error)
     })   
 })
+
+export const newGpayTransaction = 
+functions.firestore
+.document('/user/{userId}/group_pay/meta-data/transaction/{transactiosId}/transactions/{id}')
+.onCreate((transactionData, context) => {
+
+    const transaction = transactionData.data()
+
+    return admin.firestore()
+    .doc(`/user/${context.params.userId}/group_pay/meta-data/transaction/${context.params.transactiosId}`).get().then((change) => {
+        const data = change.data()
+
+        const ledger: Array<number> = data?.ledger
+
+        let sum: number = 0;
+
+        ledger.forEach((element: number) => {
+            sum = sum + element
+        });
+
+        let activeStatus: boolean = data?.active
+        let updateAmount = parseInt(transaction?.amount)
+        let isAmountUpdated = false;
+
+        if(sum+updateAmount >= parseInt(data?.amount)){
+            updateAmount = data?.amount-sum
+            activeStatus = false
+            isAmountUpdated = true
+        }
+
+        ledger.push(updateAmount)
+    
+        const updatedData = {
+            active: activeStatus,
+            amount: data?.amount,
+            ledger: ledger,
+            parts: data?.parts + 1,
+            timestamp: data?.timestamp
+        }
+
+        const fromDocumentRef = (<admin.firestore.DocumentReference> transaction?.from)
+
+        const promises = []
+    
+
+        if(isAmountUpdated){
+            promises.push(
+                admin.firestore()
+                .doc(`/user/${context.params.userId}/group_pay/meta-data/transaction/${context.params.transactiosId}/transactions/${context.params.id}`)
+                .update('amount', updateAmount)
+            )
+        }
+
+        promises.push(
+            fromDocumentRef.collection('transaction').doc(transaction?.id).set({
+                from: transaction?.from,
+                to: transaction?.to,
+                type: 1,
+                timestamp: transaction?.timestamp,
+                amount: updateAmount
+            }))
+
+        promises.push(
+            fromDocumentRef.collection('wallet').doc('wallet')
+            .update('balance', admin.firestore.FieldValue.increment(-updateAmount))
+        )
+
+        promises.push(
+            admin.firestore().doc(`/user/${context.params.userId}/wallet/wallet`)
+            .update('balance', admin.firestore.FieldValue.increment(updateAmount))
+        )
+
+        return Promise.all(promises).then(() => {
+            return fromDocumentRef.collection('wallet').doc('wallet')
+            .update('lastTransaction', fromDocumentRef.collection('transaction').doc(transaction?.id))
+            .then(() => {
+                return admin.firestore()
+                .doc(`/user/${context.params.userId}/group_pay/meta-data/transaction/${context.params.transactiosId}`)
+                .update(updatedData)
+            }).catch(error => {
+                console.log(error)
+            })
+        }).catch(error => {
+            console.log(error)
+        })
+    }).catch(error => {
+        console.log(error)
+    });
+    
+})
+
+

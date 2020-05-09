@@ -5,7 +5,8 @@ import android.util.Log;
 public class User {
 
     String uid;
-    String name;
+    String firstName;
+    String lastName;
     String phone;
     String email;
     Boolean login;
@@ -21,12 +22,20 @@ public class User {
         this.uid = uid;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public void setPhone(String phone) {
@@ -51,4 +60,9 @@ public class User {
     public void setLogin(Boolean login) {
         this.login = login;
     }
+
+    public String getName(){
+        return firstName+" "+lastName;
+    }
+
 }

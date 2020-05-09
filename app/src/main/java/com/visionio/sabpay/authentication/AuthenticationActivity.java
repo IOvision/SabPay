@@ -10,7 +10,7 @@ import android.os.Bundle;
 import com.google.firebase.auth.FirebaseAuth;
 import com.visionio.sabpay.R;
 
-public class Authentication extends AppCompatActivity {
+public class AuthenticationActivity extends AppCompatActivity {
 
     Fragment fragment;
     FragmentManager fragmentManager;

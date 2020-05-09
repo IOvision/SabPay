@@ -21,12 +21,16 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.BarcodeFormat;
@@ -38,10 +42,11 @@ import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.adapter.TransactionAdapter;
-import com.visionio.sabpay.authentication.Authentication;
+import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.payment.PayActivity;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -59,16 +64,13 @@ public class MainActivity extends AppCompatActivity{
     RecyclerView recyclerView;
     TransactionAdapter adapter;
 
+    ListenerRegistration  listenerRegistration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("MainActivity", "Activity Started." + getCallingActivity());
-
-        if(FirebaseAuth.getInstance().getCurrentUser() == null){
-            startActivity(new Intent(MainActivity.this, Authentication.class));
-            finish();
-        }
 
         setUp();
 
@@ -78,6 +80,11 @@ public class MainActivity extends AppCompatActivity{
     void setUp(){
         mAuth = FirebaseAuth.getInstance();
         mRef = FirebaseFirestore.getInstance();
+
+        if(mAuth.getUid() == null){
+            startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
+            finish();
+        }
 
         balanceTv = findViewById(R.id.main_activity_balance_tV);
         payBtn = findViewById(R.id.main_activity_pay_btn);
@@ -133,8 +140,9 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
+                    listenerRegistration.remove();
                     mAuth.signOut();
-                    startActivity(new Intent(MainActivity.this, Authentication.class));
+                    startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
                     finish();
                 }else{
                     Toast.makeText(MainActivity.this, "Could not sign out", Toast.LENGTH_SHORT).show();
@@ -212,7 +220,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     void loadDataFromServer(){
-        mRef.collection("user").document(mAuth.getUid())
+        listenerRegistration = mRef.collection("user").document(mAuth.getUid())
                 .collection("wallet").document("wallet").addSnapshotListener(MainActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -223,9 +231,4 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i("Start", "main Activity started");
-    }
 }

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.authentication.Authentication;
 
 import java.util.concurrent.TimeUnit;
 
@@ -137,7 +135,7 @@ public class VerifyFragment extends Fragment {
                             FirebaseUser user = task.getResult().getUser();
                             progressBar.setVisibility(View.INVISIBLE);
                             if (user != null){
-                                ((Authentication)getActivity()).registerFragment();
+                                ((AuthenticationActivity)getActivity()).registerFragment();
                             }
                         } else {
                             // Sign in failed, display a message and update the UI
