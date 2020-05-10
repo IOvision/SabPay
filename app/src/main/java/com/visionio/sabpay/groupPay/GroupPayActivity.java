@@ -1,4 +1,4 @@
-package com.visionio.sabpay;
+package com.visionio.sabpay.groupPay;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,11 +15,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.Models.GroupPay;
+import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.GroupPayAdapter;
 
 import java.util.ArrayList;
@@ -33,6 +36,8 @@ public class GroupPayActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     GroupPayAdapter adapter;
+
+    FloatingActionButton newGroupPayFab;
 
     FirebaseFirestore mRef;
     FirebaseAuth mAuth;
@@ -51,6 +56,8 @@ public class GroupPayActivity extends AppCompatActivity {
         mRef = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        newGroupPayFab = findViewById(R.id.groupPay_activity_newGroupPay_fab);
+
         recyclerView = findViewById(R.id.groupPay_activity_gPay_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
@@ -66,19 +73,29 @@ public class GroupPayActivity extends AppCompatActivity {
 
         loadData();
 
+        newGroupPayFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NewGPayHandler handler = new NewGPayHandler(GroupPayActivity.this, mAuth, mRef);
+                handler.init();
+            }
+        });
+
 
     }
+
+    // /user/qA3urwCl8qMAFpbXvD1MW1hzbsL2/group_pay/meta-data/transaction/ZEAUSEXwtliWZ8XDIx8T
 
     void loadData(){
 
         mRef.collection("user/"+mAuth.getUid()+"/group_pay/meta-data/transaction")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
                     for(DocumentSnapshot snapshot: task.getResult()){
                         GroupPay groupPay = snapshot.toObject(GroupPay.class);
-                        groupPay.setPath("user/"+mAuth.getUid()+"/group_pay/meta-data/transaction/");
                         adapter.add(groupPay);
                     }
                 }else{

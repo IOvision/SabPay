@@ -26,7 +26,7 @@
         android:fontFamily="@font/roboto_regular"
         android:text="From: Danish"
         android:textColor="#000"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/gPay_transaction_list_item_dateTime_tv"
@@ -37,19 +37,19 @@
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@id/gPay_transaction_list_item_icon_iv"
         android:layout_marginLeft="16dp"
-        android:textSize="12sp"
+        android:textSize="8sp"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/gPay_transaction_list_item_amount_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#0f0"
+        android:textColor="#000000"
         android:text="+ Rs. 100.00"
         android:fontFamily="@font/avenir_pro"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="16dp"
-        android:textSize="20sp"/>
+        android:textSize="18sp"/>
 
 </RelativeLayout>

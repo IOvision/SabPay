@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,8 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
     Context context;
     List<GroupPay> groupPayList;
     int currentPosition = 0;
+
+    LinearLayout expandedView;
 
     public GroupPayAdapter(Context context, List<GroupPay> groupPayList) {
         this.context = context;
@@ -42,12 +45,17 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(holder.recyclerView.getVisibility() == View.VISIBLE){
-                    holder.recyclerView.setVisibility(View.GONE);
+
+                if(holder.transactionsContainer.getVisibility() == View.VISIBLE){
+                    holder.transactionsContainer.setVisibility(View.GONE);
+                    expandedView = null;
+                }else{
+                    current.setRecyclerView(holder.recyclerView);
+                    current.loadTransaction(context);
+                    holder.transactionsContainer.setVisibility(View.VISIBLE);
+                    expandedView = holder.transactionsContainer;
                 }
-                current.setRecyclerView(holder.recyclerView);
-                current.loadTransaction(context);
-                holder.recyclerView.setVisibility(View.VISIBLE);
+
             }
         });
     }
@@ -70,6 +78,8 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         RecyclerView recyclerView;
         View view;
 
+        LinearLayout transactionsContainer;
+
         public GroupPayViewHolder(@NonNull View itemView) {
             super(itemView);
             view = itemView;
@@ -77,6 +87,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
             amount = view.findViewById(R.id.gPay_item_amount_tv);
             parts = view.findViewById(R.id.gPay_item_parts_tv);
             recyclerView = view.findViewById(R.id.gPay_item_parts_rv);
+            transactionsContainer = view.findViewById(R.id.gPay_item_transactionContainer_ll);
         }
 
     }

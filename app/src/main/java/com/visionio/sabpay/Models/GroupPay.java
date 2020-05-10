@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -28,20 +29,11 @@ public class GroupPay {
     List<Integer> ledger;
 
     // transactions object
-    String path;
     FirebaseFirestore mRef;
     GroupPayTransactionsAdapter adapter;
     RecyclerView recyclerView;
 
     public GroupPay() {
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
     public String getId() {
@@ -105,14 +97,16 @@ public class GroupPay {
 
         recyclerView.setAdapter(adapter);
 
-        Log.i("Testing", path+id+"/transactions");
 
-        mRef.collection(path+id+"/transactions").get()
+        String path = "user/"+ FirebaseAuth.getInstance().getUid()+"/group_pay/meta-data/transaction/"+id+"/transactions";
+
+        mRef.collection(path).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for(DocumentSnapshot snapshot: task.getResult()){
                     Transaction transaction = snapshot.toObject(Transaction.class);
+                    transaction.loadUserDataFromReference(adapter);
                     adapter.add(transaction);
                 }
             }

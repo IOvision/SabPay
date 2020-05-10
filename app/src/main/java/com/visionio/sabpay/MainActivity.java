@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ServerValue;
@@ -44,6 +45,7 @@ import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
+import com.visionio.sabpay.groupPay.GroupPayActivity;
 import com.visionio.sabpay.payment.PayActivity;
 
 import java.util.ArrayList;
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity{
     Button signOutBtn;
     Button offerBtn;
 
+    FloatingActionButton gPayFab;
+
     RecyclerView recyclerView;
     TransactionAdapter adapter;
 
@@ -75,7 +79,6 @@ public class MainActivity extends AppCompatActivity{
 
         // TODO: after mainActivity show data in list Item of transaction of group pay
         //startActivity(new Intent(this, GroupPayActivity.class));
-        //finish();
 
         setUp();
 
@@ -97,11 +100,20 @@ public class MainActivity extends AppCompatActivity{
         offerBtn = findViewById(R.id.main_activity_offer_btn);
         recyclerView = findViewById(R.id.main_activity_transactions_rv);
         wallet = findViewById(R.id.main_activity_wallet);
+        gPayFab = findViewById(R.id.activity_main_gpay_fab);
 
         signOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signOut();
+            }
+        });
+
+        gPayFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, GroupPayActivity.class));
+
             }
         });
 
@@ -190,7 +202,7 @@ public class MainActivity extends AppCompatActivity{
     void loadTransactions(){
         mRef.collection("user").document(mAuth.getUid()).collection("transaction")
                 // TODO: check the filter thing
-                .whereEqualTo("type", 0)
+                //.whereEqualTo("type", 0)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
@@ -207,7 +219,7 @@ public class MainActivity extends AppCompatActivity{
                         currentTransaction.setSendByMe(false);
                     }
                     Log.i("Testing", currentTransaction.getFrom().getId()+">>"+currentTransaction.isSendByMe());
-                    currentTransaction.getUserFromReference(adapter);
+                    currentTransaction.loadUserDataFromReference(adapter);
                     adapter.add(currentTransaction);
                 }
 

@@ -9,6 +9,27 @@ public class Utils {
 
     public static int WELCOME_BALANCE = 500;
 
+    public static String[] decodePathFromQr(String qrData){
+        return qrData.split("/");
+    }
+
+    public static String getPathToUser(String qrData){
+        String[] data = decodePathFromQr(qrData);
+        return "/"+data[1]+"/"+data[2];
+    }
+
+    public static int getPaymentType(String qrData){
+        // 9773636695
+        // /user/qA3urwCl8qMAFpbXvD1MW1hzbsL2/group_pay/meta-data/transaction/ZEAUSEXwtliWZ8XDIx8T
+
+        if(qrData.length()>15){
+            return 1;
+        }
+
+        return 0;
+
+    }
+
     public static String formatNumber(String number, int returnType){
 
         // info: return type 0 for with country code, and -1 for without country code

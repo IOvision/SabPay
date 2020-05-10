@@ -1,5 +1,6 @@
 package com.visionio.sabpay.adapter;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,9 +32,15 @@ public class GroupPayTransactionsAdapter extends RecyclerView.Adapter<GroupPayTr
 
     @Override
     public void onBindViewHolder(@NonNull GroupPayTransactionsViewHolder holder, int position) {
-        holder.name.setText(transactions.get(position).getFrom().getId());
-        holder.date.setText(transactions.get(position).getTimestamp().toDate().toString());
-        holder.amount.setText(transactions.get(position).getAmount().toString());
+        Transaction current = transactions.get(position);
+        holder.name.setText(current.getFrom().getId());
+        holder.date.setText(current.getTimestamp().toDate().toString());
+        holder.amount.setText(current.getAmount().toString());
+
+
+        holder.amount.setText("+ Rs. "+current.getAmount());
+        holder.name.setText(current.getDescription());
+
     }
 
     @Override

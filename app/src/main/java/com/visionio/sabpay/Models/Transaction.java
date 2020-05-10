@@ -1,12 +1,18 @@
 package com.visionio.sabpay.Models;
 
 import android.content.Context;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.visionio.sabpay.adapter.GroupPayTransactionsAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 
 import java.text.SimpleDateFormat;
@@ -119,7 +125,38 @@ public class Transaction {
         return sfd.format(timestamp.toDate());
     }
 
-    public void getUserFromReference(final TransactionAdapter adapter){
+    public void loadUserDataFromReference(final GroupPayTransactionsAdapter adapter){
+        from.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    user_from = task.getResult().toObject(User.class);
+                    description = "From: \n"+user_from.getName();
+                    adapter.notifyDataSetChanged();
+                }else{
+                    Log.i("Testing", task.getException().getLocalizedMessage());
+                }
+            }
+        });
+    }
+
+    public void loadUserDataFromReference(final TransactionAdapter adapter){
+
+        if(type==1){
+            (FirebaseFirestore.getInstance()).document(Utils.getPathToUser("/"+to.getPath())).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        user_to = task.getResult().toObject(User.class);
+                        description = "Gpay to:\n"+user_to.getName();
+                        adapter.notifyDataSetChanged();
+                    }else{
+                        Log.i("Testing", task.getException().getLocalizedMessage());
+                    }
+                }
+            });
+            return;
+        }
 
         if(isSendByMe){
             to.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

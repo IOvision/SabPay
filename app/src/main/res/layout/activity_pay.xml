@@ -5,25 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/Purple"
-    tools:context=".payment.PayActivity">
+    tools:context=".payment.PayActivity"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
-
-    <Button
-        android:id="@+id/pay_activity_pay_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_custom"
-        android:text="Next"
-
-        android:textColor="@color/Purple"
-
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et"
-        app:layout_constraintVertical_bias="0.929" />
 
     <TextView
         android:id="@+id/pay_activity_heading_tv"
@@ -69,11 +54,11 @@
         app:srcCompat="@drawable/ic_left_arrow" />
 
     <ImageView
-        android:id="@+id/pay_activity_qrcode_scan"
+        android:id="@+id/pay_activity_searchAndPay_iv"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="40dp"
-        android:background="@drawable/ic_qr_scan"
+        android:background="@drawable/ic_search_white_24dp"
         android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,15 +67,27 @@
         app:layout_constraintTop_toBottomOf="@+id/pay_activity_heading_tv"
         app:layout_constraintVertical_bias="0.0" />
 
+
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:background="@color/White"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/pay_activity_receiverPhone_et" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/pay_activity_contacts_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="200dp"
-        android:background="@color/White"
+        android:background="#1D000000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et" />
-
+        app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et"
+        android:visibility="visible"
+        tools:listitem="@layout/contact_list_item" />
 </androidx.constraintlayout.widget.ConstraintLayout>

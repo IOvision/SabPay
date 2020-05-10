@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/Purple"
-    tools:context=".GroupPayActivity">
+    tools:context=".groupPay.GroupPayActivity">
 
     <FrameLayout
         android:id="@+id/groupPayActivity_background_fL"
@@ -35,9 +35,11 @@
         android:id="@+id/groupPay_activity_gPay_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="132dp"/>
+        android:layout_marginTop="132dp"
+        tools:listitem="@layout/group_pay_list_item"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/groupPay_activity_newGroupPay_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
