@@ -3,11 +3,13 @@ package com.visionio.sabpay.Models;
 import android.content.Context;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class Utils {
 
     public static int WELCOME_BALANCE = 500;
+    public static List<Contact> deviceContacts;
 
     public static String[] decodePathFromQr(String qrData){
         return qrData.split("/");

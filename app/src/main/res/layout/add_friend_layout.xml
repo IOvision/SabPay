@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#00000000"
+    app:layout_behavior="@string/bottom_sheet_behavior"
+    android:id="@+id/add_member_root_rl">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bottom_sheet_bg"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/add_member_heading_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Group"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_margin="8dp"
+            android:layout_centerHorizontal="true"/>
+
+        <EditText
+            android:id="@+id/add_member_groupName_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Group Name"
+            android:padding="12dp"
+            android:layout_margin="8dp"
+            android:layout_below="@id/add_member_heading_tv"/>
+
+        <EditText
+            android:id="@+id/add_member_search_et"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:background="@drawable/et_custom"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
+            android:drawableStart="@drawable/ic_search_white_24dp"
+            android:hint="Search"
+            android:paddingLeft="8dp"
+            android:textColor="#000"
+            android:layout_below="@id/add_member_groupName_et"/>
+
+        <LinearLayout
+            android:id="@+id/add_member_selectedContactsContainer_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/add_member_search_et"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selected"
+                android:layout_margin="8dp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/add_member_selectedContacts_rv"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                tools:listitem="@layout/selected_contact_list_item" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/add_member_allContactsContainer_ll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_below="@id/add_member_selectedContactsContainer_ll">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Contacts"
+                android:layout_margin="8dp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/add_member_allContacts_rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/contact_list_item"
+                android:layout_below="@id/add_member_search_et"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/add_member_next_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp"
+            android:textColor="#2626BA"
+            android:textStyle="bold"/>
+
+    </RelativeLayout>
+
+
+
+
+</RelativeLayout>

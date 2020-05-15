@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,13 +22,10 @@ import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -38,11 +34,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -57,7 +51,7 @@ import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
-import com.visionio.sabpay.interfaces.OnContactItemClickListener;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -186,12 +180,13 @@ public class PayActivity extends AppCompatActivity{
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
 
         adapter = new ContactAdapter(this, new ArrayList<Contact>(), new ArrayList<Contact>());
-        adapter.setClickListener(new OnContactItemClickListener() {
+        adapter.setClickListener(new OnItemClickListener<Contact>() {
             @Override
-            public void onItemClicked(Contact contact) {
+            public void onItemClicked(Contact contact, int position, View v) {
                 initPaymentHandler();
                 initiateServer(FLAG_MODE_DIRECT_PAY, contact);
             }
+
         });
 
         recyclerView.setAdapter(adapter);

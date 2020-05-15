@@ -6,15 +6,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,9 +45,11 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.visionio.sabpay.Models.Contact;
 import com.visionio.sabpay.Models.OfflineTransaction;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.User;
+import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
@@ -50,8 +58,12 @@ import com.visionio.sabpay.payment.PayActivity;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity{
+
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+
 
     FirebaseAuth mAuth;
     FirebaseFirestore mRef;
@@ -85,7 +97,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    void setUp(){
+    void setUp() {
         mAuth = FirebaseAuth.getInstance();
         mRef = FirebaseFirestore.getInstance();
 
@@ -93,6 +105,8 @@ public class MainActivity extends AppCompatActivity{
             startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
             finish();
         }
+
+        loadContacts();
 
         balanceTv = findViewById(R.id.main_activity_balance_tV);
         payBtn = findViewById(R.id.main_activity_pay_btn);
@@ -149,6 +163,38 @@ public class MainActivity extends AppCompatActivity{
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
 
+    }
+
+    void showGpayMenu(){
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.grouppay_menu_layout);
+        dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+
+        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        dialog.show();
     }
 
     void signOut(){
@@ -242,6 +288,61 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+    }
+
+    private void loadContacts(){
+
+        final List<Contact> contactList = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+        } else {
+            // Android version is lesser than 6.0 or the permission is already granted.
+
+            mRef.collection("public").document("registeredPhone").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        List<String> numbers = (List<String>) task.getResult().get("number");
+
+                        Cursor phones = getApplicationContext().getContentResolver().query(
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
+                                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+                        while (phones.moveToNext()){
+                            String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+                            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+                            Contact contact = new Contact(id, name, phoneNumber);
+                            if(numbers.contains(contact.getNumber())){
+                                contactList.add(contact);
+                            }
+
+                        }
+
+                        Utils.deviceContacts = contactList;
+
+                    }else{
+
+                    }
+                }
+            });
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case PERMISSIONS_REQUEST_READ_CONTACTS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission is granted
+                    loadContacts();
+                }
+        }
     }
 
 }

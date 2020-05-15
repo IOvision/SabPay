@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,6 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.Models.GroupPay;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.GroupPayAdapter;
+import com.visionio.sabpay.groupPay.manage.GroupManageActivity;
 
 import java.util.ArrayList;
 
@@ -42,6 +44,8 @@ public class GroupPayActivity extends AppCompatActivity {
     FirebaseFirestore mRef;
     FirebaseAuth mAuth;
 
+    RelativeLayout payContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +62,8 @@ public class GroupPayActivity extends AppCompatActivity {
 
         newGroupPayFab = findViewById(R.id.groupPay_activity_newGroupPay_fab);
 
+        payContainer = findViewById(R.id.gpay_menu_payContainer_rl);
+
         recyclerView = findViewById(R.id.groupPay_activity_gPay_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
@@ -71,13 +77,20 @@ public class GroupPayActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
 
-        loadData();
+        //loadData();
 
         newGroupPayFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 NewGPayHandler handler = new NewGPayHandler(GroupPayActivity.this, mAuth, mRef);
                 handler.init();
+            }
+        });
+
+        payContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(GroupPayActivity.this, GroupManageActivity.class));
             }
         });
 

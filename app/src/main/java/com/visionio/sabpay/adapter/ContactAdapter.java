@@ -1,9 +1,11 @@
 package com.visionio.sabpay.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,8 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.visionio.sabpay.Models.Contact;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.interfaces.OnContactItemClickListener;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +27,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     List<Contact> filteredContactList;
     List<Contact> completeContactList;
 
-    OnContactItemClickListener clickListener;
+    OnItemClickListener<Contact> clickListener;
+
 
     public ContactAdapter(Context context, List<Contact> filteredContactList, List<Contact> completeContactList) {
         this.context = context;
@@ -43,7 +47,10 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
         holder.name.setText(filteredContactList.get(position).getName());
         holder.number.setText(filteredContactList.get(position).getNumber());
-        holder.bind(filteredContactList.get(position), clickListener);
+        holder.bind(filteredContactList.get(position),position, clickListener);
+        filteredContactList.get(position).setSelector(holder.selector);
+        filteredContactList.get(position).positionInAdapter = position;
+
     }
 
     @Override
@@ -77,8 +84,32 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         notifyDataSetChanged();
     }
 
-    public void setClickListener(OnContactItemClickListener clickListener) {
+    public void setClickListener(OnItemClickListener<Contact> clickListener) {
         this.clickListener = clickListener;
+    }
+
+    public void unSelect(int pos){
+        filteredContactList.get(pos).getSelector().setChecked(false);
+        notifyDataSetChanged();
+    }
+
+    public void select(int pos){
+        filteredContactList.get(pos).getSelector().setChecked(true);
+        notifyDataSetChanged();
+    }
+
+    public void addUserToContact(Contact c){
+        for(Contact contact: filteredContactList){
+            if(contact.getUser()==null && c.getUser()!=null && contact.getNumber().equals(c.getNumber())){
+                contact.setUser(c.getUser());
+            }
+
+        }
+    }
+
+
+    public List<Contact> getFilteredContactList(){
+        return filteredContactList;
     }
 
     public class ContactViewHolder extends RecyclerView.ViewHolder{
@@ -87,18 +118,27 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         TextView number;
         View itemView;
 
+        RadioButton selector;
+
         public ContactViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             name = itemView.findViewById(R.id.contact_item_name_tv);
             number = itemView.findViewById(R.id.contact_item_number_tv);
+            selector = itemView.findViewById(R.id.contact_item_selector_rb);
         }
 
-        public void bind(final Contact contact, final OnContactItemClickListener listener){
+        public void bind(final Contact contact, final int position, final OnItemClickListener listener){
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listener.onItemClicked(contact);
+                    listener.onItemClicked(contact, position, v);
+                }
+            });
+            selector.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onItemClicked(contact, position, v);
                 }
             });
         }
