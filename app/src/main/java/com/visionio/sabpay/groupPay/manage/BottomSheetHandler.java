@@ -342,6 +342,10 @@ public class BottomSheetHandler {
     }
 
     void createGroup(){
+        if(selectedContactsAdapter.getContacts().size()==0){
+            Toast.makeText(context, "Select at least one member", Toast.LENGTH_LONG).show();
+        }
+
         final String name = groupName.getText().toString().trim();
         if(name.equals("") || name==null){
             groupName.setError("Group name can't be null");
@@ -395,6 +399,10 @@ public class BottomSheetHandler {
     }
 
     void updateGroup(){
+        if(selectedContactsAdapter.getContacts().size()==0){
+            Toast.makeText(context, "Select at least one member", Toast.LENGTH_LONG).show();
+        }
+
         final String newGrpName = groupName.getText().toString().trim();
         if(!isDataChanged()){
             if(newGrpName.equals(name)){
@@ -410,8 +418,9 @@ public class BottomSheetHandler {
         }else{
 
             final Map<String, Object> data = new HashMap<String, Object>(){{
+                put("id", group.getId());
                 put("name", newGrpName);
-                put("size", selectedContacts.size());
+                put("size", selectedContactsAdapter.getContacts().size()+1);
                 put("admin", mRef.document("user/"+mAuth.getUid()));
             }};
 
@@ -427,6 +436,8 @@ public class BottomSheetHandler {
             }
 
             final ArrayList<DocumentReference> memberRef = new ArrayList<>();
+            memberRef.add(mRef.document("user/"+mAuth.getUid()));
+
 
             for(Contact c: hasUser){
                 memberRef.add(mRef.document("user/"+c.getUser().getUid()));
@@ -491,7 +502,7 @@ public class BottomSheetHandler {
     }
 
     private boolean isDataChanged(){
-        
+
 
         int totalMatches = 0;
 
