@@ -80,15 +80,22 @@ public class NewGPayHandler {
     //'/user/{userId}/group_pay/meta-data/transaction/{transactiosId}/transactions/{id}'
 
     private void initiateGroupPay(){
-        final GroupPay groupPay = getNewGroupPayObject();
+        final Integer amountVal = Integer.parseInt(amount.getText().toString().trim());
+
+        if(amountVal <= 0){
+            amount.setError("Amount can't be empty");
+        }
+
         final String id = userDocRef.collection("group_pay/meta-data/transaction").document().getId();
 
         Map<String, Object> gPayTransactionObject = new HashMap<String, Object>(){{
             put("id", id);
-            put("active", groupPay.getActive());
-            put("ledger", groupPay.getLedger());
-            put("parts", groupPay.getParts());
-            put("amount", Integer.parseInt(amount.getText().toString().trim()));
+            put("from", null);
+            put("to", userDocRef);
+            put("active", true);
+            put("ledger", new ArrayList<Integer>());
+            put("parts", 0);
+            put("amount", amountVal);
             put("timestamp", new Timestamp(new Date()));
         }};
 
@@ -98,7 +105,7 @@ public class NewGPayHandler {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    qrText = "/"+userDocRef.getPath()+"/group_pay/meta-data/transaction/"+id;
+                    qrText = userDocRef.getId()+"__"+id;
                     showQr();
                 }else {
                     Log.i("Testing", task.getException().getLocalizedMessage());

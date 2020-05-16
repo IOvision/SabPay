@@ -11,9 +11,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.model.Document;
 import com.visionio.sabpay.adapter.GroupPayTransactionsAdapter;
 
 import java.util.ArrayList;
@@ -23,6 +25,8 @@ public class GroupPay {
 
     String id;
     Integer amount;
+    DocumentReference from;
+    DocumentReference to;
     Boolean active;
     Integer parts;
     Timestamp timestamp;
@@ -38,6 +42,22 @@ public class GroupPay {
 
     public String getId() {
         return id;
+    }
+
+    public DocumentReference getFrom() {
+        return from;
+    }
+
+    public void setFrom(DocumentReference from) {
+        this.from = from;
+    }
+
+    public DocumentReference getTo() {
+        return to;
+    }
+
+    public void setTo(DocumentReference to) {
+        this.to = to;
     }
 
     public void setId(String id) {

@@ -2,12 +2,14 @@ package com.visionio.sabpay.groupPay.pending;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -28,6 +30,8 @@ import com.visionio.sabpay.groupPay.manage.Group;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GroupSelectHandler {
 
@@ -48,8 +52,9 @@ public class GroupSelectHandler {
 
     GroupSelectorAdapter adapter;
 
-    public GroupSelectHandler(Context context) {
+    public GroupSelectHandler(Context context, GroupPay groupPay) {
         this.context = context;
+        this.groupPay = groupPay;
         setUp();
     }
 
@@ -71,9 +76,9 @@ public class GroupSelectHandler {
 
         adapter = new GroupSelectorAdapter(new ArrayList<Group>(), new OnItemClickListener<Group>() {
             @Override
-            public void onItemClicked(Group object, int position, View view) {
+            public void onItemClicked(final Group object, int position, View view) {
                 alertDialog = new AlertDialog.Builder(context)
-                        .setTitle("Split among")
+                        .setTitle("Split among?")
                         .setMessage("Group Name: "+object.getName()+"\nTotal Members: "+object.getSize())
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
@@ -84,7 +89,7 @@ public class GroupSelectHandler {
                         .setPositiveButton("Split", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Log.i("Testing", "Positive");
+                               split(object);
                             }
                         }).create();
                 alertDialog.show();
@@ -100,8 +105,37 @@ public class GroupSelectHandler {
         show();
     }
 
-    private void split(Group group){
+    private void split(final Group group){
+        Map<String, Object> data = new HashMap<String, Object>(){{
+            put("id", groupPay.getId());
+            put("amount", groupPay.getAmount());
+            put("from", groupPay.getFrom());
+            put("to", groupPay.getTo());
+            put("active", groupPay.getActive());
+            put("ledger", groupPay.getLedger());
+            put("timestamp", groupPay.getTimestamp());
+            put("parts", groupPay.getParts());
+        }};
+        Log.i("Testing", "groups/"+group.getId());
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Splitting");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
+        mRef.document("groups/"+group.getId()+"/transactions/"+groupPay.getId()).set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(context, "Splited", Toast.LENGTH_LONG).show();
+                    progressDialog.dismiss();
+                    destroy();
+                }else{
+                    Log.i("Testing", task.getException().getLocalizedMessage());
+                }
+            }
+        });
     }
 
     private void loadGroups(){

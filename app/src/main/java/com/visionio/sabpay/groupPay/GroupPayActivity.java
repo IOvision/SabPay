@@ -97,12 +97,7 @@ public class GroupPayActivity extends AppCompatActivity {
             }
         });
 
-        payContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GroupSelectHandler handler = new GroupSelectHandler(GroupPayActivity.this);
-            }
-        });
+
 
 
     }

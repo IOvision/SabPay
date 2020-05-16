@@ -34,9 +34,9 @@ public class Utils {
 
     }
 
-    public static String getUserIdFromGpayId(String gPayId){
+    public static String[] getUserIdFromGpayId(String gPayId){
         // 'Pp2xum5znb4cnp6mysMv__ePVMSI4wUCRltMEEUWRw'
-        return gPayId.split("__")[0];
+        return gPayId.split("__");
     }
 
     public static String formatNumber(String number, int returnType){

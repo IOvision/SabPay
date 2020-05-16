@@ -1,6 +1,7 @@
 package com.visionio.sabpay.groupPay.manage;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.text.Editable;
@@ -353,6 +354,16 @@ public class BottomSheetHandler {
             groupName.setError("Group name can't be null");
             return;
         }
+
+        final ProgressDialog progress = new ProgressDialog(context);
+        progress.setTitle("Creating Group");
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setMax(100);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.show();
+
+
         final List<Contact> contacts = selectedContactsAdapter.getContacts();
         final String groupId = mRef.collection("groups").document().getId();
         final Map<String, Object> data = new HashMap<String, Object>(){{
@@ -380,12 +391,15 @@ public class BottomSheetHandler {
                     references.add(mRef.document("user/"+mAuth.getUid()));
                     data.put("members", references);
                     Log.i("Testing", "Matches/Size = "+references.size());
+                    progress.setProgress(50);
 
                     mRef.document("groups/"+groupId).set(data)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
+                                progress.setProgress(100);
+                                progress.dismiss();
                                 destroy();
                                 Log.i("Testing", "Group created");
                             }else{

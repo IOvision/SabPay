@@ -106,7 +106,11 @@ public class RegisterFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if(task.isSuccessful()){
-                        List<String> numbers = (List<String>) task.getResult().get("number");
+                        List<String> numbers = (List<String>) task.getResult().get("numbers");
+                        if(numbers==null){
+                            register();
+                            return;
+                        }
                         if(numbers.contains(mPhoneNumber)){
                             et_phonenumber.setError("Phone Number already registered");
                             progressBar.setVisibility(View.GONE);

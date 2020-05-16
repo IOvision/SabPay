@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -25,6 +28,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -41,16 +45,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 import com.google.zxing.Result;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.visionio.sabpay.Models.Contact;
+import com.visionio.sabpay.Models.GroupPay;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
+import com.visionio.sabpay.groupPay.pending.GroupSelectHandler;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.text.SimpleDateFormat;
@@ -89,8 +96,8 @@ public class PayActivity extends AppCompatActivity{
     ZXingScannerView mScannerView;
     Boolean scannerOpen = true;
 
-    int type = 0;
-    String path;
+    //int type = 0;
+    String jsonFromQr;
 
     private static final int CAMERA_PERMISSION_CODE = 101;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
@@ -122,12 +129,13 @@ public class PayActivity extends AppCompatActivity{
                 String res = rawResult.getText();
                 if(Utils.getPaymentType(res)==0){
                     et_number.setText(res);
+                    initPaymentHandler();
+                    initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
                 }else{
-                    type = 1;
-                    path = res;
+                    jsonFromQr = res;
+                    searchGroupOwner();
                 }
-                initPaymentHandler();
-                initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
+
                 Log.i("Testing", "Payment type: "+Utils.getPaymentType(res));
 
             }
@@ -151,12 +159,13 @@ public class PayActivity extends AppCompatActivity{
                 String res = rawResult.getText();
                 if(Utils.getPaymentType(res)==0){
                     et_number.setText(res);
+                    initPaymentHandler();
+                    initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
                 }else{
-                    type = 1;
-                    path = res;
+                    jsonFromQr = res;
+                    searchGroupOwner();
                 }
-                initPaymentHandler();
-                initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
+
                 Log.i("Testing", "Payment type: "+Utils.getPaymentType(res));
 
             }
@@ -307,30 +316,6 @@ public class PayActivity extends AppCompatActivity{
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null){
-            if (result.getContents()==null){
-                Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
-            } else {
-                String res = result.getContents();
-                if(Utils.getPaymentType(res)==0){
-                    et_number.setText(res);
-                }else{
-                    type = 1;
-                    path = res;
-                }
-                initPaymentHandler();
-                initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
-                Log.i("Testing", "Payment type: "+Utils.getPaymentType(result.getContents()));
-
-            }
-        } else {
-            Toast.makeText(this, "Blank", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     void initiateServer(int flag, Contact contact){
         // info: if flag is @FLAG_MODE_SEARCH_AND_PAY then contact will be null
@@ -350,23 +335,6 @@ public class PayActivity extends AppCompatActivity{
     }
 
     void searchUser(){
-
-        if(type==1){
-            mRef.document(Utils.getPathToUser(path)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()){
-                        paymentHandler.setLinkedWallet(task.getResult().getString("name"));
-                        receiverDocRef = mRef.document(path);
-                    }else {
-                        paymentHandler.showPayStatus();
-                        paymentHandler.setError("Invalid group pay id");
-                    }
-                }
-            });
-            return;
-        }
-
         mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -401,12 +369,7 @@ public class PayActivity extends AppCompatActivity{
                         paymentHandler.setError("Insufficient balance\\n");
                         paymentHandler.setBalance(wallet.getBalance());
                     }else {
-                        //payToUser();
-                        if(type==1){
-                            payToGroupPayAccountUsingCloudFunction();
-                        }else{
-                            payToUserUsingCloudFunction();
-                        }
+                        payToUserUsingCloudFunction();
                     }
                 }else{
                     paymentHandler.setError("Error fetching wallet data");
@@ -415,52 +378,67 @@ public class PayActivity extends AppCompatActivity{
         });
     }
 
-    void payToGroupPayAccountUsingCloudFunction(){
-        final String id = receiverDocRef.collection("transactions").document().getId();
-        final Timestamp timestamp = new Timestamp(new Date());
-        Map<String, Object> transactionObj = new HashMap<String, Object>(){{
-            put("id", id);
-            put("from", senderDocRef);
-            put("to", receiverDocRef);
-            put("amount", amount);
-            put("timestamp", timestamp);
-            put("type", type);
-        }};
+    void searchGroupOwner(){
+        String[] groupPayData = Utils.getUserIdFromGpayId(jsonFromQr);
+        receiverDocRef = mRef.document("user/"+groupPayData[0]);
 
-        final ListenerRegistration[] lr = {null};
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Loading");
+        progressDialog.setMessage("Getting details");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-        receiverDocRef.collection("transactions").document(id)
-                .set(transactionObj).addOnCompleteListener(new OnCompleteListener<Void>() {
+        receiverDocRef.collection("group_pay")
+                .document("meta-data/transaction/"+groupPayData[1]).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            progressDialog.dismiss();
+                            GroupPay groupPay = task.getResult().toObject(GroupPay.class);
+                            splitIntoGroup(groupPay);
+                        }else{
+                            progressDialog.dismiss();
+                            Log.i("Testing", task.getException().getLocalizedMessage());
+                        }
+                    }
+                });
+
+
+
+    }
+
+    void splitIntoGroup(final GroupPay groupPay){
+        DialogInterface.OnClickListener negativeListener = new DialogInterface.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(PayActivity.this, "Canceled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        DialogInterface.OnClickListener positiveListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final GroupSelectHandler groupSelectHandler = new GroupSelectHandler(PayActivity.this, groupPay);
+            }
+        };
+
+        final AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Confirm?")
+                .setNegativeButton("Cancel", negativeListener)
+                .setPositiveButton("Yes", positiveListener)
+                .create();
+
+        receiverDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(PayActivity.this, "Done", Toast.LENGTH_SHORT).show();
-
-                    lr[0] = senderDocRef.collection("wallet").document("wallet").addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                            Wallet wallet = documentSnapshot.toObject(Wallet.class);
-                            if(wallet.getBalance() == initialWalletAmount-amount){
-                                paymentHandler.setBalance(wallet.getBalance());
-                                lr[0].remove();
-                            }
-                        }
-                    });
-
-                    paymentHandler.setTransactionId(id);
-                    SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                    paymentHandler.setDate(sfd.format(timestamp.toDate()));
-
-                    (new Handler()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            paymentHandler.setSuccess("Done");
-                        }
-                    }, 5000);
-
-                    paymentHandler.setSuccess("Done");
-
-                }else{
+                    User user = task.getResult().toObject(User.class);
+                    alertDialog.setMessage("Name: "+user.getName()+"\nTotal Amount: "+groupPay.getAmount());
+                    alertDialog.show();
+                }else {
                     Log.i("Testing", task.getException().getLocalizedMessage());
                 }
             }

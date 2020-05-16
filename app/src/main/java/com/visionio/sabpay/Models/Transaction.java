@@ -29,6 +29,8 @@ public class Transaction {
     DocumentReference to;
     Timestamp timestamp;
     Integer type;
+    String gPayId;
+
 
     //offline mapping
     User user_from;
@@ -87,6 +89,13 @@ public class Transaction {
         this.type = type;
     }
 
+    public String getgPayId() {
+        return gPayId;
+    }
+
+    public void setgPayId(String gPayId) {
+        this.gPayId = gPayId;
+    }
 
     public User getUser_from() {
         return user_from;

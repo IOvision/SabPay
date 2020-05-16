@@ -162,7 +162,7 @@ functions.firestore
 export const splitTransaction = functions.firestore
 .document('/groups/{grouId}/transactions/{id}')
 .onCreate((result, context) => {
-    const trasaction = result.data()
+    const transaction = result.data()
 
     const groupId = context.params.grouId
 
@@ -179,8 +179,8 @@ export const splitTransaction = functions.firestore
                 id: id,
                 amount: null,
                 from: member,
-                to: trasaction?.to,
-                gPayId: trasaction?.id,
+                to: transaction?.to,
+                gPayId: transaction?.id,
                 timestamp: admin.firestore.FieldValue.serverTimestamp(),
                 type: 1
             }
@@ -190,7 +190,8 @@ export const splitTransaction = functions.firestore
 
 
         return Promise.all(splitPromises).then(() => {
-            return (<admin.firestore.DocumentReference> trasaction?.to).update({
+            return (<admin.firestore.DocumentReference> transaction?.to)
+            .collection('group_pay/meta-data/transaction').doc(transaction?.id).update({
                 from: admin.firestore().doc(`groups/${groupId}`)
             })
         }).catch(error => {
