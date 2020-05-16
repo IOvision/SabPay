@@ -3,6 +3,8 @@ package com.visionio.sabpay.Models;
 import android.content.Context;
 import android.widget.Toast;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -30,6 +32,11 @@ public class Utils {
 
         return 0;
 
+    }
+
+    public static String getUserIdFromGpayId(String gPayId){
+        // 'Pp2xum5znb4cnp6mysMv__ePVMSI4wUCRltMEEUWRw'
+        return gPayId.split("__")[0];
     }
 
     public static String formatNumber(String number, int returnType){
@@ -63,6 +70,22 @@ public class Utils {
         }
         return number;
     }
+
+    public static String getTime(com.google.firebase.Timestamp timestamp){
+        SimpleDateFormat sfd = new SimpleDateFormat("HH:mm:ss");
+        return sfd.format(timestamp.toDate());
+    }
+
+    public static String getDate(com.google.firebase.Timestamp timestamp){
+        SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy");
+        return sfd.format(timestamp.toDate());
+    }
+
+    public static String getDateTime(com.google.firebase.Timestamp timestamp){
+        SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        return sfd.format(timestamp.toDate());
+    }
+
 
     public static boolean isEmpty(String s){
         if(s.equals("") || s.equals(null)){

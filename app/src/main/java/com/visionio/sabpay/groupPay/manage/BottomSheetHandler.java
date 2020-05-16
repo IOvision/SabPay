@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,6 +40,7 @@ import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.enums.REQUEST;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -355,6 +357,7 @@ public class BottomSheetHandler {
         final String groupId = mRef.collection("groups").document().getId();
         final Map<String, Object> data = new HashMap<String, Object>(){{
             put("id", groupId);
+            put("timestamp", new Timestamp(new Date()));
             put("name", name);
             put("size", contacts.size()+1);
             put("admin", mRef.document("user/"+mAuth.getUid()));

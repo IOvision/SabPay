@@ -26,6 +26,7 @@ import com.visionio.sabpay.Models.GroupPay;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.GroupPayAdapter;
 import com.visionio.sabpay.groupPay.manage.GroupManageActivity;
+import com.visionio.sabpay.groupPay.pending.GroupSelectHandler;
 
 import java.util.ArrayList;
 
@@ -45,6 +46,7 @@ public class GroupPayActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
 
     RelativeLayout payContainer;
+    RelativeLayout manageContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,7 @@ public class GroupPayActivity extends AppCompatActivity {
         newGroupPayFab = findViewById(R.id.groupPay_activity_newGroupPay_fab);
 
         payContainer = findViewById(R.id.gpay_menu_payContainer_rl);
+        manageContainer = findViewById(R.id.gpay_menu_manageContainer_rl);
 
         recyclerView = findViewById(R.id.groupPay_activity_gPay_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -87,10 +90,17 @@ public class GroupPayActivity extends AppCompatActivity {
             }
         });
 
-        payContainer.setOnClickListener(new View.OnClickListener() {
+        manageContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(GroupPayActivity.this, GroupManageActivity.class));
+            }
+        });
+
+        payContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GroupSelectHandler handler = new GroupSelectHandler(GroupPayActivity.this);
             }
         });
 

@@ -63,15 +63,21 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
     })   
 })
 
-export const newGpayTransaction = 
+export const gPayTransaction = 
 functions.firestore
-.document('/user/{userId}/group_pay/meta-data/transaction/{transactiosId}/transactions/{id}')
-.onCreate((transactionData, context) => {
+.document('user/{userId}/pending_gPay_transactions/{tId}')
+.onUpdate((transactionData, context) => {
 
-    const transaction = transactionData.data()
+    const transaction = transactionData.after.data()
 
-    return admin.firestore()
-    .doc(`/user/${context.params.userId}/group_pay/meta-data/transaction/${context.params.transactiosId}`).get().then((change) => {
+    const toRef = <admin.firestore.DocumentReference> transaction?.to
+
+    const fromRef = <admin.firestore.DocumentReference> transaction?.from
+
+    const groupRef = toRef.collection('group_pay').doc('meta-data')
+    .collection('transaction').doc(transaction?.gPayId);
+
+    return groupRef.get().then((change) => {
         const data = change.data()
 
         const ledger: Array<number> = data?.ledger
@@ -84,12 +90,10 @@ functions.firestore
 
         let activeStatus: boolean = data?.active
         let updateAmount = parseInt(transaction?.amount)
-        let isAmountUpdated = false;
 
         if(sum+updateAmount >= parseInt(data?.amount)){
             updateAmount = data?.amount-sum
             activeStatus = false
-            isAmountUpdated = true
         }
 
         ledger.push(updateAmount)
@@ -106,41 +110,43 @@ functions.firestore
 
         const promises = []
     
-
-        if(isAmountUpdated){
-            promises.push(
-                admin.firestore()
-                .doc(`/user/${context.params.userId}/group_pay/meta-data/transaction/${context.params.transactiosId}/transactions/${context.params.id}`)
-                .update('amount', updateAmount)
-            )
+        const updatedTransaction = {
+            id: transaction?.id,
+            from: transaction?.from,
+            to: transaction?.to,
+            gPayId: transaction?.gPayId,
+            type: 1,
+            timestamp: transaction?.timestamp,
+            amount: updateAmount
         }
 
         promises.push(
-            fromDocumentRef.collection('transaction').doc(transaction?.id).set({
-                from: transaction?.from,
-                to: transaction?.to,
-                type: 1,
-                timestamp: transaction?.timestamp,
-                amount: updateAmount
-            }))
+            groupRef.collection('transaction').doc(transaction?.id).set(updatedTransaction))
 
         promises.push(
-            fromDocumentRef.collection('wallet').doc('wallet')
+            fromRef.collection('transaction').doc(updatedTransaction.id).set(updatedTransaction)
+        )
+
+        promises.push(
+            fromRef.collection('wallet').doc('wallet')
             .update('balance', admin.firestore.FieldValue.increment(-updateAmount))
         )
 
         promises.push(
-            admin.firestore().doc(`/user/${context.params.userId}/wallet/wallet`)
+            toRef.collection('wallet').doc('wallet')
             .update('balance', admin.firestore.FieldValue.increment(updateAmount))
         )
 
         return Promise.all(promises).then(() => {
             return fromDocumentRef.collection('wallet').doc('wallet')
-            .update('lastTransaction', fromDocumentRef.collection('transaction').doc(transaction?.id))
+            .update('lastTransaction', fromRef.collection('transaction').doc(transaction?.id))
             .then(() => {
-                return admin.firestore()
-                .doc(`/user/${context.params.userId}/group_pay/meta-data/transaction/${context.params.transactiosId}`)
-                .update(updatedData)
+                return groupRef.update(updatedData)
+            }).then(()=>{
+                return fromRef.collection('pending_gPay_transactions')
+                .doc(context.params.tId).delete().catch(error => {
+                    console.log(error)
+                })
             }).catch(error => {
                 console.log(error)
             })
@@ -151,6 +157,48 @@ functions.firestore
         console.log(error)
     });
     
+})
+
+export const splitTransaction = functions.firestore
+.document('/groups/{grouId}/transactions/{id}')
+.onCreate((result, context) => {
+    const trasaction = result.data()
+
+    const groupId = context.params.grouId
+
+    return admin.firestore().doc(`groups/${groupId}`).get().then(groupResult => {
+        const group = groupResult.data()
+
+        const splitPromises = []
+
+        const members: Array<admin.firestore.DocumentReference> = group?.members
+        
+        for (const member of members) {
+            const id = member.collection('pending_gPay_transactions').doc().id
+            const data = {
+                id: id,
+                amount: null,
+                from: member,
+                to: trasaction?.to,
+                gPayId: trasaction?.id,
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                type: 1
+            }
+
+            splitPromises.push(member.collection('pending_gPay_transactions').doc(id).set(data))
+        }
+
+
+        return Promise.all(splitPromises).then(() => {
+            return (<admin.firestore.DocumentReference> trasaction?.to).update({
+                from: admin.firestore().doc(`groups/${groupId}`)
+            })
+        }).catch(error => {
+            console.log(error)
+        })
+
+    })
+
 })
 
 

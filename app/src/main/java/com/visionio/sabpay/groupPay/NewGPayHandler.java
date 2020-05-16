@@ -92,6 +92,7 @@ public class NewGPayHandler {
             put("timestamp", new Timestamp(new Date()));
         }};
 
+
         userDocRef.collection("group_pay/meta-data/transaction")
                 .document(id).set(gPayTransactionObject).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
