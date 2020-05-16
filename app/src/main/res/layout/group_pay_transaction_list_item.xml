@@ -51,5 +51,12 @@
         android:layout_alignParentEnd="true"
         android:layout_marginRight="16dp"
         android:textSize="18sp"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#000"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

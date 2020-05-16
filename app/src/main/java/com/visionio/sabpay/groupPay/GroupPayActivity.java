@@ -80,7 +80,7 @@ public class GroupPayActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
 
-        //loadData();
+        loadData();
 
         newGroupPayFab.setOnClickListener(new View.OnClickListener() {
             @Override

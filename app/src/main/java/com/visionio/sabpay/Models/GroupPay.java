@@ -2,8 +2,11 @@ package com.visionio.sabpay.Models;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +39,9 @@ public class GroupPay {
     FirebaseFirestore mRef;
     GroupPayTransactionsAdapter adapter;
     RecyclerView recyclerView;
+
+    // persistent objects
+    boolean isTransactionLoaded = false;
 
     public GroupPay() {
     }
@@ -108,17 +114,22 @@ public class GroupPay {
         this.recyclerView = recyclerView;
     }
 
-    public void loadTransaction(Context context){
+    public void loadTransaction(Context context, final ProgressBar progressBar){
+        if(isTransactionLoaded){
+            return;
+        }
+
         mRef = FirebaseFirestore.getInstance();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setHasFixedSize(false);
+        recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL));
 
         adapter = new GroupPayTransactionsAdapter(new ArrayList<Transaction>());
 
         recyclerView.setAdapter(adapter);
 
 
-        String path = "user/"+ FirebaseAuth.getInstance().getUid()+"/group_pay/meta-data/transaction/"+id+"/transactions";
+        String path = "user/"+ FirebaseAuth.getInstance().getUid()+"/group_pay/meta-data/transaction/"+id+"/transaction";
 
         mRef.collection(path).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -128,6 +139,8 @@ public class GroupPay {
                     Transaction transaction = snapshot.toObject(Transaction.class);
                     transaction.loadUserDataFromReference(adapter);
                     adapter.add(transaction);
+                    progressBar.setVisibility(View.GONE);
+                    isTransactionLoaded = true;
                 }
             }
         });

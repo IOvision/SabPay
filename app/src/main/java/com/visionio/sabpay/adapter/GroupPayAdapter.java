@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,7 +23,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
     List<GroupPay> groupPayList;
     int currentPosition = 0;
 
-    LinearLayout expandedView;
+    RelativeLayout expandedView;
 
     public GroupPayAdapter(Context context, List<GroupPay> groupPayList) {
         this.context = context;
@@ -51,7 +53,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
                     expandedView = null;
                 }else{
                     current.setRecyclerView(holder.recyclerView);
-                    current.loadTransaction(context);
+                    current.loadTransaction(context, holder.progressBar);
                     holder.transactionsContainer.setVisibility(View.VISIBLE);
                     expandedView = holder.transactionsContainer;
                 }
@@ -76,9 +78,10 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         TextView amount;
         TextView parts;
         RecyclerView recyclerView;
+        ProgressBar progressBar;
         View view;
 
-        LinearLayout transactionsContainer;
+        RelativeLayout transactionsContainer;
 
         public GroupPayViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,6 +89,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
             id = view.findViewById(R.id.gPay_item_id_tv);
             amount = view.findViewById(R.id.gPay_item_amount_tv);
             parts = view.findViewById(R.id.gPay_item_parts_tv);
+            progressBar = view.findViewById(R.id.gPay_item_transactionProgress_pb);
             recyclerView = view.findViewById(R.id.gPay_item_parts_rv);
             transactionsContainer = view.findViewById(R.id.gPay_item_transactionContainer_ll);
         }
