@@ -1,4 +1,4 @@
-package com.visionio.sabpay.groupPay.manage;
+package com.visionio.sabpay.groupPay.manageGroup;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
@@ -32,7 +31,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.Models.Contact;
-import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
@@ -45,7 +43,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.prefs.PreferencesFactory;
 
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 

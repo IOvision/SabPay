@@ -1,6 +1,5 @@
-package com.visionio.sabpay.adapter;
+package com.visionio.sabpay.groupPay.manageTransactions;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

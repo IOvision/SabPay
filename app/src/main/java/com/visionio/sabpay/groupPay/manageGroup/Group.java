@@ -1,4 +1,4 @@
-package com.visionio.sabpay.groupPay.manage;
+package com.visionio.sabpay.groupPay.manageGroup;
 
 import android.content.Context;
 
@@ -12,7 +12,6 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.Models.Contact;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Utils;

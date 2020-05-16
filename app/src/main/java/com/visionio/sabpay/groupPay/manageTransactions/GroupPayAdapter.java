@@ -1,10 +1,10 @@
-package com.visionio.sabpay.adapter;
+package com.visionio.sabpay.groupPay.manageTransactions;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -44,6 +44,10 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         holder.amount.setText(current.getAmount().toString());
         holder.parts.setText(current.getParts().toString());
 
+        if(!current.getActive()){
+            holder.mainContainer.setBackgroundColor(Color.RED);
+        }
+
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,6 +56,9 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
                     holder.transactionsContainer.setVisibility(View.GONE);
                     expandedView = null;
                 }else{
+                    if(expandedView!=null){
+                        expandedView.setVisibility(View.GONE);
+                    }
                     current.setRecyclerView(holder.recyclerView);
                     current.loadTransaction(context, holder.progressBar);
                     holder.transactionsContainer.setVisibility(View.VISIBLE);
@@ -81,6 +88,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         ProgressBar progressBar;
         View view;
 
+        RelativeLayout mainContainer;
         RelativeLayout transactionsContainer;
 
         public GroupPayViewHolder(@NonNull View itemView) {
@@ -91,6 +99,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
             parts = view.findViewById(R.id.gPay_item_parts_tv);
             progressBar = view.findViewById(R.id.gPay_item_transactionProgress_pb);
             recyclerView = view.findViewById(R.id.gPay_item_parts_rv);
+            mainContainer = view.findViewById(R.id.gPay_item_mainContainer_rl);
             transactionsContainer = view.findViewById(R.id.gPay_item_transactionContainer_ll);
         }
 

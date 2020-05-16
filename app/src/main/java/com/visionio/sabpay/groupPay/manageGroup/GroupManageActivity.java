@@ -1,4 +1,4 @@
-package com.visionio.sabpay.groupPay.manage;
+package com.visionio.sabpay.groupPay.manageGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

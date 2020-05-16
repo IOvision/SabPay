@@ -1,6 +1,5 @@
 package com.visionio.sabpay.Models;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -12,11 +11,10 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.visionio.sabpay.adapter.GroupPayTransactionsAdapter;
+import com.visionio.sabpay.groupPay.manageTransactions.GroupPayTransactionsAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 
 import java.text.SimpleDateFormat;
-import java.util.logging.Handler;
 
 public class Transaction {
 

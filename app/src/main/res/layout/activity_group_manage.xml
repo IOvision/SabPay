@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#90939393"
-    tools:context=".groupPay.manage.GroupManageActivity">
+    tools:context=".groupPay.manageGroup.GroupManageActivity">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/gpay_manage_swipeRefresh_sl"

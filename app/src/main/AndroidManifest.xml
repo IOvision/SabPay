@@ -12,11 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".groupPay.manage.GroupManageActivity">
+        <activity android:name=".groupPay.manageGroup.GroupManageActivity">
 
         </activity>
         <activity android:name=".OfferDisplayActivity" />
-        <activity android:name=".groupPay.GroupPayActivity"></activity>
+        <activity android:name=".groupPay.manageTransactions.ManageTransactionsActivity"></activity>
         <activity android:name=".SplashActivity"></activity>
         <activity android:name=".payment.PayActivity" />
         <activity android:name=".authentication.AuthenticationActivity" />

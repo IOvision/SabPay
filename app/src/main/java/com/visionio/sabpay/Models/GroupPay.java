@@ -1,7 +1,6 @@
 package com.visionio.sabpay.Models;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -18,8 +17,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.model.Document;
-import com.visionio.sabpay.adapter.GroupPayTransactionsAdapter;
+import com.visionio.sabpay.groupPay.manageTransactions.GroupPayTransactionsAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,9 +137,9 @@ public class GroupPay {
                     Transaction transaction = snapshot.toObject(Transaction.class);
                     transaction.loadUserDataFromReference(adapter);
                     adapter.add(transaction);
-                    progressBar.setVisibility(View.GONE);
                     isTransactionLoaded = true;
                 }
+                progressBar.setVisibility(View.GONE);
             }
         });
 

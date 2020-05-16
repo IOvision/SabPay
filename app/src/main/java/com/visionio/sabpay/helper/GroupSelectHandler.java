@@ -1,4 +1,4 @@
-package com.visionio.sabpay.groupPay.pending;
+package com.visionio.sabpay.helper;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -26,7 +26,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.Models.GroupPay;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.groupPay.manage.Group;
+import com.visionio.sabpay.groupPay.manageGroup.Group;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.util.ArrayList;

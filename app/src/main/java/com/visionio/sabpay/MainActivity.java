@@ -8,17 +8,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,13 +36,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -46,24 +50,34 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.visionio.sabpay.Models.Contact;
-import com.visionio.sabpay.Models.OfflineTransaction;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
-import com.visionio.sabpay.groupPay.GroupPayActivity;
+import com.visionio.sabpay.groupPay.manageGroup.GroupManageActivity;
+import com.visionio.sabpay.groupPay.manageTransactions.ManageTransactionsActivity;
 import com.visionio.sabpay.payment.PayActivity;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity{
 
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
+
+    RelativeLayout movable;
+    int screen = 0;// 0 for sab and 1 for group
+    int height = 0;
+
+    TextView sabText;
+
+    //groupPay views
+    Button myGroup;
+    Button manageTransactions;
+    Button pendingPayments;
 
     FirebaseAuth mAuth;
     FirebaseFirestore mRef;
@@ -106,7 +120,20 @@ public class MainActivity extends AppCompatActivity{
             finish();
         }
 
+        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        height = size.y;
+
+        movable = findViewById(R.id.manActivity_background_fL);
+        sabText = findViewById(R.id.activity_main_headingSab_tV);
+
         loadContacts();
+
+        myGroup = findViewById(R.id.activity_main_manageGroups_bt);
+        manageTransactions = findViewById(R.id.activity_main_manageTransactions_bt);
+        pendingPayments = findViewById(R.id.activity_main_pendingPayments_bt);
 
         balanceTv = findViewById(R.id.main_activity_balance_tV);
         payBtn = findViewById(R.id.main_activity_pay_btn);
@@ -123,11 +150,32 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+        myGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, GroupManageActivity.class));
+            }
+        });
+
+        manageTransactions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ManageTransactionsActivity.class));
+            }
+        });
+
+        pendingPayments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         gPayFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, GroupPayActivity.class));
-
+                //startActivity(new Intent(MainActivity.this, GroupPayActivity.class));
+                alterState();
             }
         });
 
@@ -163,38 +211,6 @@ public class MainActivity extends AppCompatActivity{
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
 
-    }
-
-    void showGpayMenu(){
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.grouppay_menu_layout);
-        dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-
-        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        (dialog.findViewById(R.id.gpay_menu_payContainer_rl)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        dialog.show();
     }
 
     void signOut(){
@@ -343,6 +359,60 @@ public class MainActivity extends AppCompatActivity{
                     loadContacts();
                 }
         }
+    }
+
+    private void alterState(){
+
+        if(screen==0){
+            showGroupPay();
+        }else{
+            showSabPay();
+        }
+
+
+    }
+
+    private void showGroupPay(){
+        // 1.Hide sab, 2.Show group, 3.Change fab icon
+        screen=1;
+
+        myGroup.setVisibility(View.VISIBLE);
+        manageTransactions.setVisibility(View.VISIBLE);
+        pendingPayments.setVisibility(View.VISIBLE);
+
+        myGroup.animate().alpha(1).setDuration(1000).start();
+        manageTransactions.animate().alpha(1).setDuration(1000).start();
+        pendingPayments.animate().alpha(1).setDuration(1000).start();
+
+        sabText.setAlpha(0);
+        sabText.setText("Group");
+        sabText.animate().alpha(1).setInterpolator(new DecelerateInterpolator()).setDuration(1000).start();
+        gPayFab.setImageResource(R.drawable.ic_up);
+        movable.animate().translationY(height*0.8f).setInterpolator(new DecelerateInterpolator()).setDuration(1000).start();
+    }
+
+    private void showSabPay(){
+        screen=0;
+
+        myGroup.animate().alpha(0).setDuration(1000).start();
+        manageTransactions.animate().alpha(0).setDuration(1000).start();
+        pendingPayments.animate().alpha(0).setDuration(1000).start();
+
+        (new Handler()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                myGroup.setVisibility(View.GONE);
+                manageTransactions.setVisibility(View.GONE);
+                pendingPayments.setVisibility(View.GONE);
+            }
+        }, 1000);
+
+        sabText.setAlpha(0);
+        sabText.setText("Sab");
+        sabText.animate().alpha(1).setInterpolator(new DecelerateInterpolator()).setDuration(500).start();
+        gPayFab.setImageResource(R.drawable.ic_group_white_24dp);
+        movable.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).setDuration(500).start();
+
     }
 
 }

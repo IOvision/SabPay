@@ -1,4 +1,4 @@
-package com.visionio.sabpay.groupPay.pending;
+package com.visionio.sabpay.helper;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
@@ -9,15 +9,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.visionio.sabpay.Models.Contact;
 import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.groupPay.manage.Group;
+import com.visionio.sabpay.groupPay.manageGroup.Group;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class GroupSelectorAdapter extends RecyclerView.Adapter<GroupSelectorAdapter.GroupSelectorViewHolder> {
