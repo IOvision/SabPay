@@ -18,8 +18,6 @@ import java.text.SimpleDateFormat;
 
 public class Transaction {
 
-    // TODO: fix the null type on @type
-
     //server fields
     String id;
     Integer amount;

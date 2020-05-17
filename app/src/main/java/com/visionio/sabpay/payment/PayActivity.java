@@ -278,7 +278,6 @@ public class PayActivity extends AppCompatActivity{
     }
 
     private void addIfContactIsRegistered(final Contact contact){
-        // FIXME(BUG) contact is shown multiple times
          /*this function checks if contact from local mobile is registered with our app or not
         * if yes then we add it to adapter else do nothing
         *

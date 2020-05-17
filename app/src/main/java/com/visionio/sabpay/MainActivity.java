@@ -58,6 +58,7 @@ import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.groupPay.manageGroup.GroupManageActivity;
 import com.visionio.sabpay.groupPay.manageTransactions.ManageTransactionsActivity;
+import com.visionio.sabpay.groupPay.pending.PendingPaymentActivity;
 import com.visionio.sabpay.payment.PayActivity;
 
 import java.util.ArrayList;
@@ -167,7 +168,7 @@ public class MainActivity extends AppCompatActivity{
         pendingPayments.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(MainActivity.this, PendingPaymentActivity.class));
             }
         });
 
@@ -281,7 +282,6 @@ public class MainActivity extends AppCompatActivity{
                         currentTransaction.setSendByMe(false);
                     }
                     Log.i("Testing", currentTransaction.getFrom().getId()+">>"+currentTransaction.isSendByMe());
-                    currentTransaction.loadUserDataFromReference(adapter);
                     adapter.add(currentTransaction);
                 }
 

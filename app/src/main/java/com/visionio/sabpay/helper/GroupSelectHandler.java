@@ -114,7 +114,7 @@ public class GroupSelectHandler {
             put("active", groupPay.getActive());
             put("ledger", groupPay.getLedger());
             put("timestamp", groupPay.getTimestamp());
-            put("parts", groupPay.getParts());
+            put("parts", group.getMembers().size());
         }};
         Log.i("Testing", "groups/"+group.getId());
         final ProgressDialog progressDialog = new ProgressDialog(context);

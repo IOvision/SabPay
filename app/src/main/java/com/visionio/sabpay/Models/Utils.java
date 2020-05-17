@@ -1,7 +1,13 @@
 package com.visionio.sabpay.Models;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.widget.Toast;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -84,6 +90,19 @@ public class Utils {
     public static String getDateTime(com.google.firebase.Timestamp timestamp){
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         return sfd.format(timestamp.toDate());
+    }
+
+    public static Bitmap getQrBitmap(String qrText){
+        Bitmap result = null;
+        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+        try {
+            BitMatrix bitMatrix = multiFormatWriter.encode(qrText, BarcodeFormat.QR_CODE, 400, 400);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            result = barcodeEncoder.createBitmap(bitMatrix);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
     }
 
 

@@ -5,9 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -17,7 +21,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.Models.GroupPay;
+import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.util.ArrayList;
 
@@ -54,7 +60,12 @@ public class ManageTransactionsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
-        adapter = new GroupPayAdapter(this, new ArrayList<GroupPay>());
+        adapter = new GroupPayAdapter(this, new ArrayList<GroupPay>(), new OnItemClickListener<GroupPay>() {
+            @Override
+            public void onItemClicked(GroupPay object, int position, View view) {
+                showQr(object);
+            }
+        });
 
         //recyclerView.setItemAnimator(new SlideInDownAnimator());
         //recyclerView.setItemAnimator(new SlideInRightAnimator());
@@ -97,5 +108,18 @@ public class ManageTransactionsActivity extends AppCompatActivity {
         });
     }
 
+    void showQr(GroupPay groupPay){
+        String qrText = groupPay.getTo().getId()+"__"+groupPay.getId();
+
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.qr_layout);
+        dialog.getWindow().setLayout(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+        ImageView imageView = dialog.findViewById(R.id.qr_image_iv);
+        imageView.setImageBitmap(Utils.getQrBitmap(qrText));
+
+        dialog.show();
+
+    }
 
 }

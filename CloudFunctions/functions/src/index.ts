@@ -102,7 +102,6 @@ functions.firestore
             active: activeStatus,
             amount: data?.amount,
             ledger: ledger,
-            parts: data?.parts + 1,
             timestamp: data?.timestamp
         }
 
@@ -192,7 +191,8 @@ export const splitTransaction = functions.firestore
         return Promise.all(splitPromises).then(() => {
             return (<admin.firestore.DocumentReference> transaction?.to)
             .collection('group_pay/meta-data/transaction').doc(transaction?.id).update({
-                from: admin.firestore().doc(`groups/${groupId}`)
+                from: admin.firestore().doc(`groups/${groupId}`),
+                parts: members.length
             })
         }).catch(error => {
             console.log(error)

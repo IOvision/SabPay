@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.visionio.sabpay.Models.GroupPay;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.util.List;
 
@@ -23,11 +24,14 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
     List<GroupPay> groupPayList;
     int currentPosition = 0;
 
+    OnItemClickListener<GroupPay> longClickListener;
+
     RelativeLayout expandedView;
 
-    public GroupPayAdapter(Context context, List<GroupPay> groupPayList) {
+    public GroupPayAdapter(Context context, List<GroupPay> groupPayList, OnItemClickListener<GroupPay> longClickListener) {
         this.context = context;
         this.groupPayList = groupPayList;
+        this.longClickListener = longClickListener;
     }
 
     @NonNull
@@ -38,7 +42,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final GroupPayViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final GroupPayViewHolder holder, final int position) {
         final GroupPay  current = groupPayList.get(position);
         holder.id.setText(current.getId());
         holder.amount.setText(current.getAmount().toString());
@@ -47,6 +51,14 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         if(!current.getActive()){
             holder.mainContainer.setBackgroundColor(Color.RED);
         }
+
+        holder.view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                longClickListener.onItemClicked(current, position, v);
+                return true;
+            }
+        });
 
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
