@@ -5,6 +5,7 @@ import com.google.firebase.firestore.DocumentReference;
 public class Wallet {
 
     Integer balance;
+    Integer offPayBalance;
     DocumentReference lastTransaction;
 
     public Wallet() {

@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.visionio.sabpay.MainActivity;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Utils;
@@ -153,6 +154,9 @@ public class RegisterFragment extends Fragment {
         user.setLastName(mLastName);
         user.setEmail(mEmail);
         user.setPhone(mPhoneNumber);
+        user.setOffPayBalance(200);
+        FirebaseInstanceId a = FirebaseInstanceId.getInstance();
+        user.setInstanceId(a.getId());
         user.setLogin(true);
 
 
@@ -160,12 +164,13 @@ public class RegisterFragment extends Fragment {
         wallet.setBalance(Utils.WELCOME_BALANCE);
         wallet.setLastTransaction(null);
 
+        mRef.collection("user").document(user.getUid()).set(user);
+
         mRef.runTransaction(new Transaction.Function<Void>() {
             @Nullable
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
 
-                transaction.set(mRef.collection("user").document(user.getUid()), user);
                 transaction.update(mRef.collection("public").document("registeredPhone"),"number", FieldValue.arrayUnion(mPhoneNumber));
 
                 return null;
@@ -193,7 +198,6 @@ public class RegisterFragment extends Fragment {
                         }
                     }
                 });
-
             }
         });
     }

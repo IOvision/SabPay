@@ -24,8 +24,16 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.MainActivity;
+import com.visionio.sabpay.Models.OffPayWallet;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.R;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+
+import static com.squareup.okhttp.internal.Internal.instance;
 
 public class LoginFragment extends Fragment {
 
@@ -105,6 +113,7 @@ public class LoginFragment extends Fragment {
                     if(!user.getLogin()){
                         if(user != null){
                             mRef.collection("user").document(user.getUid()).update("login", true);
+                            storeData(user);
                             startActivity(new Intent(getContext(), MainActivity.class));
                             getActivity().finish();
                         }
@@ -118,4 +127,15 @@ public class LoginFragment extends Fragment {
         });
 
     }
+
+    private void storeData(User user) {
+        File outFile = new File(getContext().getFilesDir(),"user.data");
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(outFile));
+            out.writeObject(user);
+            out.close();
+            Log.d("Storage","Data Written!");
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
 }

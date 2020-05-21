@@ -19,4 +19,7 @@
     <string name="verifyOtp">Verify OTP</string>
     <string name="enterOTP">Enter OTP</string>
     <string name="transfer_money"><u>Transfer Money</u></string>
+    <string name="sabpay_logo">SabPay Logo</string>
+    <string name="signup">Signup</string>
+    <string name="error_missing_permissions">Missing Permissions</string>
 </resources>

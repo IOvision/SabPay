@@ -2,7 +2,9 @@ package com.visionio.sabpay.Models;
 
 import android.util.Log;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 
     String uid;
     String firstName;
@@ -10,6 +12,8 @@ public class User {
     String phone;
     String email;
     Boolean login;
+    String instanceId;
+    Integer offPayBalance;
 
     public User() {
     }
@@ -65,4 +69,15 @@ public class User {
         return firstName+" "+lastName;
     }
 
+    public void setOffPayBalance(Integer amount) {
+        this.offPayBalance = amount;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
 }

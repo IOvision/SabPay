@@ -7,8 +7,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
@@ -43,6 +47,7 @@ import com.visionio.sabpay.Models.OfflineTransaction;
 import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
+import com.visionio.sabpay.OffPay.OffpayActivity;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.groupPay.GroupPayActivity;
@@ -71,11 +76,24 @@ public class MainActivity extends AppCompatActivity{
 
     ListenerRegistration  listenerRegistration;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("MainActivity", "Activity Started." + getCallingActivity());
+
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+        if (!isConnected){
+            startActivity(new Intent(this, OffpayActivity.class));
+            finish();
+        }
+
+
 
         // TODO: after mainActivity show data in list Item of transaction of group pay
         //startActivity(new Intent(this, GroupPayActivity.class));
@@ -102,41 +120,15 @@ public class MainActivity extends AppCompatActivity{
         wallet = findViewById(R.id.main_activity_wallet);
         gPayFab = findViewById(R.id.activity_main_gpay_fab);
 
-        signOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });
+        signOutBtn.setOnClickListener(v -> signOut());
 
-        gPayFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, GroupPayActivity.class));
+        gPayFab.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, GroupPayActivity.class)));
 
-            }
-        });
+        payBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, PayActivity.class)));
 
-        payBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PayActivity.class));
-            }
-        });
+        offerBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, OfferDisplayActivity.class)));
 
-        offerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, OfferDisplayActivity.class));
-            }
-        });
-
-        wallet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showQR();
-            }
-        });
+        wallet.setOnClickListener(v -> showQR());
 
         if(mAuth.getCurrentUser() != null){
             loadDataFromServer();
@@ -184,6 +176,7 @@ public class MainActivity extends AppCompatActivity{
                     User user = task.getResult().toObject(User.class);
                     MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
                     try {
+                        Toast.makeText(MainActivity.this, FirebaseInstanceId.getInstance().getId(), Toast.LENGTH_SHORT).show();
                         BitMatrix bitMatrix = multiFormatWriter.encode(user.getPhone(), BarcodeFormat.QR_CODE, 400, 400);
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);

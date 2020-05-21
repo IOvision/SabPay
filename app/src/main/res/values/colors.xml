@@ -3,6 +3,7 @@
     <color name="colorPrimary">#8021EB</color>
     <color name="colorPrimaryDark">#8021EB</color>
     <color name="colorAccent">#A1526F</color>
-    <color name="Purple">#8021EB</color>
-    <color name="White">#FFFFFF</color>
+    <color name="Purple">#9657A8</color>
+    <color name="white">#FFFFFF</color>
+    <color name="light_purple">#DE6DF1</color>
 </resources>

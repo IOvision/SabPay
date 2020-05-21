@@ -55,6 +55,7 @@ import com.visionio.sabpay.Models.Transaction;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Utils;
 import com.visionio.sabpay.Models.Wallet;
+import com.visionio.sabpay.OffPay.OffpayActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
 import com.visionio.sabpay.interfaces.OnContactItemClickListener;
@@ -75,6 +76,7 @@ public class PayActivity extends AppCompatActivity{
     ImageView back;
     EditText et_number;
     ImageView btn_search_pay;
+    Button btn_offpay;
 
     RecyclerView recyclerView;
     ContactAdapter adapter;
@@ -180,6 +182,7 @@ public class PayActivity extends AppCompatActivity{
         et_number = findViewById(R.id.pay_activity_receiverPhone_et);
         btn_search_pay = findViewById(R.id.pay_activity_searchAndPay_iv);
         recyclerView = findViewById(R.id.pay_activity_contacts_rv);
+        btn_offpay = findViewById(R.id.btn_offpay);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
@@ -223,6 +226,12 @@ public class PayActivity extends AppCompatActivity{
             }
         });
 
+        btn_offpay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(PayActivity.this, OffpayActivity.class));
+            }
+        });
 
         et_number.addTextChangedListener(new TextWatcher() {
             @Override

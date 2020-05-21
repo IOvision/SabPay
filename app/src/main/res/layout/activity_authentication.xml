@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".authentication.AuthenticationActivity">
+    tools:context=".authentication.AuthenticationActivity"
+    >
 
     <FrameLayout
         android:id="@+id/flFragment"
@@ -12,7 +13,56 @@
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        android:background="@drawable/background">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/sabpay_logo"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:src="@drawable/sabpay"
+                android:contentDescription="@string/sabpay_logo"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="150dp"/>
+
+            <Button
+                android:id="@+id/authentication_button_login"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:text="@string/login"
+                android:textColor="@color/white"
+                android:background="@drawable/btn_custom"
+                android:layout_below="@id/sabpay_logo"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="250dp"
+                android:fontFamily="@font/product_sans_regular"
+                android:textSize="25sp"/>
+
+            <Button
+                android:id="@+id/authentication_button_signup"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:text="@string/signup"
+                android:textColor="@color/white"
+                android:background="@drawable/btn_grey_custom"
+                android:layout_below="@id/authentication_button_login"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/product_sans_regular"
+                android:textSize="25sp"/>
+
+
+        </RelativeLayout>
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
