@@ -2,21 +2,19 @@ package com.visionio.sabpay.OffPay;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.nearby.Nearby;
@@ -32,30 +30,32 @@ import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.R;
+
+import io.paperdb.Paper;
 
 
 public class OffpayActivity extends AppCompatActivity {
 
     Button btn_receive, btn_pay, btn_find;
+    EditText amount;
     private ConnectionsClient connectionsClient;
     private String opponentEndpointId;
     private boolean ongoing = false;
+    User user;
+    TextView textView;
 
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
                 @Override
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     Toast.makeText(OffpayActivity.this, "Recieved!" + fromByteArray(payload.asBytes()), Toast.LENGTH_SHORT).show();
+                    user.receive(fromByteArray(payload.asBytes()));
+                    textView.setText(user.getFirstName() + "," + user.getOffPayBalance());
                 }
 
                 @Override
@@ -71,15 +71,16 @@ public class OffpayActivity extends AppCompatActivity {
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                     Log.d("Connection", "onConnectionInitiated: accepting connection");
                     Nearby.getConnectionsClient(getApplicationContext()).acceptConnection(endpointId, payloadCallback);
+                    connectionsClient.stopAdvertising();
                 }
 
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     if (result.getStatus().isSuccess()) {
                         btn_receive.setVisibility(View.VISIBLE);
+                        amount.setVisibility(View.VISIBLE);
                         Log.d("Connection", "onConnectionResult: connection successful");
                         connectionsClient.stopDiscovery();
-                        connectionsClient.stopAdvertising();
                         opponentEndpointId = endpointId;
                         Toast.makeText(OffpayActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
                     } else {
@@ -91,6 +92,8 @@ public class OffpayActivity extends AppCompatActivity {
                 @Override
                 public void onDisconnected(String endpointId) {
                     Log.d("Connection", "onDisconnected: disconnected from the opponent");
+                    btn_receive.setVisibility(View.GONE);
+                    amount.setVisibility(View.GONE);
                 }
             };
 
@@ -99,7 +102,7 @@ public class OffpayActivity extends AppCompatActivity {
                 @Override
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
                     Log.i("Connection", "onEndpointFound: endpoint found, connecting");
-                    connectionsClient.requestConnection("Device B", endpointId, connectionLifecycleCallback);
+                    connectionsClient.requestConnection(user.getName(), endpointId, connectionLifecycleCallback);
                 }
 
                 @Override
@@ -120,27 +123,18 @@ public class OffpayActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        FirebaseFirestore.getInstance().collection("user").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            User user = task.getResult().toObject(User.class);
-                            if (user.getInstanceId().equalsIgnoreCase(FirebaseInstanceId.getInstance().getId())){
-                                Log.d("InstanceID", user.getInstanceId() + "," + FirebaseInstanceId.getInstance().getId());
-                                Toast.makeText(OffpayActivity.this, "You are on different device.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(OffpayActivity.this, "You may use OffPay.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                });
         setContentView(R.layout.activity_offpay);
 
         btn_pay = findViewById(R.id.offpay_btn_pay);
         btn_receive = findViewById(R.id.offpay_btn_receive);
-        btn_find = findViewById(R.id.offpay)
+        btn_find = findViewById(R.id.offpay_btn_create);
+
+        amount = findViewById(R.id.offpay_amount);
+
+        textView = findViewById(R.id.offpay_user_name);
+
+        user = getUser();
+        textView.setText(user.getFirstName() + "," + user.getOffPayBalance());
 
         connectionsClient = Nearby.getConnectionsClient(this);
 
@@ -148,21 +142,27 @@ public class OffpayActivity extends AppCompatActivity {
             if (ongoing) {
                 disconnect();
             } else {
-                connect();
+                advertise();
             }
         });
 
         btn_receive.setOnClickListener(v -> {
-            byte[] A = toBytes(200);
-            Payload bytesPayload = Payload.fromBytes(A);
-            Nearby.getConnectionsClient(getApplicationContext()).sendPayload(opponentEndpointId, bytesPayload);
+            pay(Integer.parseInt(amount.getText().toString()));
         });
 
-        btn
+        btn_find.setOnClickListener(v -> {
+            discover();
+        });
+
     }
 
-    private void connect() {
+    private void advertise() {
         startAdvertising();
+        btn_pay.setText("Stop");
+        ongoing=true;
+    }
+
+    private void discover() {
         startDiscovery();
         btn_pay.setText("Stop");
         ongoing=true;
@@ -183,7 +183,7 @@ public class OffpayActivity extends AppCompatActivity {
 
     private void startAdvertising() {
         connectionsClient.startAdvertising(
-                "Device A", getPackageName(), connectionLifecycleCallback,
+                user.getName(), getPackageName(), connectionLifecycleCallback,
                 new AdvertisingOptions.Builder().setStrategy(Strategy.P2P_POINT_TO_POINT).build());
     }
 
@@ -239,5 +239,27 @@ public class OffpayActivity extends AppCompatActivity {
 
     static int fromByteArray(byte[] bytes) {
         return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    }
+
+    public User getUser() {
+        return Paper.book(FirebaseAuth.getInstance().getUid()).read("user");
+    }
+
+    public void pay(int amount) {
+        if(amount <= user.getOffPayBalance()){
+            Payload payload = Payload.fromBytes(toBytes(amount));
+            Nearby.getConnectionsClient(this).sendPayload(opponentEndpointId, payload).addOnSuccessListener(aVoid -> {
+                user.send(amount);
+                Paper.book("pending").write("user", user);
+                textView.setText(user.getFirstName() + "," + user.getOffPayBalance());
+                if(user.getOffPayBalance() == null) {
+                    user.setOffPayBalance(200);
+                    Paper.book("pending").write("user",user);
+                    Paper.book(FirebaseAuth.getInstance().getUid()).write("user",user);
+                }
+            });
+        } else {
+            Toast.makeText(this, "Not Enough Balance.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

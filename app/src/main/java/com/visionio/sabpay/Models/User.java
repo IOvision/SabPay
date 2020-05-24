@@ -4,7 +4,9 @@ import android.util.Log;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+import io.paperdb.Paper;
+
+public class User {
 
     String uid;
     String firstName;
@@ -79,5 +81,17 @@ public class User implements Serializable {
 
     public String getInstanceId() {
         return instanceId;
+    }
+
+    public Integer getOffPayBalance() {
+        return offPayBalance;
+    }
+
+    public void send(int amount) {
+        this.offPayBalance -= amount;
+    }
+
+    public void receive(int amount) {
+        this.offPayBalance += amount;
     }
 }

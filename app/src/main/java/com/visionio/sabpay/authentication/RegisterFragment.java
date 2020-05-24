@@ -52,8 +52,6 @@ public class RegisterFragment extends Fragment {
     FirebaseFirestore mRef;
     FirebaseUser firebaseUser;
     FirebaseAuth firebaseAuth;
-    DocumentReference senderDocRef;
-    //FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     String mFirstName;
     String mLastName;
@@ -155,8 +153,7 @@ public class RegisterFragment extends Fragment {
         user.setEmail(mEmail);
         user.setPhone(mPhoneNumber);
         user.setOffPayBalance(200);
-        FirebaseInstanceId a = FirebaseInstanceId.getInstance();
-        user.setInstanceId(a.getId());
+
         user.setLogin(true);
 
 

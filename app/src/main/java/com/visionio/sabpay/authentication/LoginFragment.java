@@ -13,10 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.DoubleBounce;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,8 +34,11 @@ import com.visionio.sabpay.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+
+import io.paperdb.Paper;
 
 import static com.squareup.okhttp.internal.Internal.instance;
 
@@ -39,6 +46,7 @@ public class LoginFragment extends Fragment {
 
     FirebaseAuth mAuth;
     ProgressBar progressBar;
+    ImageView progressBarBg;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -48,41 +56,43 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
-
         mAuth = FirebaseAuth.getInstance();
-
+        container.removeAllViews();
         Button btn_login = view.findViewById(R.id.btn_login);
-        Button btn_register = view.findViewById(R.id.btn_register);
-        final EditText et_email = view.findViewById(R.id.et_login_email);
-        final EditText et_password = view.findViewById(R.id.et_login_password);
+        final EditText et_email = view.findViewById(R.id.login_email);
+        final EditText et_password = view.findViewById(R.id.login_password);
         progressBar = view.findViewById(R.id.login_progressBar);
+        progressBarBg = view.findViewById(R.id.progressBar_background);
+        Sprite doubleBounce = new DoubleBounce();
+        progressBar.setIndeterminateDrawable(doubleBounce);
 
-        btn_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = et_email.getText().toString().trim();
-                String password = et_password.getText().toString().trim();
-                if (email.isEmpty() && password.isEmpty()){
-                    et_email.setError("Email cannot be empty");
-                    et_password.setError("Password cannot be empty");
-                }else if(email.isEmpty()){
-                    et_email.setError("Email cannot be empty");
-                }else if(password.isEmpty()){
-                    et_password.setError("Password cannot be empty");
-                }else {
-                    progressBar.setVisibility(View.VISIBLE);
-                    login(email, password);
-                }
+        btn_login.setOnClickListener(v -> {
+            String email = et_email.getText().toString().trim();
+            String password = et_password.getText().toString().trim();
+            if (email.isEmpty() && password.isEmpty()){
+                et_email.setError("Email cannot be empty");
+                et_password.setError("Password cannot be empty");
+            }else if(email.isEmpty()){
+                et_email.setError("Email cannot be empty");
+            }else if(password.isEmpty()){
+                et_password.setError("Password cannot be empty");
+            }else {
+                show();
+                login(email, password);
             }
         });
 
-        btn_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((AuthenticationActivity)getActivity()).registerFragment();
-            }
-        });
         return view;
+    }
+
+    void show(){
+        progressBar.setVisibility(View.VISIBLE);
+        progressBarBg.setVisibility(View.VISIBLE);
+    }
+
+    void hide(){
+        progressBar.setVisibility(View.GONE);
+        progressBarBg.setVisibility(View.GONE);
     }
 
     void login(String email, String password) {
@@ -92,12 +102,12 @@ public class LoginFragment extends Fragment {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d("Login:", "SignInWithEmail:Success");
-                            progressBar.setVisibility(View.INVISIBLE);
+                            hide();
                             updateUI(mAuth.getCurrentUser());
                         } else {
                             Log.w("Login:", "signInWithEmail:failure", task.getException());
                             Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
+                            hide();
                         }
                     }
                 });
@@ -129,13 +139,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void storeData(User user) {
-        File outFile = new File(getContext().getFilesDir(),"user.data");
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(outFile));
-            out.writeObject(user);
-            out.close();
-            Log.d("Storage","Data Written!");
-        } catch (Exception e) {e.printStackTrace();}
+        Paper.book(user.getUid()).write("user",user);
     }
 
 }

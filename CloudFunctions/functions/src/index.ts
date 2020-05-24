@@ -5,11 +5,38 @@ admin.initializeApp()
 export const newTransaction = 
 functions.firestore.document('user/{userId}/pending_transaction/transaction')
 .onWrite((change) => {
-    const transactionObject = change.after.data()
+    const transactionObject = change.after.data() 
 
     const fromDocumentRef = (<admin.firestore.DocumentReference> transactionObject?.from)
     const toDocumentRef = (<admin.firestore.DocumentReference> transactionObject?.to)
 
+    let getDoc = toDocumentRef.get()
+    .then(doc => {
+        if (!doc.exists) {
+            console.log('No such document');
+        } else {
+            const data = doc.data()
+            const instanceId = data?.instanceId
+            var payload = {
+                notification: {
+                  title: 'Money Recieved!',
+                  body: 'Thoda sa'
+                }
+              };
+            admin.messaging().sendToDevice(instanceId, payload)
+              .then(function(response) {
+                // See the MessagingDevicesResponse reference documentation for
+                // the contents of response.
+                console.log('Successfully sent message:', response);
+              })
+              .catch(function(error) {
+                console.log('Error sending message:', error);
+              });
+        }
+    }).catch(err => {
+            console.log('Error getting document', err)
+    });
+    getDoc;
     //const increment = admin.firestore.FieldValue.increment(<number> transactionObject?.amount)
     //const decrement = admin.firestore.FieldValue.increment(- (<number> transactionObject?.amount))
 
@@ -49,7 +76,7 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
             
             const update_wallet_amount_in_to = toDocumentRef.collection('wallet').doc('wallet')
             .update('balance', admin.firestore.FieldValue.increment(amount))
-            wallet_amount_update_promises.push(update_wallet_amount_in_to)
+            wallet_amount_update_promises.push(update_wallet_amount_in_to)        
         
             return Promise.all(wallet_amount_update_promises).catch(error => {
                 console.log(error)
@@ -60,7 +87,7 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
         })
     }).catch(error => {
         console.log(error)
-    })   
+    }) 
 })
 
 export const newGpayTransaction = 
@@ -152,5 +179,3 @@ functions.firestore
     });
     
 })
-
-
