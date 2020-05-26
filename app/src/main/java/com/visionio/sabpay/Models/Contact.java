@@ -1,5 +1,7 @@
 package com.visionio.sabpay.Models;
 
+import android.widget.RadioButton;
+
 import com.google.firebase.firestore.DocumentReference;
 
 public class Contact {
@@ -7,6 +9,9 @@ public class Contact {
     String id;
     String name;
     String number;
+
+    RadioButton selector;
+    public int positionInAdapter; // tells the position of this contact in adapter
 
     // this is user object from server to which this contact is mapped to
     User user;
@@ -18,8 +23,7 @@ public class Contact {
     public Contact(String id, String name, String number) {
         this.id = id;
         this.name = name;
-        this.number = number;
-        formatNumber();
+        this.number = Utils.formatNumber(number, 0);;
     }
 
     public String getId() {
@@ -42,9 +46,16 @@ public class Contact {
         return number;
     }
 
+    public RadioButton getSelector() {
+        return selector;
+    }
+
+    public void setSelector(RadioButton selector) {
+        this.selector = selector;
+    }
+
     public void setNumber(String number) {
-        this.number = number;
-        formatNumber();
+        this.number = Utils.formatNumber(number, 0);
     }
 
     public User getUser() {
@@ -63,8 +74,5 @@ public class Contact {
         this.reference = reference;
     }
 
-    private void formatNumber(){
-        number = Utils.formatNumber(number, 0);
-        // 0 for including +91 in returned string: expectedOutput +911234567890
-    }
+
 }

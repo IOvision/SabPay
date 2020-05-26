@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="365dp"
+    android:layout_height="275dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#00000000">
+
+    <RelativeLayout
+        android:id="@+id/popup_text_input_layout_container_rl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/corner_round_bg"
+        android:layout_margin="32dp">
+
+        <TextView
+            android:id="@+id/popup_text_input_layout_heading_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Amount"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"/>
+
+        <LinearLayout
+            android:id="@+id/popup_text_input_layout_suggestionContainer_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_below="@id/popup_text_input_layout_heading_tv"
+            android:layout_marginTop="8dp"
+            >
+
+            <RelativeLayout
+                android:id="@+id/popup_text_input_layout_suggestion1Container_rl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                >
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/white_circle_24dp" />
+
+                <TextView
+                    android:id="@+id/popup_text_input_layout_suggestion1_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\?"
+                    android:textColor="#000"
+                    android:textSize="12sp"
+                    android:layout_centerInParent="true"/>
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/popup_text_input_layout_suggestion2Container_rl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/white_circle_24dp" />
+
+                <TextView
+                    android:id="@+id/popup_text_input_layout_suggestion2_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\?"
+                    android:textColor="#000"
+                    android:textSize="12sp"
+                    android:layout_centerInParent="true"/>
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/popup_text_input_layout_suggestion3Container_rl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/white_circle_24dp" />
+
+                <TextView
+                    android:id="@+id/popup_text_input_layout_suggestion3_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\?"
+                    android:textColor="#000"
+                    android:textSize="12sp"
+                    android:layout_centerInParent="true"/>
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/popup_text_input_layout_orSeparator_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Or"
+            android:layout_below="@id/popup_text_input_layout_suggestionContainer_ll"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="6dp"/>
+
+        <EditText
+            android:id="@+id/popup_text_input_layout_enter_et"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:background="@drawable/et_custom"
+            android:hint="Type Something.."
+            android:textSize="12dp"
+            android:textAlignment="center"
+            android:layout_below="@id/popup_text_input_layout_orSeparator_tv"/>
+
+
+
+
+        <!--TODO: Add suggested amounts-->
+
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:id="@+id/popup_text_input_layout_confirmContainer_rl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        app:layout_anchor="@id/popup_text_input_layout_container_rl"
+        app:layout_anchorGravity="center_horizontal|bottom">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/input_loading_bg" />
+
+        <ImageView
+            android:id="@+id/popup_text_input_layout_tickIcon_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_check_black_24dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
+
+        <ProgressBar
+            android:id="@+id/popup_text_input_layout_progress_pb"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

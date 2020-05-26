@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".MainActivity"
+    tools:context="com.visionio.sabpay.MainActivity"
     android:id="@+id/main_body">
 
     <TextView
@@ -87,4 +87,5 @@
             android:layout_height="wrap_content"
             app:menu="@menu/bottom_app_bar" />
     </LinearLayout>
+
 </RelativeLayout>

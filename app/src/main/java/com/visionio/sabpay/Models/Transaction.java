@@ -1,6 +1,5 @@
 package com.visionio.sabpay.Models;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -12,16 +11,13 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.visionio.sabpay.adapter.GroupPayTransactionsAdapter;
+import com.visionio.sabpay.groupPay.manageTransactions.GroupPayTransactionsAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.logging.Handler;
 
 public class Transaction implements Serializable {
-
-    // TODO: fix the null type on @type
 
     //server fields
     String id;
@@ -30,6 +26,8 @@ public class Transaction implements Serializable {
     DocumentReference to;
     Timestamp timestamp;
     Integer type;
+    String gPayId;
+
 
     //offline mapping
     User user_from;
@@ -88,6 +86,13 @@ public class Transaction implements Serializable {
         this.type = type;
     }
 
+    public String getgPayId() {
+        return gPayId;
+    }
+
+    public void setgPayId(String gPayId) {
+        this.gPayId = gPayId;
+    }
 
     public User getUser_from() {
         return user_from;

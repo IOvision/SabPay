@@ -1,10 +1,7 @@
 package com.visionio.sabpay;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -14,12 +11,17 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -42,16 +44,18 @@ import com.visionio.sabpay.Models.User;
 import com.visionio.sabpay.Models.Wallet;
 import com.visionio.sabpay.OffPay.OffpayActivity;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
-import com.visionio.sabpay.groupPay.GroupPayActivity;
+import com.visionio.sabpay.groupPay.manageGroup.GroupManageActivity;
 import com.visionio.sabpay.payment.PayActivity;
 
 import io.paperdb.Paper;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
-
-    BottomNavigationView bottomNavigationView;
+    FirebaseAuth mAuth;
+    FirebaseFirestore mRef;
+    DocumentReference DocRef;
 
     TextView balanceTv;
     Button wallet;
@@ -60,11 +64,10 @@ public class MainActivity extends AppCompatActivity{
     Button offerBtn;
     Button gPay;
     Button transactions;
-    FirebaseAuth mAuth;
-    FirebaseFirestore mRef;
-    DocumentReference DocRef;
+
     ListenerRegistration listenerRegistration;
 
+    BottomNavigationView bottomNavigationView;
 
     String phone;
 
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity{
         Log.d("MainActivity", "Activity Started." + getCallingActivity());
 
         ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        @SuppressLint("MissingPermission") NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
         if (!isConnected){
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    void setUp(){
+    void setUp() {
         mAuth = FirebaseAuth.getInstance();
         mRef = FirebaseFirestore.getInstance();
         sendData();
@@ -110,9 +113,11 @@ public class MainActivity extends AppCompatActivity{
             finish();
         }
 
-        balanceTv = findViewById(R.id.main_bal);
 
+        balanceTv = findViewById(R.id.main_bal);
         payBtn = findViewById(R.id.main_btn_pay);
+
+        bottomNavigationView = findViewById(R.id.main_bottom_navigation);
 
         offerBtn = findViewById(R.id.main_btn_offers);
         transactions = findViewById(R.id.main_btn_transactions);
@@ -120,7 +125,8 @@ public class MainActivity extends AppCompatActivity{
         wallet = findViewById(R.id.main_btn_wallet);
         gPay = findViewById(R.id.main_btn_gpay);
 
-        gPay.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, GroupPayActivity.class)));
+
+        gPay.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, GroupManageActivity.class)));
 
         payBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, PayActivity.class)));
 
@@ -152,8 +158,6 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-
-
     private void showQR() throws WriterException {
         Dialog qrCode = new Dialog(MainActivity.this);
         qrCode.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -168,7 +172,6 @@ public class MainActivity extends AppCompatActivity{
         qr_code.setImageBitmap(bitmap);
         qrCode.show();
     }
-
 
     void loadDataFromServer(){
         listenerRegistration = mRef.collection("user").document(mAuth.getUid())
@@ -217,7 +220,6 @@ public class MainActivity extends AppCompatActivity{
     void setBottomNavigationView(){
         bottomNavigationView = findViewById(R.id.main_bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
-
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){
                 case R.id.bottom_app_bar_main_transaction : {
@@ -233,6 +235,7 @@ public class MainActivity extends AppCompatActivity{
                 }
                 case R.id.bottom_app_bar_main_pay : {
                     return false;
+
                 }
             }
             return false;
@@ -272,4 +275,5 @@ public class MainActivity extends AppCompatActivity{
             }
         }
     }
+
 }
