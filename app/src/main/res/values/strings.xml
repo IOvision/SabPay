@@ -6,7 +6,6 @@
     <string name="swipe_left_for_register">Swipe Left for Register</string>
     <string name="login">Login</string>
     <string name="password">Password</string>
-    <string name="e_mail">Email</string>
     <string name="tag">Your Pay Buddy!</string>
     <string name="swipe_right_for_login">Swipe Right for Login</string>
     <string name="register">Register</string>
@@ -19,4 +18,9 @@
     <string name="verifyOtp">Verify OTP</string>
     <string name="enterOTP">Enter OTP</string>
     <string name="transfer_money"><u>Transfer Money</u></string>
+    <string name="sabpay_logo">SabPay Logo</string>
+    <string name="signup">Signup</string>
+    <string name="error_missing_permissions">Missing Permissions</string>
+    <string name="welcome_back"><u>Welcome Back!</u></string>
+    <string name="e_mail">Email</string>
 </resources>

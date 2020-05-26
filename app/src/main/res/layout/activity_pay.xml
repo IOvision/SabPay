@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/avenir_pro"
         android:text="@string/transfer_money"
-        android:textColor="@color/White"
+        android:textColor="@color/white"
 
         android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -72,7 +72,7 @@
         android:id="@+id/content_frame"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:background="@color/White"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -90,4 +90,16 @@
         app:layout_constraintTop_toBottomOf="@+id/pay_activity_receiverPhone_et"
         android:visibility="visible"
         tools:listitem="@layout/contact_list_item" />
+
+    <Button
+        android:id="@+id/btn_offpay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OFFPAY"
+        app:layout_constraintBottom_toTopOf="@+id/pay_activity_searchAndPay_iv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/pay_activity_back_iv"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

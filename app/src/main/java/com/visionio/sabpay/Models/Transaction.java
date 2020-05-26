@@ -15,10 +15,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.adapter.GroupPayTransactionsAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.logging.Handler;
 
-public class Transaction {
+public class Transaction implements Serializable {
 
     // TODO: fix the null type on @type
 

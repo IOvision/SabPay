@@ -1,100 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/Purple"
+    android:background="@drawable/background"
     tools:context=".authentication.LoginFragment">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textSize="80sp"
-        android:fontFamily="@font/avenir_pro"
-        android:layout_marginStart="25dp"
-        android:layout_marginBottom="10dp"
-        android:textColor="@color/White"
-        android:layout_centerInParent="true"
-        android:layout_above="@id/tv_subtitle"/>
+
+    <ImageView
+        android:id="@+id/sabpay_logo"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/sabpay_logo"
+        android:src="@drawable/sabpay"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.12" />
 
     <TextView
-        android:id="@+id/tv_subtitle"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/tag"
-        android:textSize="17sp"
-        android:fontFamily="@font/roboto_regular"
-        android:layout_marginStart="25dp"
-        android:layout_marginBottom="50dp"
-        android:textColor="@color/White"
-        android:layout_centerInParent="true"
-        android:layout_above="@id/et_login_email"/>
+        android:fontFamily="@font/product_sans_regular"
+        android:text="@string/welcome_back"
 
-    <EditText
+        android:textSize="40sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.215"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sabpay_logo"
+        app:layout_constraintVertical_bias="0.1" />
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/et_login_email"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
         android:hint="@string/e_mail"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:padding="15dp"
-        android:inputType="textEmailAddress"
-        android:fontFamily="@font/roboto_regular"
-        android:layout_above="@id/et_login_password"
-        android:background="@drawable/et_custom"
-        android:textSize="15sp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="0.15"
+        app:startIconDrawable="@drawable/user_icon">
 
-    <EditText
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/login_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/et_login_password"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
         android:hint="@string/password"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:padding="15dp"
-        android:fontFamily="@font/roboto_regular"
-        android:inputType="textPassword"
-        android:layout_centerInParent="true"
-        android:background="@drawable/et_custom"
-        android:textSize="15sp" />
+        app:endIconMode="password_toggle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_login_email"
+        app:layout_constraintVertical_bias="0.05"
+        app:startIconDrawable="@drawable/password_icon">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/login_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btn_login"
-        android:layout_width="match_parent"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/et_login_password"
-        android:background="@drawable/btn_custom"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="15dp"
-        android:fontFamily="@font/roboto_regular"
-        android:textColor="@color/Purple"
-        android:text="@string/login"/>
+        android:backgroundTint="@color/grey"
+        android:fontFamily="@font/product_sans_regular"
+        android:text="Login"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_login_password"
+        app:layout_constraintVertical_bias="0.3"
+        app:rippleColor="@color/white" />
 
-    <Button
-        android:id="@+id/btn_register"
+    <ImageView
+        android:id="@+id/progressBar_background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btn_login"
-        android:background="@drawable/btn_custom"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="15dp"
-        android:fontFamily="@font/roboto_regular"
-        android:textColor="@color/Purple"
-        android:text="@string/register"/>
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"/>
 
-    <ProgressBar
+    <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/login_progressBar"
-        style="?android:attr/progressBarStyle"
+        style="@style/SpinKitView.Large.Circle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btn_register"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="50dp"
-        android:visibility="invisible"/>
+        android:layout_gravity="center"
+        app:SpinKit_Color="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/progressBar_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/progressBar_background"
+        android:visibility="gone"/>
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/product_sans_regular"
+        android:text="Don't have an account?"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.239"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_login"
+        app:layout_constraintVertical_bias="0.26" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:fontFamily="@font/product_sans_regular"
+        android:text="Create an account."
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:textColor="@color/Purple"
+        app:layout_constraintStart_toEndOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/btn_login"
+        app:layout_constraintVertical_bias="0.26" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

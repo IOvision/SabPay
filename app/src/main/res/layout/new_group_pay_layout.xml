@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enter amount"
-        android:textColor="@color/White"
+        android:textColor="@color/white"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="132dp"
         android:textSize="32sp"/>
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/btn_custom_purple"
         android:text="Generate"
-        android:textColor="@color/White"
+        android:textColor="@color/white"
         android:layout_below="@id/new_gPay_amount_et"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="132dp"/>

@@ -4,118 +4,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/Purple"
-    tools:context=".MainActivity">
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/activity_main_gpay_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="32dp"
-        android:src="@drawable/ic_group_black_24dp"/>
-
-    <FrameLayout
-        android:id="@+id/manActivity_background_fL"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/dashboard"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="100dp">
-
-    </FrameLayout>
-
+    android:background="@drawable/background"
+    tools:context=".MainActivity"
+    android:id="@+id/main_body">
 
     <TextView
-        android:id="@+id/activity_main_heading_tV"
+        android:id="@+id/main_bal_head"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/avenir_pro"
-        android:text="SabPay"
-        android:textColor="#FFFFFF"
-        android:textSize="62sp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+        android:text="Balance"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:textSize="45sp"
+        android:textColor="@color/gold"
+        android:fontFamily="@font/product_sans_regular"/>
 
-    <RelativeLayout
-        android:id="@+id/activity_main_walletContainer_rl"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/main_bal"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="132dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp">
-
-        <ImageView
-            android:id="@+id/main_activity_walletIcon_iv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_wallet"/>
-
-        <TextView
-            android:id="@+id/main_activity_wallet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_toRightOf="@id/main_activity_walletIcon_iv"
-            android:fontFamily="@font/avenir_pro"
-            android:text="My Wallet"
-            android:textColor="#000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/main_activity_balance_tV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="28sp"
-            android:text="Rs."
-            android:layout_below="@id/main_activity_walletIcon_iv"
-            android:padding="8dp"/>
-
-        <Button
-            android:id="@+id/main_activity_pay_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="11dp"
-            android:layout_toStartOf="@+id/main_activity_offer_btn"
-            android:background="@drawable/btn_custom_purple"
-            android:text="Pay"
-            android:textColor="@color/White" />
-
-        <Button
-            android:id="@+id/main_activity_offer_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Offers"
-            android:background="@drawable/btn_custom_purple"
-            android:textColor="@color/White"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"/>
-
-
-
-    </RelativeLayout>
-
+        android:text="200"
+        android:layout_below="@id/main_bal_head"
+        android:layout_centerHorizontal="true"
+        android:textSize="30sp"
+        android:textColor="@color/grey"
+        android:fontFamily="@font/product_sans_regular"/>
 
     <Button
-        android:id="@+id/main_activity_signOut_btn"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:textColor="@color/White"
-        android:background="@drawable/ic_logout"
-        android:layout_margin="16dp"
-        android:layout_alignParentEnd="true"/>
+        android:id="@+id/main_btn_pay"
+        android:layout_height="50dp"
+        android:layout_width="200dp"
+        android:layout_below="@id/main_bal"
+        android:gravity="end"
+        android:layout_marginTop="50dp"
+        android:text="Pay" />
 
+    <Button
+        android:id="@+id/main_btn_transactions"
+        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_below="@id/main_btn_pay"
+        android:gravity="end"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/gold"
+        android:text="Transactions" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/main_activity_transactions_rv"
+    <Button
+        android:id="@+id/main_btn_wallet"
+        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_below="@id/main_btn_transactions"
+        android:gravity="end"
+        android:layout_marginTop="10dp"
+        android:text="Wallet" />
+
+    <Button
+        android:id="@+id/main_btn_gpay"
+        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:gravity="end"
+        android:layout_below="@id/main_btn_wallet"
+        android:backgroundTint="#FBBB61"
+        android:layout_marginTop="10dp"
+        android:text="GroupPay" />
+
+    <Button
+        android:id="@+id/main_btn_offers"
+        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:gravity="end"
+        android:layout_below="@id/main_btn_gpay"
+        android:layout_marginTop="10dp"
+        android:text="Offers" />
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/activity_main_walletContainer_rl"/>
-
-
-
+        android:layout_height="wrap_content">
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/main_bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/bottom_app_bar" />
+    </LinearLayout>
 </RelativeLayout>

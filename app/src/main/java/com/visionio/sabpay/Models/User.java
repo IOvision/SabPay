@@ -2,6 +2,10 @@ package com.visionio.sabpay.Models;
 
 import android.util.Log;
 
+import java.io.Serializable;
+
+import io.paperdb.Paper;
+
 public class User {
 
     String uid;
@@ -10,6 +14,8 @@ public class User {
     String phone;
     String email;
     Boolean login;
+    String instanceId;
+    Integer offPayBalance;
 
     public User() {
     }
@@ -65,4 +71,27 @@ public class User {
         return firstName+" "+lastName;
     }
 
+    public void setOffPayBalance(Integer amount) {
+        this.offPayBalance = amount;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public Integer getOffPayBalance() {
+        return offPayBalance;
+    }
+
+    public void send(int amount) {
+        this.offPayBalance -= amount;
+    }
+
+    public void receive(int amount) {
+        this.offPayBalance += amount;
+    }
 }

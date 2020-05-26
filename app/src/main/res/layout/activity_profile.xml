@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileActivity">
+
+    <RelativeLayout
+        android:id="@+id/profile_header"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/Purple">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textSize="32sp"
+        android:text="My Profile"
+        android:textColor="@color/white"
+        android:fontFamily="@font/product_sans_regular"/>
+
+    </RelativeLayout>
+
+    <com.mikhaellopez.circularimageview.CircularImageView
+        android:id="@+id/profile_avatar"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_below="@id/profile_header"
+        android:src="@drawable/avatar_icon"
+        app:civ_border_color="@color/grey"
+        android:layout_marginTop="50dp"
+        app:civ_border_width="5dp"
+        app:civ_shadow="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="15dp"
+        android:transitionName="example_transition"/>
+
+    <RelativeLayout
+        android:id="@+id/name_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/profile_avatar"
+        android:layout_marginTop="20dp">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/profile_first_name"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:hint="First Name"
+        app:helperTextEnabled="true"
+        app:helperText="First Name"
+        app:startIconDrawable="@drawable/user_icon">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/profile_fname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/profile_last_name"
+        android:layout_width="150dp"
+        android:layout_marginStart="10dp"
+        android:layout_height="wrap_content"
+        android:hint="Last Name"
+        app:helperTextEnabled="true"
+        app:helperText="Last Name"
+        android:layout_toEndOf="@id/profile_first_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/profile_lname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+    </RelativeLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/profile_ph"
+        android:layout_width="310dp"
+        android:layout_marginStart="10dp"
+        android:layout_height="wrap_content"
+        android:hint="Phone"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/name_group"
+        app:helperTextEnabled="true"
+        app:helperText="Phone Number"
+        android:layout_marginTop="20dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/profile_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/profile_mail"
+        android:layout_width="310dp"
+        android:layout_marginStart="10dp"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/profile_ph"
+        app:helperTextEnabled="true"
+        app:helperText="@string/e_mail"
+        android:layout_marginTop="20dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/profile_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/profile_done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Done"
+        android:textAllCaps="false"
+        android:textSize="30sp"
+        android:fontFamily="@font/product_sans_regular"
+        android:elevation="0dp"/>
+
+</RelativeLayout>

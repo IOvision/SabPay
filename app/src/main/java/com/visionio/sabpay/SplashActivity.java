@@ -27,12 +27,9 @@ public class SplashActivity extends AppCompatActivity {
 
         imageView.animate().alpha(1).scaleY(1).scaleX(1).setDuration(3000).start();
 
-        (new Handler()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                finish();
-            }
+        (new Handler()).postDelayed(() -> {
+            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            finish();
         }, 5000);
 
     }
