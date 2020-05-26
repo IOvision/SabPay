@@ -11,28 +11,24 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
     const toDocumentRef = (<admin.firestore.DocumentReference> transactionObject?.to)
 
     let getDoc = toDocumentRef.get()
-    .then(doc => {
-        if (!doc.exists) {
-            console.log('No such document');
-        } else {
-            const data = doc.data()
-            const instanceId = data?.instanceId
-            var payload = {
-                notification: {
-                  title: 'Money Recieved!',
-                  body: 'Thoda sa'
-                }
-              };
-            admin.messaging().sendToDevice(instanceId, payload)
-              .then(function(response) {
-                // See the MessagingDevicesResponse reference documentation for
-                // the contents of response.
-                console.log('Successfully sent message:', response);
-              })
-              .catch(function(error) {
-                console.log('Error sending message:', error);
-              });
-        }
+    .then(docto => {
+        fromDocumentRef.get().then(docfrom => {
+        const datato = docto.data()
+        const datafrom = docfrom.data()
+        const instanceId = datato?.instanceId
+        var payload = {
+            notification: {
+                title: `Recieved Rs.${transactionObject?.amount}`,
+                body: `from ${datafrom?.name}`
+            }
+            };
+        admin.messaging().sendToDevice(instanceId, payload)
+            .catch(function(error) {
+            console.log('Error sending message:', error);
+            });
+        }).catch(err => {
+            console.log(err)
+        });
     }).catch(err => {
             console.log('Error getting document', err)
     });

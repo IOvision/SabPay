@@ -3,7 +3,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/Purple</item>
-        <item name="colorOnSurface">@color/grey</item>
+        <item name="colorOnSurface">@color/gold</item>
         <item name="colorError">@android:color/holo_red_dark</item>
         <item name="textAppearanceSubtitle1">@style/TextAppearance.App.Subtitle1</item>
         <item name="textAppearanceCaption">@style/TextAppearance.App.Caption</item>

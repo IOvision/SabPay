@@ -22,7 +22,6 @@ public class AuthenticationActivity extends AppCompatActivity {
     FrameLayout frameLayout;
     FragmentTransaction fragmentTransaction;
     protected FirebaseAuth mAuth;
-    Button btn_login, btn_signup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +30,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         frameLayout = findViewById(R.id.flFragment);
-
-        setup();
-
-
-
-
+        loginFragment();
 
 
     }
@@ -44,28 +38,15 @@ public class AuthenticationActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setup();
+
     }
 
-    private void setup() {
-        LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
-                (Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.layout_authentication, null);
-        frameLayout.addView(view);
-
-        btn_login = view.findViewById(R.id.authentication_button_login);
-        btn_signup = view.findViewById(R.id.authentication_button_signup);
-
-        btn_login.setOnClickListener(v -> loginFragment());
-        btn_signup.setOnClickListener(v -> registerFragment());
-    }
 
     public void loginFragment() {
 
         fragment = new LoginFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.addToBackStack(null);
         frameLayout.removeAllViews();
         fragmentTransaction.add(R.id.flFragment, fragment);
         fragmentTransaction.commit();

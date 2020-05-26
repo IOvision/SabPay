@@ -4,73 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/background"
     tools:context=".MainActivity"
     android:id="@+id/main_body">
-
-    <RelativeLayout
-        android:id="@+id/main_header"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@color/Purple">
-
-        <com.mikhaellopez.circularimageview.CircularImageView
-            android:id="@+id/main_avatar"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/avatar_icon"
-            app:civ_border_color="@color/grey"
-            app:civ_border_width="1dp"
-            app:civ_shadow="false"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="15dp"
-            android:transitionName="example_transition"/>
-
-        <TextView
-            android:id="@+id/main_hi_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_toEndOf="@+id/main_avatar"
-            android:fontFamily="@font/product_sans_regular"
-            android:layout_centerVertical="true"
-            android:textSize="25sp"
-            android:text="Hi, "
-            android:textColor="@color/white" />
-
-        <TextView
-            android:id="@+id/main_header_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/main_hi_tv"
-            android:fontFamily="@font/product_sans_regular"
-            android:layout_centerVertical="true"
-            android:textSize="25sp"
-            android:text="Shubham"
-            android:textColor="@color/white"/>
-
-        <ImageView
-            android:id="@+id/main_signout"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/logout_icon"
-            android:layout_marginRight="10dp"
-            android:layout_centerVertical="true"/>
-
-
-    </RelativeLayout>
 
     <TextView
         android:id="@+id/main_bal_head"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Balance"
-        android:layout_below="@id/main_header"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
         android:textSize="45sp"
-        android:textColor="@color/grey"
+        android:textColor="@color/gold"
         android:fontFamily="@font/product_sans_regular"/>
 
     <TextView
@@ -86,48 +32,59 @@
 
     <Button
         android:id="@+id/main_btn_pay"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_width="200dp"
         android:layout_below="@id/main_bal"
-        android:layout_centerHorizontal="true"
+        android:gravity="end"
         android:layout_marginTop="50dp"
         android:text="Pay" />
 
     <Button
         android:id="@+id/main_btn_transactions"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_below="@id/main_btn_pay"
-        android:layout_centerHorizontal="true"
+        android:gravity="end"
         android:layout_marginTop="10dp"
+        android:backgroundTint="@color/gold"
         android:text="Transactions" />
 
     <Button
         android:id="@+id/main_btn_wallet"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_below="@id/main_btn_transactions"
-        android:layout_centerHorizontal="true"
+        android:gravity="end"
         android:layout_marginTop="10dp"
         android:text="Wallet" />
 
     <Button
         android:id="@+id/main_btn_gpay"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
+        android:gravity="end"
         android:layout_below="@id/main_btn_wallet"
-        android:layout_centerHorizontal="true"
+        android:backgroundTint="#FBBB61"
         android:layout_marginTop="10dp"
         android:text="GroupPay" />
 
     <Button
         android:id="@+id/main_btn_offers"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
+        android:gravity="end"
         android:layout_below="@id/main_btn_gpay"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:text="Offers" />
 
-
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/main_bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/bottom_app_bar" />
+    </LinearLayout>
 </RelativeLayout>

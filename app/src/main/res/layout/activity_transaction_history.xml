@@ -8,42 +8,31 @@
     tools:context=".MainActivity"
     android:id="@+id/main_body">
 
-    <RelativeLayout
-        android:id="@+id/transaction_header"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@color/Purple">
-
-        <ImageView
-            android:id="@+id/transaction_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_arrow_left"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            />
-
-        <TextView
-            android:id="@+id/main_hi_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="1dp"
-            android:layout_marginBottom="18dp"
-            android:layout_toEndOf="@+id/transaction_back"
-            android:fontFamily="@font/product_sans_regular"
-            android:text="Transactions"
-            android:textColor="@color/white"
-            android:textSize="25sp" />
-
-
-    </RelativeLayout>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/transaction_recycler"
-        android:layout_below="@id/transaction_header"
+        android:layout_above="@id/linear_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/transaction_pb"
+        style="@style/SpinKitView.Large.Circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_centerInParent="true"
+        app:SpinKit_Color="@color/Purple" />
+
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/main_bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/bottom_app_bar" />
+    </LinearLayout>
 
 </RelativeLayout>

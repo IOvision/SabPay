@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bottom_app_bar_main_home"
+        android:title="Home"
+        android:icon="@drawable/icon_home"/>
+
+    <item
+        android:id="@+id/bottom_app_bar_main_pay"
+        android:title="Pay"
+        android:icon="@drawable/icon_pay"/>
+
+
+    <item
+        android:id="@+id/bottom_app_bar_main_group"
+        android:title="Group Pay"
+        android:icon="@drawable/icon_group_pay"/>
+
+
+    <item
+        android:id="@+id/bottom_app_bar_main_transaction"
+        android:title="Transactions"
+        android:icon="@drawable/icon_transaction"/>
+
+
+    <item
+        android:id="@+id/bottom_app_bar_main_logout"
+        android:title="Logout"
+        android:icon="@drawable/logout_icon"/>
+
+</menu>

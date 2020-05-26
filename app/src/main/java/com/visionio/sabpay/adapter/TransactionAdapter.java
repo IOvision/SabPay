@@ -1,5 +1,6 @@
 package com.visionio.sabpay.adapter;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,22 +37,19 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return new TransactionViewHolder(v);
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         Transaction current = transactions.get(position);
-
-        if(!current.isSendByMe()){
-            holder.imageView.setRotation(180);
-            holder.amount.setTextColor(Color.GREEN);
-            holder.amount.setText("+ Rs. "+current.getAmount());
-        }else {
-            holder.amount.setText("- Rs. "+current.getAmount());
+        if (!current.isSendByMe()){
+            holder.symbol.setRotation(180);
+            holder.amount.setText("+ \u20B9"+current.getAmount());
+        } else {
+            holder.amount.setText("- \u20B9"+current.getAmount());
         }
 
         holder.description.setText(current.getDescription());
         holder.dateTime.setText(current.getDate());
-
-
     }
 
     @Override
@@ -64,44 +62,23 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         //notifyDataSetChanged();
     }
 
-    /*private void setData(OfflineTransaction current, TransactionViewHolder holder){
-        User from = current.getFrom();
-        User to = current.getTo();
-
-        if(to.getUid().equals(mAuth.getUid())){
-            // received case(
-            holder.description.setText("Receiver from:\n"+from.getName());
-            holder.amount.setTextColor(Color.GREEN);
-            holder.amount.setText("+ Rs. "+current.getAmount());
-            holder.imageView.setRotation(180);
-        }else{
-            // sent case
-            holder.description.setText("Sent to:\n"+to.getName());
-            holder.amount.setText("- Rs. "+current.getAmount());
-        }
-
-        holder.dateTime.setText(current.getDate());
-
-        current.getUserFromReference(this);
-    }*/
-
     public void clear() {
         transactions.clear();
     }
 
     public class TransactionViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView imageView;
         TextView description;
         TextView amount;
         TextView dateTime;
+        ImageView symbol;
 
         public TransactionViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.transaction_list_item_icon_iv);
             description = itemView.findViewById(R.id.transaction_list_item_description_tv);
             amount = itemView.findViewById(R.id.transaction_list_item_amount_tv);
             dateTime = itemView.findViewById(R.id.transaction_list_item_dateTime_tv);
+            symbol = itemView.findViewById(R.id.symbol);
         }
     }
 

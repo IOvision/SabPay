@@ -15,9 +15,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.CubeGrid;
 import com.github.ybq.android.spinkit.style.DoubleBounce;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,6 +49,7 @@ public class LoginFragment extends Fragment {
     FirebaseAuth mAuth;
     ProgressBar progressBar;
     ImageView progressBarBg;
+    TextView register;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -59,12 +62,17 @@ public class LoginFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         container.removeAllViews();
         Button btn_login = view.findViewById(R.id.btn_login);
+        register = view.findViewById(R.id.textView4);
         final EditText et_email = view.findViewById(R.id.login_email);
         final EditText et_password = view.findViewById(R.id.login_password);
         progressBar = view.findViewById(R.id.login_progressBar);
         progressBarBg = view.findViewById(R.id.progressBar_background);
-        Sprite doubleBounce = new DoubleBounce();
+        Sprite doubleBounce = new CubeGrid();
         progressBar.setIndeterminateDrawable(doubleBounce);
+
+        register.setOnClickListener(v -> {
+            ((AuthenticationActivity)getActivity()).registerFragment();
+        });
 
         btn_login.setOnClickListener(v -> {
             String email = et_email.getText().toString().trim();
@@ -102,7 +110,6 @@ public class LoginFragment extends Fragment {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d("Login:", "SignInWithEmail:Success");
-                            hide();
                             updateUI(mAuth.getCurrentUser());
                         } else {
                             Log.w("Login:", "signInWithEmail:failure", task.getException());
