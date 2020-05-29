@@ -11,7 +11,7 @@
         android:id="@+id/contact_item_icon_iv"
         android:layout_width="34dp"
         android:layout_height="34dp"
-        android:src="@drawable/ic_person_add_black_24dp"
+        android:src="@drawable/avatar_icon"
         android:layout_centerVertical="true"
         android:layout_marginLeft="24dp"/>
 
@@ -27,7 +27,7 @@
             android:id="@+id/contact_item_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/avenir_pro"
+            android:fontFamily="@font/product_sans_regular"
             android:text="Danish"
             android:textColor="#000"
             android:textSize="24sp" />

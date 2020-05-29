@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.visionio.sabpay.main.MainActivity;
 
 public class SplashActivity extends AppCompatActivity {
 

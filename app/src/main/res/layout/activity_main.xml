@@ -5,87 +5,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context="com.visionio.sabpay.MainActivity"
+    tools:context="com.visionio.sabpay.main.MainActivity"
     android:id="@+id/main_body">
 
-    <TextView
-        android:id="@+id/main_bal_head"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Balance"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:textSize="45sp"
-        android:textColor="@color/gold"
-        android:fontFamily="@font/product_sans_regular"/>
-
-    <TextView
-        android:id="@+id/main_bal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="200"
-        android:layout_below="@id/main_bal_head"
-        android:layout_centerHorizontal="true"
-        android:textSize="30sp"
-        android:textColor="@color/grey"
-        android:fontFamily="@font/product_sans_regular"/>
-
-    <Button
-        android:id="@+id/main_btn_pay"
-        android:layout_height="50dp"
-        android:layout_width="200dp"
-        android:layout_below="@id/main_bal"
-        android:gravity="end"
-        android:layout_marginTop="50dp"
-        android:text="Pay" />
-
-    <Button
-        android:id="@+id/main_btn_transactions"
-        android:layout_height="wrap_content"
-        android:layout_width="200dp"
-        android:layout_below="@id/main_btn_pay"
-        android:gravity="end"
-        android:layout_marginTop="10dp"
-        android:backgroundTint="@color/gold"
-        android:text="Transactions" />
-
-    <Button
-        android:id="@+id/main_btn_wallet"
-        android:layout_height="wrap_content"
-        android:layout_width="200dp"
-        android:layout_below="@id/main_btn_transactions"
-        android:gravity="end"
-        android:layout_marginTop="10dp"
-        android:text="Wallet" />
-
-    <Button
-        android:id="@+id/main_btn_gpay"
-        android:layout_height="wrap_content"
-        android:layout_width="200dp"
-        android:gravity="end"
-        android:layout_below="@id/main_btn_wallet"
-        android:backgroundTint="#FBBB61"
-        android:layout_marginTop="10dp"
-        android:text="GroupPay" />
-
-    <Button
-        android:id="@+id/main_btn_offers"
-        android:layout_height="wrap_content"
-        android:layout_width="200dp"
-        android:gravity="end"
-        android:layout_below="@id/main_btn_gpay"
-        android:layout_marginTop="10dp"
-        android:text="Offers" />
-
-    <LinearLayout
-        android:layout_alignParentBottom="true"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/main_bottom_navigation"
+        android:layout_height="50dp"
+        android:elevation="0dp">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/main_top_bar"
+            android:elevation="0dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
+            app:title="SabPay"
+            android:backgroundTint="@color/white"
+            app:titleTextColor="@color/purple"
+            app:menu="@menu/top_app_bar"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:id="@+id/main_frame"
+        android:layout_width="match_parent"
+        android:layout_height="675dp"
+        android:layout_above="@id/main_bottom_navigation"
+        android:layout_below="@id/app_bar_layout" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/main_bottom_navigation"
+            android:layout_alignParentBottom="true"
+            android:layout_height="60dp"
+            android:layout_width="match_parent"
+            app:itemIconTint="@color/purple"
+            app:itemTextColor="@color/purple"
+            app:itemRippleColor="@color/mustard"
             app:menu="@menu/bottom_app_bar" />
-    </LinearLayout>
+
 
 </RelativeLayout>

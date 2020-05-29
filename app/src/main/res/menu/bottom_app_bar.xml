@@ -21,10 +21,9 @@
         android:title="Transactions"
         android:icon="@drawable/icon_transaction"/>
 
-
     <item
-        android:id="@+id/bottom_app_bar_main_logout"
-        android:title="Logout"
-        android:icon="@drawable/logout_icon"/>
+        android:id="@+id/bottom_app_bar_main_offers"
+        android:title="Offers"
+        android:icon="@drawable/icon_discount"/>
 
 </menu>

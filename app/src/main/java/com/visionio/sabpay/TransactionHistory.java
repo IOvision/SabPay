@@ -1,36 +1,25 @@
 package com.visionio.sabpay;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.Wave;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.visionio.sabpay.Models.Transaction;
+import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.adapter.TransactionAdapter;
-import com.visionio.sabpay.authentication.AuthenticationActivity;
 
 import java.util.ArrayList;
 
@@ -40,6 +29,7 @@ public class TransactionHistory extends AppCompatActivity {
     TransactionAdapter adapter;
     ProgressBar progressBar;
     BottomNavigationView bottomNavigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,12 +82,7 @@ public class TransactionHistory extends AppCompatActivity {
                 }
 
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.i("Testing", e.getLocalizedMessage());
-            }
-        });
+        }).addOnFailureListener(e -> Log.i("Testing", e.getLocalizedMessage()));
     }
 
     void setBottomNavigationView(){
@@ -111,12 +96,6 @@ public class TransactionHistory extends AppCompatActivity {
                 }
                 case R.id.bottom_app_bar_main_group : return true;
                 case R.id.bottom_app_bar_main_home : {
-                    finish();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_logout : {
-                    Intent returnIntent = getIntent();
-                    setResult(1, returnIntent);
                     finish();
                     return true;
                 }

@@ -45,10 +45,9 @@
         android:layout_height="42dp"
         android:textColor="@color/white"
         android:text="Pay"
-        android:background="@drawable/btn_custom_purple"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="16dp"
-        android:textSize="20sp"/>
+        android:textSize="15sp"/>
 
 </RelativeLayout>

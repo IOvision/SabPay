@@ -1,6 +1,5 @@
 package com.visionio.sabpay.adapter;
 
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.visionio.sabpay.Models.OfflineTransaction;
-import com.visionio.sabpay.Models.Transaction;
-import com.visionio.sabpay.Models.User;
+import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
@@ -63,29 +60,29 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         } else {
             holder.amount.setText("- \u20B9" + current.getAmount());
 
-            if (isOfTypePending) {
-                holder.pay.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        listener.onItemClicked(current, position, v);
-                    }
-                });
-            } else {
-                if (!current.isSendByMe()) {
-                    holder.symbol.setRotation(180);
-                    holder.amount.setTextColor(Color.GREEN);
-                    holder.amount.setText("+ Rs. " + current.getAmount());
-                } else {
-                    holder.amount.setText("- Rs. " + current.getAmount());
+        if (isOfTypePending) {
+            holder.pay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onItemClicked(current, position, v);
                 }
-
+            });
+        } else {
+            if (!current.isSendByMe()) {
+                holder.symbol.setRotation(180);
+                holder.amount.setTextColor(Color.GREEN);
+                holder.amount.setText("+ \u20B9" + current.getAmount());
+            } else {
+                holder.amount.setText("- \u20B9" + current.getAmount());
             }
 
-            holder.description.setText(current.getDescription());
-            holder.dateTime.setText(current.getDate());
+        }
+
+        holder.description.setText(current.getDescription());
+        holder.dateTime.setText(current.getDate());
 
 
-            current.loadUserDataFromReference(this);
+        current.loadUserDataFromReference(this);
         }
 
 

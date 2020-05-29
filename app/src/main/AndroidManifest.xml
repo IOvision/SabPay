@@ -15,7 +15,12 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/logo" />
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        android:resource="@color/colorAccent" />
 
     <application
         android:name=".DefaultApplication"
@@ -25,39 +30,35 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".payment.PaymentActivity"></activity>
+
         <service
-            android:name=".Models.MyInstanceId"
+            android:name=".models.MyInstanceId"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <activity android:name=".ProfileActivity"></activity>
+
+        <activity android:name=".ProfileActivity" />
         <activity android:name=".TransactionHistory" />
-        <activity android:name=".OffPay.Recieve" />
-        <activity android:name=".OffPay.Send" />
-        <activity android:name=".OffPay.OffpayActivity" />
+        <activity android:name=".offpay.Recieve" />
+        <activity android:name=".offpay.Send" />
+        <activity android:name=".offpay.OffpayActivity" />
         <activity android:name=".OfferDisplayActivity" />
-        <activity android:name=".SplashActivity">
-        </activity>
-        <activity android:name=".groupPay.pending.PendingPaymentActivity"></activity>
-        <activity android:name=".groupPay.manageGroup.GroupManageActivity"></activity>
-        <activity android:name=".groupPay.manageTransactions.ManageTransactionsActivity" />
+        <activity android:name=".SplashActivity"></activity>
+        <activity android:name=".group_pay.pending.PendingPaymentActivity" />
+        <activity android:name=".group_pay.manageGroup.GroupManageActivity" />
+        <activity android:name=".group_pay.manageTransactions.ManageTransactionsActivity" />
         <activity android:name=".payment.PayActivity" />
         <activity android:name=".authentication.AuthenticationActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".main.MainActivity">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
     </application>
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_icon"
-        android:resource="@drawable/logo" />
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_color"
-        android:resource="@color/colorAccent" />
-
 
 </manifest>

@@ -1,6 +1,5 @@
 package com.visionio.sabpay.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,13 +8,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.visionio.sabpay.Models.Contact;
-import com.visionio.sabpay.Models.Offer;
+import com.visionio.sabpay.models.Offer;
 import com.visionio.sabpay.R;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.OfferViewHolder> {
 

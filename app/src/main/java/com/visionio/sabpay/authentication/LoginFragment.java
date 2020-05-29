@@ -19,30 +19,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.ybq.android.spinkit.sprite.Sprite;
-import com.github.ybq.android.spinkit.style.CubeGrid;
 import com.github.ybq.android.spinkit.style.DoubleBounce;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.visionio.sabpay.MainActivity;
-import com.visionio.sabpay.Models.OffPayWallet;
-import com.visionio.sabpay.Models.User;
+import com.visionio.sabpay.main.MainActivity;
+import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.R;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-
 import io.paperdb.Paper;
-
-import static com.squareup.okhttp.internal.Internal.instance;
 
 public class LoginFragment extends Fragment {
 
@@ -62,12 +51,12 @@ public class LoginFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         container.removeAllViews();
         Button btn_login = view.findViewById(R.id.btn_login);
-        register = view.findViewById(R.id.textView4);
+        register = view.findViewById(R.id.login_register);
         final EditText et_email = view.findViewById(R.id.login_email);
         final EditText et_password = view.findViewById(R.id.login_password);
         progressBar = view.findViewById(R.id.login_progressBar);
         progressBarBg = view.findViewById(R.id.progressBar_background);
-        Sprite doubleBounce = new CubeGrid();
+        Sprite doubleBounce = new DoubleBounce();
         progressBar.setIndeterminateDrawable(doubleBounce);
 
         register.setOnClickListener(v -> {
@@ -136,9 +125,11 @@ public class LoginFragment extends Fragment {
                         }
                     }else{
                         Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();
+                        hide();
                     }
                 }else{
                     Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
+                    hide();
                 }
             }
         });

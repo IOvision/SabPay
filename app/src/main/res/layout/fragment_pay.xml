@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".main.PayFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/pay_fragment_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send Money"
+            android:textStyle="bold"
+            android:textSize="40sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/purple"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/et_login_email"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:hint="Number"
+            android:backgroundTint="@color/grey"
+            android:layout_below="@id/pay_fragment_header"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            app:startIconDrawable="@drawable/phone_icon">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/pay_number"
+            android:inputType="number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <RelativeLayout
+            android:id="@+id/recycler_and_qr"
+            android:layout_width="match_parent"
+            android:layout_above="@id/pay_btn_pay"
+            android:layout_marginTop="200dp"
+            android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/pay_fragment_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:visibility="visible"
+            tools:listitem="@layout/contact_list_item" />
+
+        <FrameLayout
+            android:id="@+id/pay_fragment_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:layout_centerInParent="true" />
+        </RelativeLayout>
+        <Button
+            android:id="@+id/pay_btn_pay"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="Pay"
+            android:outlineProvider="none"
+            android:textAllCaps="false"
+            android:textSize="30sp" />
+
+        <ImageView
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="#80000000"
+            android:visibility="gone"/>
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/pay_progress"
+            style="@style/SpinKitView.Large.Circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:SpinKit_Color="@color/purple"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="50dp"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+</FrameLayout>

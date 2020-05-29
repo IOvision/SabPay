@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.visionio.sabpay.Models.Contact;
+import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
