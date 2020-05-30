@@ -53,7 +53,6 @@ public class TransactionHistoryFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
-
         mainInterface.loadTransactions(adapter, progressBar);
     }
 }

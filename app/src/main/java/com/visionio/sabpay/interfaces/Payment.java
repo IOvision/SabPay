@@ -12,7 +12,6 @@ public class Payment {
     }
 
     private static Payment pInstance;
-    private PaymentListener pListener;
     private DocumentReference receiverDocRef;
     private String name;
     private boolean isSuccessful;
@@ -23,18 +22,13 @@ public class Payment {
         isSuccessful = false;
     }
 
-    public static Payment createInstance(DocumentReference a, String b) {
+    public static void createInstance(DocumentReference a, String b) {
         pInstance = new Payment(a,b);
         Log.d("Pay", "getInstance: "+pInstance.getName());
-        return pInstance;
     }
 
     public static Payment getInstance() {
         return pInstance;
-    }
-
-    public void setListener(PaymentListener paymentListener){
-        pListener = paymentListener;
     }
 
     public String getName(){
@@ -51,5 +45,9 @@ public class Payment {
 
     public void setSuccess() {
         isSuccessful = true;
+    }
+
+    public static void setNull() {
+        pInstance = null;
     }
 }

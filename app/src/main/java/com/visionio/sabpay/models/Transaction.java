@@ -147,7 +147,6 @@ public class Transaction implements Serializable {
     }
 
     public void loadUserDataFromReference(final TransactionAdapter adapter){
-
         if(type==1){
             (FirebaseFirestore.getInstance()).document(Utils.getPathToUser("/"+to.getPath())).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -163,7 +162,7 @@ public class Transaction implements Serializable {
             });
             return;
         }
-
+        Log.d("Trans", id + ", " + isSendByMe );
         if(isSendByMe){
             to.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override

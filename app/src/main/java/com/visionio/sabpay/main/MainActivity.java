@@ -3,32 +3,24 @@ package com.visionio.sabpay.main;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,15 +29,7 @@ import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.interfaces.MainInterface;
 import com.visionio.sabpay.models.Transaction;
-import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Wallet;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity implements MainInterface {
 
@@ -115,19 +99,6 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
             return false;
         });
         home();
-        if (Paper.book(mAuth.getUid()).contains("user")) {
-            User user = Paper.book(mAuth.getUid()).read("user");
-            materialToolbar.setTitle("Hi, " + user.getFirstName());
-        } else {
-            FirebaseFirestore.getInstance().collection("users").document(mAuth.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    User user = documentSnapshot.toObject(User.class);
-                    Paper.book(user.getUid()).write("user", user);
-                    materialToolbar.setTitle("Hi, " + user.getFirstName());
-                }
-            });
-        }
     }
 
     private void offers() {
@@ -165,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
     }
 
     private void home() {
+        materialToolbar.setTitle("Home");
         HomeFragment fragment = new HomeFragment();
         fragment.setListener(this);
         fragmentManager = getSupportFragmentManager();
@@ -177,8 +149,9 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
         mRef.collection("user").document(mAuth.getUid()).update("login", false)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        mAuth.signOut();
                         listenerRegistration.remove();
+                        mAuth.signOut();
+                        Log.d("signOut", "signOut: "+listenerRegistration);
                         Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
                         startActivity(intent);
                     } else {
@@ -188,11 +161,13 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
     }
 
     @Override
-    public void setBalanceTv(TextView tv) {
+    public void setBalanceTv(TextView tv, ProgressBar balance_pb, ImageView addMoney) {
         listenerRegistration = mRef.collection("user").document(mAuth.getUid())
                 .collection("wallet").document("wallet").addSnapshotListener((documentSnapshot, e) -> {
                     Wallet wallet = documentSnapshot.toObject(Wallet.class);
-                    tv.setText(wallet.getBalance().toString());
+                    tv.setText("\u20B9"+wallet.getBalance().toString());
+                    balance_pb.setVisibility(View.GONE);
+                    addMoney.setVisibility(View.VISIBLE);
                 });
     }
 

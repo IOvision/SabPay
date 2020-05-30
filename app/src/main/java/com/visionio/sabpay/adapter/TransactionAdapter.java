@@ -30,6 +30,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public TransactionAdapter(List<Transaction> transactions) {
         this.transactions = transactions;
         mAuth = FirebaseAuth.getInstance();
+        setHasStableIds(true);
     }
 
     public TransactionAdapter(List<Transaction> transactions, OnItemClickListener<Transaction> listener, boolean isOfTypePending) {
@@ -37,6 +38,11 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         this.listener = listener;
         this.isOfTypePending = isOfTypePending;
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @NonNull
@@ -80,12 +86,8 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
         holder.description.setText(current.getDescription());
         holder.dateTime.setText(current.getDate());
-
-
         current.loadUserDataFromReference(this);
         }
-
-
     }
 
     @Override

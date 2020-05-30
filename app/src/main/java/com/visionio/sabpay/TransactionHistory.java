@@ -75,7 +75,7 @@ public class TransactionHistory extends AppCompatActivity {
                     }else{
                         currentTransaction.setSendByMe(false);
                     }
-                    Log.i("Testing", currentTransaction.getFrom().getId()+">>"+currentTransaction.isSendByMe());
+                    Log.i("Testing", currentTransaction.getId()+">>"+currentTransaction.isSendByMe());
                     currentTransaction.loadUserDataFromReference(adapter);
                     adapter.add(currentTransaction);
                     progressBar.setVisibility(View.GONE);

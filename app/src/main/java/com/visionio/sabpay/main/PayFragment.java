@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -34,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -67,6 +69,7 @@ public class PayFragment extends Fragment {
     EditText et_number;
     RecyclerView recyclerView;
 
+    LoadContacts a;
     ImageView overlay;
     ProgressBar progressBar;
 
@@ -75,10 +78,8 @@ public class PayFragment extends Fragment {
     ZXingScannerView mScannerView;
     Boolean scannerOpen = true;
 
+
     String jsonFromQr;
-
-
-    Integer amount = 0;
 
     String phoneNumber;
     DocumentReference senderDocRef, receiverDocRef;
@@ -117,6 +118,8 @@ public class PayFragment extends Fragment {
         });
 
         recyclerView.setAdapter(adapter);
+        a = new LoadContacts();
+        a.execute(adapter);
 
         pay.setOnClickListener(v -> {
             if (et_number.getText().toString().isEmpty()){
@@ -222,7 +225,11 @@ public class PayFragment extends Fragment {
                             }else{
                                 /*paymentHandler.showPayStatus();
                                 paymentHandler.setError("No wallet linked to this number!!");*/
-                                Toast.makeText(getContext(), "No wallet linked!", Toast.LENGTH_SHORT).show();
+                                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
+                                alert.setTitle("No Wallet Found.").setMessage("No Wallet is linked to this Number.")
+                                        .setPositiveButton("Okay", (dialog, which) -> {
+                                            dialog.dismiss();
+                                        });
                             }
                         }else{
                             //
@@ -266,24 +273,7 @@ public class PayFragment extends Fragment {
 
     private void showContacts(){
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                getContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
-            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
-        } else {
-            // Android version is lesser than 6.0 or the permission is already granted.
-            Cursor phones = getContext().getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-            while (phones.moveToNext()){
-                String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-                String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-                Contact contact = new Contact(id, name, phoneNumber);
-                addIfContactIsRegistered(contact);
-            }
-        }
     }
 
     private void addIfContactIsRegistered(final Contact contact){
@@ -291,19 +281,6 @@ public class PayFragment extends Fragment {
         * if yes then we add it to adapter else do nothing
         *
                 \*/
-        mRef.collection("user").whereEqualTo("phone", contact.getNumber())
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if(queryDocumentSnapshots.getDocuments().size()==1){
-                    DocumentSnapshot snapshot = queryDocumentSnapshots.getDocuments().get(0);
-                    User u = snapshot.toObject(User.class);
-                    contact.setUser(u);
-                    contact.setReference(snapshot.getReference());
-                    adapter.add(contact);
-                }
-            }
-        });
     }
 
     public void hideKeyboard(View view) {
@@ -379,6 +356,72 @@ public class PayFragment extends Fragment {
                 }
             }
         });
+    }
 
+    public final class LoadContacts extends AsyncTask<ContactAdapter, Void, Void> {
+
+        boolean active=true;
+        @Override
+        protected Void doInBackground(ContactAdapter... contactAdapters) {
+            adapter = contactAdapters[0];
+            Log.d("BackGround", "doInBackground: Loading Contacts!");
+            // Android version is lesser than 6.0 or the permission is already granted.
+            Cursor phones = getContext().getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+            while (phones.moveToNext()){
+                if (active){
+                    String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+                    String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+                    Contact contact = new Contact(id, name, phoneNumber);
+                    mRef.collection("user").whereEqualTo("phone", contact.getNumber())
+                            .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if(queryDocumentSnapshots.getDocuments().size()==1){
+                                DocumentSnapshot snapshot = queryDocumentSnapshots.getDocuments().get(0);
+                                User u = snapshot.toObject(User.class);
+                                contact.setUser(u);
+                                contact.setReference(snapshot.getReference());
+                                adapter.add(contact);
+                            }
+                        }
+                    });
+                } else {
+                    Log.d("Loop", "doInBackground: Loop Broken");
+                    break;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Log.d("AsyncTask", "onPostExecute: Complete");
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Log.d("Cancel", "onCancelled: ");
+            active = false;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        a.cancel(true);
+        Log.d("Pay", "onPause: Called");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        a.cancel(true);
+        Log.d("Pay", "onDestroy: Called");
     }
 }
