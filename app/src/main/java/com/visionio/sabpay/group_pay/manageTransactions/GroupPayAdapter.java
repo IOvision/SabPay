@@ -60,24 +60,21 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
             }
         });
 
-        holder.view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        holder.view.setOnClickListener(v -> {
 
-                if(holder.transactionsContainer.getVisibility() == View.VISIBLE){
-                    holder.transactionsContainer.setVisibility(View.GONE);
-                    expandedView = null;
-                }else{
-                    if(expandedView!=null){
-                        expandedView.setVisibility(View.GONE);
-                    }
-                    current.setRecyclerView(holder.recyclerView);
-                    current.loadTransaction(context, holder.progressBar);
-                    holder.transactionsContainer.setVisibility(View.VISIBLE);
-                    expandedView = holder.transactionsContainer;
+            if(holder.transactionsContainer.getVisibility() == View.VISIBLE){
+                holder.transactionsContainer.setVisibility(View.GONE);
+                expandedView = null;
+            }else{
+                if(expandedView!=null){
+                    expandedView.setVisibility(View.GONE);
                 }
-
+                current.setRecyclerView(holder.recyclerView);
+                current.loadTransaction(context, holder.progressBar);
+                holder.transactionsContainer.setVisibility(View.VISIBLE);
+                expandedView = holder.transactionsContainer;
             }
+
         });
     }
 
@@ -114,7 +111,5 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
             mainContainer = view.findViewById(R.id.gPay_item_mainContainer_rl);
             transactionsContainer = view.findViewById(R.id.gPay_item_transactionContainer_ll);
         }
-
     }
-
 }

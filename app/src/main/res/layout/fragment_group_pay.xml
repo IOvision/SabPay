@@ -26,6 +26,7 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:outlineAmbientShadowColor="@color/purple"
         android:text="Pending Payments" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 

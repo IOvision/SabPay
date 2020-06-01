@@ -23,6 +23,8 @@ import com.visionio.sabpay.adapter.TransactionAdapter;
 
 import java.util.ArrayList;
 
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+
 public class TransactionHistory extends AppCompatActivity {
 
     RecyclerView recyclerView;
@@ -47,6 +49,7 @@ public class TransactionHistory extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
+        recyclerView.setItemAnimator(new SlideInLeftAnimator());
         recyclerView.setAdapter(adapter);
 
 

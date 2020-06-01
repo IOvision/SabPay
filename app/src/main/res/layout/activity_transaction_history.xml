@@ -12,7 +12,8 @@
         android:id="@+id/transaction_recycler"
         android:layout_above="@id/linear_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        tools:listitem="@layout/transaction_list_item"/>
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/transaction_pb"

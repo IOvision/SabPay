@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
         });
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
+            /*switch (item.getItemId()) {
                 case R.id.bottom_app_bar_main_home: {
                     home();
                     return true;
@@ -114,16 +114,27 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
                     offers();
                     return true;
                 }
+            }*/
+            if (item.getItemId() == R.id.bottom_app_bar_main_group){
+                groupPay();
+            } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
+                home();
+            } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
+                pay();
+            } else if (item.getItemId() == R.id.bottom_app_bar_main_transaction){
+                transactionHistory();
+            } else if (item.getItemId() == R.id.bottom_app_bar_main_offers){
+                offers();
             }
-            return false;
+            return true;
         });
         loadContacts();
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        home();
     }
 
     private void offers() {
@@ -144,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
     }
 
     private void groupPay() {
-        Toast.makeText(this, "groupPay", Toast.LENGTH_SHORT).show();
         GroupPayFragment fragment = new GroupPayFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -281,101 +291,7 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==1){
             Log.d("ActivityResult", "onActivityResult: Result Acquired!");
-            groupPay();
+            bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_group);
         }
     }
 }
-
-/*
-    void setUp() {
-        mAuth = FirebaseAuth.getInstance();
-        mRef = FirebaseFirestore.getInstance();
-        sendData();
-        loadImage();
-        setView();
-        if(mAuth.getUid() == null){
-            startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
-            finish();
-        }
-    wallet.setOnClickListener(v -> {
-            try {
-                showQR();
-            } catch (WriterException e) {
-                e.printStackTrace();
-            }
-        });
-
-
-
-        if(mAuth.getCurrentUser() != null){
-            loadDataFromServer();
-        }
-        if(Paper.book(FirebaseAuth.getInstance().getCurrentUser().getUid()).contains("user")){
-            User user = Paper.book(FirebaseAuth.getInstance().getCurrentUser().getUid()).read("user");
-            phone = user.getPhone();
-            appBarLayout.setTitle("Hi, " + user.getFirstName());
-        } else {
-            DocRef = mRef.collection("user").document(mAuth.getCurrentUser().getUid());
-            DocRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    User user = task.getResult().toObject(User.class);
-                    Paper.book("current").write("user",user);
-                    phone = user.getPhone();
-                    appBarLayout.setTitle("Hi, " + user.getFirstName());
-                }
-            });
-        }
-    }
-
-    private void showQR() throws WriterException {
-        Dialog qrCode = new Dialog(MainActivity.this);
-        qrCode.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        qrCode.setContentView(R.layout.qr_code);
-
-        final ImageView qr_code = qrCode.findViewById(R.id.iv_qr);
-        qr_code.setEnabled(true);
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        BitMatrix bitMatrix = multiFormatWriter.encode(phone, BarcodeFormat.QR_CODE, 400, 400);
-        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-        Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-        qr_code.setImageBitmap(bitmap);
-        qrCode.show();
-    }
-
-
-
-    }
-
-    void setView(){
-
-    bottomNavigationView = findViewById(R.id.main_bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()){
-                case R.id.bottom_app_bar_main_transaction : {
-                    Intent intent = new Intent(getApplicationContext(), TransactionHistory.class);
-                    startActivityForResult(intent, 1);
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_discount : return false;
-                case R.id.bottom_app_bar_main_group : return false;
-                case R.id.bottom_app_bar_main_home : return true;
-                case R.id.bottom_app_bar_main_pay : {
-                    return false;
-
-                }
-            }
-            return false;
-        });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
-    }
-
-
-    }
-}
-*/

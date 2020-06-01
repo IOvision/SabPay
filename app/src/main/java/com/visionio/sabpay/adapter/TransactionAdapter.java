@@ -26,6 +26,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     OnItemClickListener<Transaction> listener;
     boolean isOfTypePending=false;
+    int position = 0;
 
     public TransactionAdapter(List<Transaction> transactions) {
         this.transactions = transactions;
@@ -95,12 +96,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     public void add (Transaction transaction){
         transactions.add(transaction);
-        notifyDataSetChanged();
+        notifyItemInserted(position++);
     }
 
 
     public void allClear () {
         transactions.clear();
+        position = 0;
         notifyDataSetChanged();
     }
 
