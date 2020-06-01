@@ -47,7 +47,7 @@
                         android:id="@+id/home_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Hi, Sakshi"
+                        android:text=""
                         android:layout_marginStart="20dp"
                         android:layout_marginTop="10dp"
                         android:fontFamily="@font/nunito_extra_light_italic"
@@ -99,7 +99,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_toEndOf="@id/home_bal"
-                            android:src="@drawable/ic_add_box_black_24dp"
+                            android:src="@drawable/ic_add_box_mustard_24dp"
                             android:layout_marginLeft="5dp"
                             android:layout_centerVertical="true"
                             android:visibility="gone"/>

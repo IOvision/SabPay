@@ -24,7 +24,6 @@ public class Payment {
 
     public static void createInstance(DocumentReference a, String b) {
         pInstance = new Payment(a,b);
-        Log.d("Pay", "getInstance: "+pInstance.getName());
     }
 
     public static Payment getInstance() {

@@ -45,7 +45,6 @@ public class ManageTransactionsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group_manage_transaction);
 
         setUp();
-
     }
 
     void setUp(){
@@ -75,42 +74,33 @@ public class ManageTransactionsActivity extends AppCompatActivity {
 
         loadData();
 
-        newGroupPayFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NewGPayHandler handler = new NewGPayHandler(ManageTransactionsActivity.this, mAuth, mRef);
-                handler.init();
-            }
+        newGroupPayFab.setOnClickListener(v -> {
+            NewGPayHandler handler = new NewGPayHandler(ManageTransactionsActivity.this, mAuth, mRef);
+            handler.init();
         });
-
-
     }
 
     // /user/qA3urwCl8qMAFpbXvD1MW1hzbsL2/group_pay/meta-data/transaction/ZEAUSEXwtliWZ8XDIx8T
 
     void loadData(){
-
         mRef.collection("user/"+mAuth.getUid()+"/group_pay/meta-data/transaction")
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    for(DocumentSnapshot snapshot: task.getResult()){
-                        GroupPay groupPay = snapshot.toObject(GroupPay.class);
-                        adapter.add(groupPay);
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        for(DocumentSnapshot snapshot: task.getResult()){
+                            GroupPay groupPay = snapshot.toObject(GroupPay.class);
+                            adapter.add(groupPay);
+                        }
+                    }else{
+                        Log.i("Testing", task.getException().getLocalizedMessage());
                     }
-                }else{
-                    Log.i("Testing", task.getException().getLocalizedMessage());
-                }
-            }
-        });
+                });
     }
 
     void showQr(GroupPay groupPay){
         String qrText = groupPay.getTo().getId()+"__"+groupPay.getId();
 
-        Dialog dialog = new Dialog(this);
+        Dialog dialog = new Dialog(getApplicationContext());
         dialog.setContentView(R.layout.qr_layout);
         dialog.getWindow().setLayout(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 

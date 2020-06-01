@@ -69,7 +69,6 @@ public class PayFragment extends Fragment {
     EditText et_number;
     RecyclerView recyclerView;
 
-    LoadContacts a;
     ImageView overlay;
     ProgressBar progressBar;
 
@@ -108,18 +107,10 @@ public class PayFragment extends Fragment {
         recyclerView.setHasFixedSize(false);
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
 
-        adapter = new ContactAdapter(getContext(), new ArrayList<Contact>(), new ArrayList<Contact>());
-        adapter.setClickListener(new OnItemClickListener<Contact>() {
-            @Override
-            public void onItemClicked(Contact contact, int position, View v) {
-                initiateServer(FLAG_MODE_DIRECT_PAY, contact);
-            }
-
-        });
+        adapter = new ContactAdapter(getContext(), new ArrayList<>(), new ArrayList<>());
+        adapter.setClickListener((contact, position, v) -> initiateServer(FLAG_MODE_DIRECT_PAY, contact));
 
         recyclerView.setAdapter(adapter);
-        a = new LoadContacts();
-        a.execute(adapter);
 
         pay.setOnClickListener(v -> {
             if (et_number.getText().toString().isEmpty()){
@@ -136,7 +127,6 @@ public class PayFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus){
                     hideScanner();
-                    showContacts();
                 }else {
                     showScanner();
                 }
@@ -165,6 +155,7 @@ public class PayFragment extends Fragment {
         });
 
         setUp(view);
+        ((MainActivity)getActivity()).setTitle("Pay");
         return view;
     }
 
@@ -203,7 +194,6 @@ public class PayFragment extends Fragment {
 
     private void requestPermission(String permission, int code){
         if(ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), permission)){
-
         } else {
             ActivityCompat.requestPermissions(getActivity(), new String[]{permission}, code);
         }
@@ -220,7 +210,8 @@ public class PayFragment extends Fragment {
                                 DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
                                 String name = snapshot.getString("name");
                                 receiverDocRef = snapshot.getReference();
-                                Payment.createInstance(receiverDocRef,name);
+                                Log.d("Snapshot", "onComplete: " + snapshot.getReference().getPath());
+                                Payment.createInstance(receiverDocRef, name);
                                 startActivity(new Intent(getActivity(), PaymentActivity.class));
                             }else{
                                 /*paymentHandler.showPayStatus();
@@ -252,7 +243,7 @@ public class PayFragment extends Fragment {
         phoneNumber = Utils.formatNumber(et_number.getText().toString().trim(), 0);
     }
     void directPay(Contact contact){
-        Payment.createInstance(receiverDocRef, contact.getUser().getName());
+        Payment.createInstance(contact.getReference(), contact.getUser().getName());
         startActivity(new Intent(getActivity(), PaymentActivity.class));
     }
 
@@ -271,17 +262,7 @@ public class PayFragment extends Fragment {
         contentFrame.setVisibility(View.VISIBLE);
     }
 
-    private void showContacts(){
 
-
-    }
-
-    private void addIfContactIsRegistered(final Contact contact){
-         /*this function checks if contact from local mobile is registered with our app or not
-        * if yes then we add it to adapter else do nothing
-        *
-                \*/
-    }
 
     public void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -356,72 +337,5 @@ public class PayFragment extends Fragment {
                 }
             }
         });
-    }
-
-    public final class LoadContacts extends AsyncTask<ContactAdapter, Void, Void> {
-
-        boolean active=true;
-        @Override
-        protected Void doInBackground(ContactAdapter... contactAdapters) {
-            adapter = contactAdapters[0];
-            Log.d("BackGround", "doInBackground: Loading Contacts!");
-            // Android version is lesser than 6.0 or the permission is already granted.
-            Cursor phones = getContext().getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-            while (phones.moveToNext()){
-                if (active){
-                    String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-                    String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-
-                    Contact contact = new Contact(id, name, phoneNumber);
-                    mRef.collection("user").whereEqualTo("phone", contact.getNumber())
-                            .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if(queryDocumentSnapshots.getDocuments().size()==1){
-                                DocumentSnapshot snapshot = queryDocumentSnapshots.getDocuments().get(0);
-                                User u = snapshot.toObject(User.class);
-                                contact.setUser(u);
-                                contact.setReference(snapshot.getReference());
-                                adapter.add(contact);
-                            }
-                        }
-                    });
-                } else {
-                    Log.d("Loop", "doInBackground: Loop Broken");
-                    break;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Log.d("AsyncTask", "onPostExecute: Complete");
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-            Log.d("Cancel", "onCancelled: ");
-            active = false;
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        a.cancel(true);
-        Log.d("Pay", "onPause: Called");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        a.cancel(true);
-        Log.d("Pay", "onDestroy: Called");
     }
 }

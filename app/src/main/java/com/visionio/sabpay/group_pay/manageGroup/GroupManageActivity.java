@@ -8,6 +8,8 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,8 +33,6 @@ import java.util.List;
 
 public class GroupManageActivity extends AppCompatActivity {
 
-
-    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
     FrameLayout addButton;
     ViewPager2 groupsViewPager;
@@ -100,7 +100,6 @@ public class GroupManageActivity extends AppCompatActivity {
 
 
     }
-
     void setUpViewPager(){
         groupsViewPager.setAdapter(groupsAdapter);
         groupsViewPager.setClipToPadding(false);
@@ -150,7 +149,11 @@ public class GroupManageActivity extends AppCompatActivity {
                 });
     }
 
-
-
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent returnIntent = new Intent();
+        setResult(Activity.RESULT_OK,returnIntent);
+        finish();
+    }
 }

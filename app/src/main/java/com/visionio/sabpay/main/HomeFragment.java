@@ -82,18 +82,9 @@ public class HomeFragment extends Fragment {
 
     void setAvatar(){
         final long ONE_MEGABYTE = 1024 * 1024;
-        storageReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                avatar.setImageBitmap(bmp);
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(getContext(), "No Such file or Path found!!", Toast.LENGTH_LONG).show();
-            }
+        storageReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+            Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            avatar.setImageBitmap(bmp);
         });
     }
 

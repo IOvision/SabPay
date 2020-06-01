@@ -13,7 +13,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/transaction_fragment_recycler"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            tools:listitem="@layout/transaction_list_item"/>
 
         <com.github.ybq.android.spinkit.SpinKitView
             android:id="@+id/transaction_fragment_pb"

@@ -24,7 +24,7 @@ public class OfferFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_offers, container, false);
-
+        ((MainActivity)getActivity()).setTitle("Offer");
         return view;
     }
 }

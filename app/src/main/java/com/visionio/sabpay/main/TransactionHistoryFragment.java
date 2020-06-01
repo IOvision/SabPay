@@ -41,7 +41,7 @@ public class TransactionHistoryFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.transaction_fragment_recycler);
         progressBar = view.findViewById(R.id.transaction_fragment_pb);
-
+        ((MainActivity)getActivity()).setTitle("Transaction History");
         return view;
     }
 

@@ -45,6 +45,11 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return position;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     @NonNull
     @Override
     public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -60,11 +65,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, final int position) {
         final Transaction current = transactions.get(position);
-        if (!current.isSendByMe()) {
-            holder.symbol.setRotation(180);
-            holder.amount.setText("+ \u20B9" + current.getAmount());
-        } else {
-            holder.amount.setText("- \u20B9" + current.getAmount());
+
 
         if (isOfTypePending) {
             holder.pay.setOnClickListener(new View.OnClickListener() {
@@ -76,12 +77,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         } else {
             if (!current.isSendByMe()) {
                 holder.symbol.setRotation(180);
-                holder.amount.setTextColor(Color.GREEN);
                 holder.amount.setText("+ \u20B9" + current.getAmount());
             } else {
                 holder.amount.setText("- \u20B9" + current.getAmount());
-            }
-
         }
 
         holder.description.setText(current.getDescription());

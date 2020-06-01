@@ -132,21 +132,19 @@ public class Transaction implements Serializable {
     }
 
     public void loadUserDataFromReference(final GroupPayTransactionsAdapter adapter){
-        from.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    user_from = task.getResult().toObject(User.class);
-                    description = "From: \n"+user_from.getName();
-                    adapter.notifyDataSetChanged();
-                }else{
-                    Log.i("Testing", task.getException().getLocalizedMessage());
-                }
+        from.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                user_from = task.getResult().toObject(User.class);
+                description = "From: \n"+user_from.getName();
+                adapter.notifyDataSetChanged();
+            }else{
+                Log.i("Testing", task.getException().getLocalizedMessage());
             }
         });
     }
 
     public void loadUserDataFromReference(final TransactionAdapter adapter){
+        Log.d("Trans", id + ", " + isSendByMe);
         if(type==1){
             (FirebaseFirestore.getInstance()).document(Utils.getPathToUser("/"+to.getPath())).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -162,24 +160,17 @@ public class Transaction implements Serializable {
             });
             return;
         }
-        Log.d("Trans", id + ", " + isSendByMe );
         if(isSendByMe){
-            to.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    user_to = documentSnapshot.toObject(User.class);
-                    description = "Sent to:\n"+user_to.getName();
-                    adapter.notifyDataSetChanged();
-                }
+            to.get().addOnSuccessListener(documentSnapshot -> {
+                user_to = documentSnapshot.toObject(User.class);
+                description = "Sent to:\n"+user_to.getName();
+                adapter.notifyDataSetChanged();
             });
         }else{
-            from.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    user_from = documentSnapshot.toObject(User.class);
-                    description = "Received from:\n"+user_from.getName();
-                    adapter.notifyDataSetChanged();
-                }
+            from.get().addOnSuccessListener(documentSnapshot -> {
+                user_from = documentSnapshot.toObject(User.class);
+                description = "Received from:\n"+user_from.getName();
+                adapter.notifyDataSetChanged();
             });
         }
 
