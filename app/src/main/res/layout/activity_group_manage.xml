@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#90939393"
-    tools:context=".groupPay.manageGroup.GroupManageActivity">
+    android:background="@color/white"
+    tools:context=".group_pay.manageGroup.GroupManageActivity">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/gpay_manage_swipeRefresh_sl"
@@ -42,6 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="No groups yet\n click + to create new group"
+        android:textColor="@color/grey"
         android:textAlignment="center"
         android:textSize="22sp"
         android:layout_centerInParent="true"/>

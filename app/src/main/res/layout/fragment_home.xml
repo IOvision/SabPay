@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_centerVertical="true"
+    android:layout_height="match_parent"
+    tools:context=".main.HomeFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card"
+            android:layout_width="match_parent"
+            app:cardBackgroundColor="@color/grey"
+            android:layout_height="wrap_content"
+            android:elevation="5dp"
+            android:layout_margin="8dp">
+
+            <RelativeLayout
+                android:id="@+id/rl_header_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/home_avatar"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="5dp"
+                    app:civ_border="true"
+                    app:civ_border_color="@color/mustard"
+                    app:civ_border_width="1dp"
+                    app:civ_shadow="true"
+                    app:civ_shadow_radius="1dp"
+                    android:layout_marginVertical="10dp"
+                    android:layout_marginHorizontal="10dp"
+                    app:srcCompat="@drawable/avatar_icon" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/home_avatar"
+                    android:layout_marginStart="15dp">
+                    <TextView
+                        android:id="@+id/home_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/nunito_extra_light_italic"
+                        android:textSize="35dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"/>
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_below="@id/home_name"
+                        android:layout_marginTop="5dp">
+                        <TextView
+                            android:id="@+id/tv_balance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Balance:"
+                            android:fontFamily="@font/nunito_extra_light_italic"
+                            android:layout_centerVertical="true"
+                            android:textColor="@color/mustard"
+                            android:textSize="25sp"/>
+
+                        <com.github.ybq.android.spinkit.SpinKitView
+                            android:id="@+id/balance_progressBar"
+                            style="@style/SpinKitView.Large.Circle"
+                            android:layout_width="50dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            app:SpinKit_Color="@color/white"
+                            android:layout_toEndOf="@id/tv_balance"
+                            android:layout_centerInParent="true"
+                            android:visibility="visible"/>
+
+                        <TextView
+                            android:id="@+id/home_bal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:layout_centerVertical="true"
+                            android:layout_centerHorizontal="true"
+                            android:layout_toEndOf="@+id/tv_balance"
+                            android:textColor="@color/white"
+                            android:fontFamily="@font/nunito_extra_light_italic"
+                            android:layout_marginLeft="5dp"/>
+
+                        <ImageView
+                            android:id="@+id/home_add_money"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_toEndOf="@id/home_bal"
+                            android:src="@drawable/ic_add_box_mustard_24dp"
+                            android:layout_marginLeft="5dp"
+                            android:layout_centerVertical="true"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
+                </RelativeLayout>
+
+
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </RelativeLayout>
+
+</FrameLayout>

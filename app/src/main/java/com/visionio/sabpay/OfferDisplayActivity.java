@@ -6,9 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 
-import com.visionio.sabpay.Models.Contact;
-import com.visionio.sabpay.Models.Offer;
-import com.visionio.sabpay.adapter.ContactAdapter;
+import com.visionio.sabpay.models.Offer;
 import com.visionio.sabpay.adapter.OfferAdapter;
 
 import java.util.ArrayList;

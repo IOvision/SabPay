@@ -24,9 +24,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.visionio.sabpay.Models.GroupPay;
+import com.visionio.sabpay.models.GroupPay;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.groupPay.manageGroup.Group;
+import com.visionio.sabpay.group_pay.manageGroup.Group;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.util.ArrayList;

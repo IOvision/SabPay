@@ -1,54 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="80dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginTop="8dp"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp">
 
-    <ImageView
-        android:id="@+id/transaction_list_item_icon_iv"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
-        android:src="@drawable/ic_up_arrow"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="16dp"/>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        app:cardBackgroundColor="@color/grey"
+        android:layout_height="wrap_content"
+        android:elevation="5dp"
+        android:layout_margin="8dp">
 
+    </com.google.android.material.card.MaterialCardView>
+    <ImageView
+        android:id="@+id/symbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_sent"
+        android:layout_marginStart="10dp"
+        android:layout_centerVertical="true"/>
+
+    <RelativeLayout
+        android:layout_toEndOf="@id/symbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true">
     <TextView
         android:id="@+id/transaction_list_item_description_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
-        android:layout_toRightOf="@id/transaction_list_item_icon_iv"
-        android:fontFamily="@font/roboto_regular"
+        android:fontFamily="@font/product_sans_regular"
         android:text="Sent to: Danish"
         android:textColor="#000"
         android:textSize="18sp" />
-
     <TextView
         android:id="@+id/transaction_list_item_dateTime_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#60000000"
         android:text="9th Feb 5:00 PM"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/transaction_list_item_icon_iv"
+        android:layout_below="@id/transaction_list_item_description_tv"
         android:layout_marginLeft="16dp"
+        android:fontFamily="@font/product_sans_regular"
         android:textSize="12sp"
         android:layout_marginBottom="8dp"/>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/transaction_list_item_amount_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:text="- Rs. 100.00"
-        android:fontFamily="@font/avenir_pro"
-        android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="16dp"
-        android:textSize="20sp"/>
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="40dp"
+        android:fontFamily="@font/product_sans_regular"
+        android:text="\u20B9100"
+        android:textColor="#000"
+        android:textAlignment="center"
+        android:textSize="22sp" />
 
 </RelativeLayout>

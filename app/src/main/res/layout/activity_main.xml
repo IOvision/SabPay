@@ -4,175 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/Purple"
-    tools:context=".MainActivity">
+    android:background="@drawable/background"
+    tools:context="com.visionio.sabpay.main.MainActivity"
+    android:id="@+id/main_body">
 
-    <Button
-        android:id="@+id/activity_main_manageGroups_bt"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_custom_white"
-        android:layout_above="@id/activity_main_pendingPayments_bt"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginBottom="32dp"
-        android:text="My Groups"
-        android:alpha="0"
-        android:visibility="gone"/>
-    <Button
-        android:id="@+id/activity_main_pendingPayments_bt"
+        android:layout_height="50dp"
+        android:elevation="0dp">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/main_top_bar"
+            android:elevation="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:title="SabPay"
+            android:backgroundTint="@color/white"
+            app:titleTextColor="@color/purple"
+            app:menu="@menu/top_app_bar"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:id="@+id/main_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_custom_white"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginBottom="32dp"
-        android:text="Pending Payments"
-        android:alpha="0"
-        android:visibility="gone"/>
+        android:layout_height="675dp"
+        android:layout_above="@id/main_bottom_navigation"
+        android:layout_below="@id/app_bar_layout" />
 
-    <Button
-        android:id="@+id/activity_main_manageTransactions_bt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_custom_white"
-        android:layout_below="@id/activity_main_pendingPayments_bt"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
-        android:text="Manage Transactions"
-        android:alpha="0"
-        android:visibility="gone"/>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/main_bottom_navigation"
+            android:layout_alignParentBottom="true"
+            android:layout_height="60dp"
+            android:layout_width="match_parent"
+            app:itemIconTint="@color/purple"
+            app:itemTextColor="@color/purple"
+            app:itemRippleColor="@color/mustard"
+            app:menu="@menu/bottom_app_bar" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/activity_main_gpay_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="32dp"
-        android:src="@drawable/ic_group_white_24dp"/>
-
-    <RelativeLayout
-        android:id="@+id/manActivity_background_fL"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/dashboard"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="100dp">
-
-        <RelativeLayout
-                android:id="@+id/activity_main_walletContainer_rl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:layout_marginLeft="32dp"
-                android:layout_marginRight="32dp">
-
-                <ImageView
-                    android:id="@+id/main_activity_walletIcon_iv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_wallet"/>
-
-                <TextView
-                    android:id="@+id/main_activity_wallet"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_toRightOf="@id/main_activity_walletIcon_iv"
-                    android:fontFamily="@font/avenir_pro"
-                    android:text="My Wallet"
-                    android:textColor="#000"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/main_activity_balance_tV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="28sp"
-                    android:text="Rs."
-                    android:layout_below="@id/main_activity_walletIcon_iv"
-                    android:padding="8dp"/>
-
-                <Button
-                    android:id="@+id/main_activity_pay_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="11dp"
-                    android:layout_toStartOf="@+id/main_activity_offer_btn"
-                    android:background="@drawable/btn_custom_purple"
-                    android:text="Pay"
-                    android:textColor="@color/White" />
-
-                <Button
-                    android:id="@+id/main_activity_offer_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Offers"
-                    android:background="@drawable/btn_custom_purple"
-                    android:textColor="@color/White"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"/>
-
-
-
-            </RelativeLayout>
-        <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/main_activity_transactions_rv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/activity_main_walletContainer_rl"/>
-
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/activity_main_headingSab_tV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/avenir_pro"
-            android:text="Sab"
-            android:textColor="#FFFFFF"
-            android:textSize="62sp"
-            android:visibility="visible"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"/>
-
-
-
-        <TextView
-            android:id="@+id/activity_main_headingPay_tV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/avenir_pro"
-            android:text="Pay"
-            android:textColor="#FFFFFF"
-            android:textSize="62sp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
-
-
-    </LinearLayout>
-
-
-    <Button
-        android:id="@+id/main_activity_signOut_btn"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:textColor="@color/White"
-        android:background="@drawable/ic_logout"
-        android:layout_margin="16dp"
-        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

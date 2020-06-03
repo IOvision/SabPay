@@ -9,9 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.visionio.sabpay.Models.Utils;
+import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.groupPay.manageGroup.Group;
+import com.visionio.sabpay.group_pay.manageGroup.Group;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 import java.util.ArrayList;

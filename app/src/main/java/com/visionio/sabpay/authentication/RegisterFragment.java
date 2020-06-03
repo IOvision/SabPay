@@ -16,25 +16,23 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
-import com.visionio.sabpay.MainActivity;
-import com.visionio.sabpay.Models.User;
-import com.visionio.sabpay.Models.Utils;
-import com.visionio.sabpay.Models.Wallet;
+import com.visionio.sabpay.main.MainActivity;
+import com.visionio.sabpay.models.User;
+import com.visionio.sabpay.models.Utils;
+import com.visionio.sabpay.models.Wallet;
 import com.visionio.sabpay.R;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -42,17 +40,14 @@ import java.util.Map;
  */
 public class RegisterFragment extends Fragment {
 
-    private final static String TAG = "DEBUG";
-
     private EditText et_first_name, et_last_name, et_email, et_password, et_repassword, et_phonenumber;
+    MaterialToolbar materialToolbar;
     private Button btn_register;
     ProgressBar progressBar;
 
     FirebaseFirestore mRef;
     FirebaseUser firebaseUser;
     FirebaseAuth firebaseAuth;
-    DocumentReference senderDocRef;
-    //FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     String mFirstName;
     String mLastName;
@@ -72,19 +67,23 @@ public class RegisterFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        et_first_name = view.findViewById(R.id.et_register_first_name);
-        et_last_name = view.findViewById(R.id.et_register_last_name);
-        et_email = view.findViewById(R.id.et_register_email);
-        et_password = view.findViewById(R.id.et_register_password);
-        et_repassword = view.findViewById(R.id.et_register_repassword);
-        et_phonenumber = view.findViewById(R.id.et_register_phoneNumber);
+        et_first_name = view.findViewById(R.id.register_first_name);
+        et_last_name = view.findViewById(R.id.register_last_name);
+        et_email = view.findViewById(R.id.register_email);
+        et_password = view.findViewById(R.id.register_password);
+        et_repassword = view.findViewById(R.id.register_confirm_password);
+        et_phonenumber = view.findViewById(R.id.register_phone_number);
         btn_register = view.findViewById(R.id.btn_register);
-        progressBar = view.findViewById(R.id.progressBar);
+        progressBar = view.findViewById(R.id.register_progressbar);
+        materialToolbar = view.findViewById(R.id.main_top_bar);
 
         mRef = FirebaseFirestore.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseAuth = FirebaseAuth.getInstance();
 
+        materialToolbar.setNavigationOnClickListener(v -> {
+            ((AuthenticationActivity)getActivity()).loginFragment();
+        });
 
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,6 +156,8 @@ public class RegisterFragment extends Fragment {
         user.setLastName(mLastName);
         user.setEmail(mEmail);
         user.setPhone(mPhoneNumber);
+        user.setOffPayBalance(200);
+
         user.setLogin(true);
 
 
@@ -164,12 +165,13 @@ public class RegisterFragment extends Fragment {
         wallet.setBalance(Utils.WELCOME_BALANCE);
         wallet.setLastTransaction(null);
 
+        mRef.collection("user").document(user.getUid()).set(user);
+
         mRef.runTransaction(new Transaction.Function<Void>() {
             @Nullable
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
 
-                transaction.set(mRef.collection("user").document(user.getUid()), user);
                 transaction.update(mRef.collection("public").document("registeredPhone"),"number", FieldValue.arrayUnion(mPhoneNumber));
 
                 return null;
@@ -197,7 +199,6 @@ public class RegisterFragment extends Fragment {
                         }
                     }
                 });
-
             }
         });
     }

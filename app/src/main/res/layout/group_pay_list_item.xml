@@ -10,8 +10,8 @@
     <RelativeLayout
         android:id="@+id/gPay_item_mainContainer_rl"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#0f0">
+        android:layout_height="70dp"
+        android:background="@color/grey">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -23,9 +23,9 @@
                 android:id="@+id/gPay_item_id_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/avenir_pro"
+                android:fontFamily="@font/roboto_regular"
                 android:text="EdNzcbo2EJXgURS0BHjf"
-                android:textColor="#000"
+                android:textColor="@color/white"
                 android:textSize="24sp" />
 
             <TextView
@@ -35,10 +35,7 @@
                 android:text="Rs. 1000"
                 android:textSize="12sp"
                 android:fontFamily="monospace"
-                android:textColor="#616060"/>
-
-
-
+                android:textColor="@color/white"/>
         </LinearLayout>
 
         <TextView
@@ -48,6 +45,7 @@
             android:text="2"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
+            android:textColor="@color/white"
             android:layout_margin="16dp"/>
     </RelativeLayout>
 
@@ -57,7 +55,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_below="@id/gPay_item_mainContainer_rl"
-        android:background="#E6DFDF"
+        android:background="@color/mustard"
         android:gravity="center_horizontal"
         android:visibility="gone">
 
@@ -67,7 +65,7 @@
             android:layout_height="wrap_content"
             android:text="Transactions"
             android:layout_margin="8dp"
-            android:textColor="#000"
+            android:textColor="@color/purple"
             android:textSize="24sp"
             android:layout_centerHorizontal="true"/>
 
@@ -85,7 +83,6 @@
             android:layout_below="@id/gPay_item_transactionHeading_tv"
             tools:listitem="@layout/group_pay_transaction_list_item"
             android:layout_marginBottom="8dp"/>
-
 
     </RelativeLayout>
 

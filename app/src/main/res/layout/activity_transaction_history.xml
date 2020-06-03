@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".main.MainActivity"
+    android:id="@+id/main_body">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/transaction_recycler"
+        android:layout_above="@id/linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/transaction_list_item"/>
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/transaction_pb"
+        style="@style/SpinKitView.Large.Circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_centerInParent="true"
+        app:SpinKit_Color="@color/purple" />
+
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/main_bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:itemIconTint="@color/purple"
+            app:itemTextColor="@color/purple"
+            app:itemRippleColor="@color/mustard"
+            app:menu="@menu/bottom_app_bar" />
+    </LinearLayout>
+
+</RelativeLayout>

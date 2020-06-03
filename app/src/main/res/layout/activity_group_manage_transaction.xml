@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/Purple"
-    tools:context=".groupPay.manageTransactions.ManageTransactionsActivity">
+    android:background="@color/purple"
+    tools:context=".group_pay.manageTransactions.ManageTransactionsActivity">
 
     <FrameLayout
         android:id="@+id/groupPayActivity_background_fL"

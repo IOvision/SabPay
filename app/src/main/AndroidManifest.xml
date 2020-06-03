@@ -2,28 +2,61 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.visionio.sabpay">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/logo" />
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        android:resource="@color/colorAccent" />
 
     <application
+        android:name=".DefaultApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".groupPay.pending.PendingPaymentActivity"></activity>
-        <activity android:name=".groupPay.manageGroup.GroupManageActivity"></activity>
+        <activity android:name=".payment.PaymentActivity"></activity>
+
+        <service
+            android:name=".models.MyInstanceId"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".TransactionHistory" />
+        <activity android:name=".offpay.Recieve" />
+        <activity android:name=".offpay.Send" />
+        <activity android:name=".offpay.OffpayActivity" />
         <activity android:name=".OfferDisplayActivity" />
-        <activity android:name=".groupPay.manageTransactions.ManageTransactionsActivity" />
-        <activity android:name=".SplashActivity" />
+        <activity android:name=".SplashActivity"></activity>
+        <activity android:name=".group_pay.pending.PendingPaymentActivity" />
+        <activity android:name=".group_pay.manageGroup.GroupManageActivity" />
+        <activity android:name=".group_pay.manageTransactions.ManageTransactionsActivity" />
         <activity android:name=".payment.PayActivity" />
         <activity android:name=".authentication.AuthenticationActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".main.MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
     </application>

@@ -12,9 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.visionio.sabpay.Models.OfflineTransaction;
-import com.visionio.sabpay.Models.Transaction;
-import com.visionio.sabpay.Models.User;
+import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 
@@ -28,10 +26,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     OnItemClickListener<Transaction> listener;
     boolean isOfTypePending=false;
+    int position = 0;
 
     public TransactionAdapter(List<Transaction> transactions) {
         this.transactions = transactions;
         mAuth = FirebaseAuth.getInstance();
+        setHasStableIds(true);
     }
 
     public TransactionAdapter(List<Transaction> transactions, OnItemClickListener<Transaction> listener, boolean isOfTypePending) {
@@ -39,6 +39,16 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         this.listener = listener;
         this.isOfTypePending = isOfTypePending;
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @NonNull
@@ -54,55 +64,54 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return new TransactionViewHolder(v);
     }
 
-    @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, final int position) {
         final Transaction current = transactions.get(position);
 
 
-        if(isOfTypePending){
+        if (isOfTypePending) {
             holder.pay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     listener.onItemClicked(current, position, v);
                 }
             });
-        }else{
-            if(!current.isSendByMe()){
-                holder.imageView.setRotation(180);
-                holder.amount.setTextColor(Color.GREEN);
-                holder.amount.setText("+ Rs. "+current.getAmount());
-            }else {
-                holder.amount.setText("- Rs. "+current.getAmount());
-            }
+        } else {
+            if (!current.isSendByMe()) {
+                holder.symbol.setRotation(180);
+                holder.amount.setText("+ \u20B9" + current.getAmount());
+            } else {
+                holder.amount.setText("- \u20B9" + current.getAmount());
         }
 
         holder.description.setText(current.getDescription());
         holder.dateTime.setText(current.getDate());
-
         current.loadUserDataFromReference(this);
-
+        }
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount () {
         return transactions.size();
     }
 
-    public void add(Transaction transaction){
+    public void add (Transaction transaction){
         transactions.add(transaction);
-        notifyDataSetChanged();
+        notifyItemInserted(position++);
     }
 
-    public void allClear(){
+
+    public void allClear () {
         transactions.clear();
+        position = 0;
         notifyDataSetChanged();
     }
 
     public class TransactionViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView imageView;
         TextView description;
         TextView dateTime;
+        ImageView symbol;
+
         View v;
 
         TextView amount;
@@ -111,16 +120,19 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         public TransactionViewHolder(@NonNull View itemView) {
             super(itemView);
             v = itemView;
-            imageView = itemView.findViewById(R.id.transaction_list_item_icon_iv);
+            symbol = itemView.findViewById(R.id.transaction_list_item_icon_iv);
             description = itemView.findViewById(R.id.transaction_list_item_description_tv);
             dateTime = itemView.findViewById(R.id.transaction_list_item_dateTime_tv);
+            symbol = itemView.findViewById(R.id.symbol);
 
             if(isOfTypePending){
                 pay = itemView.findViewById(R.id.transaction_list_item_payButton_tv);
             }else{
                 amount = itemView.findViewById(R.id.transaction_list_item_amount_tv);
             }
+
         }
     }
+
 
 }
