@@ -3,33 +3,30 @@ package com.visionio.sabpay.main;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.ThreeBounce;
-import com.github.ybq.android.spinkit.style.Wave;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.interfaces.MainInterface;
 import com.visionio.sabpay.models.User;
+import com.visionio.sabpay.models.Wallet;
 
 import io.paperdb.Paper;
 
@@ -42,11 +39,7 @@ public class HomeFragment extends Fragment {
     TextView name;
     ImageView addMoney;
     ProgressBar balance_pb;
-    MainInterface mainListener;
-
-    public void setListener(MainInterface listener){
-        mainListener = listener;
-    }
+    ListenerRegistration listenerRegistration;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -73,11 +66,23 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mainListener.setBalanceTv(balanceTv, balance_pb, addMoney);
+        setBalanceTv();
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         setAvatar();
         setName();
+    }
+
+    public void setBalanceTv() {
+        listenerRegistration = mRef.collection("user").document(mAuth.getUid())
+                .collection("wallet").document("wallet").addSnapshotListener((documentSnapshot, e) -> {
+                    {
+                        Wallet wallet = documentSnapshot.toObject(Wallet.class);
+                        balanceTv.setText("\u20B9" + wallet.getBalance().toString());
+                        balance_pb.setVisibility(View.GONE);
+                        addMoney.setVisibility(View.VISIBLE);
+                    }
+                });
     }
 
     void setAvatar(){

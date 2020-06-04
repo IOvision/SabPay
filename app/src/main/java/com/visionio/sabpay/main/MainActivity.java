@@ -9,47 +9,33 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
-import com.visionio.sabpay.interfaces.MainInterface;
 import com.visionio.sabpay.models.Contact;
-import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.models.Utils;
-import com.visionio.sabpay.models.Wallet;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MainInterface {
+public class MainActivity extends AppCompatActivity{
 
     FragmentManager fragmentManager;
     FrameLayout frameLayout;
@@ -147,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
 
     private void transactionHistory() {
         TransactionHistoryFragment fragment = new TransactionHistoryFragment();
-        fragment.setListener(this);
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.main_frame, fragment);
@@ -173,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
     private void home() {
         materialToolbar.setTitle("Home");
         HomeFragment fragment = new HomeFragment();
-        fragment.setListener(this);
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.main_frame, fragment);
@@ -192,47 +176,6 @@ public class MainActivity extends AppCompatActivity implements MainInterface {
                         Toast.makeText(MainActivity.this, "Could not sign out", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    @Override
-    public void setBalanceTv(TextView tv, ProgressBar balance_pb, ImageView addMoney) {
-        listenerRegistration = mRef.collection("user").document(mAuth.getUid())
-                .collection("wallet").document("wallet").addSnapshotListener((documentSnapshot, e) -> {
-                    {
-                        Wallet wallet = documentSnapshot.toObject(Wallet.class);
-                        tv.setText("\u20B9" + wallet.getBalance().toString());
-                        balance_pb.setVisibility(View.GONE);
-                        addMoney.setVisibility(View.VISIBLE);
-                    }
-                });
-    }
-
-    public void loadTransactions(TransactionAdapter adapter, ProgressBar progressBar){
-        FirebaseFirestore.getInstance().collection("user")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("transaction")
-                // TODO: check the filter thing
-                //.whereEqualTo("type", 0)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (DocumentSnapshot snapshot: queryDocumentSnapshots){
-                    Transaction currentTransaction = snapshot.toObject(Transaction.class);
-
-                    // TODO: fix getType thing and test the transaction item
-                    if(currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                        currentTransaction.setSendByMe(true);
-                    }else{
-                        currentTransaction.setSendByMe(false);
-                    }
-                    Log.d("Testing1", currentTransaction.getFrom().getId()+">>"+currentTransaction.isSendByMe());
-                    currentTransaction.loadUserDataFromReference(adapter);
-                    adapter.add(currentTransaction);
-                    progressBar.setVisibility(View.GONE);
-                }
-
-            }
-        }).addOnFailureListener(e -> Log.i("Testing", e.getLocalizedMessage()));
     }
 
     @Override
