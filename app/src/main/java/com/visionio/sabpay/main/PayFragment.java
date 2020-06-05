@@ -7,21 +7,21 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -33,9 +33,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -44,6 +44,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.Result;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
+import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 import com.visionio.sabpay.helper.GroupSelectHandler;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.interfaces.Payment;
@@ -66,13 +67,22 @@ public class PayFragment extends Fragment {
     FirebaseFirestore mRef = FirebaseFirestore.getInstance();
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
+    TextInputLayout textInputLayout;
     EditText et_number;
-    RecyclerView recyclerView;
+
+    View.OnClickListener til_listener_show_keyboard;
+    View.OnClickListener til_listener_hide_keyboard;
+
+    RecyclerView selectedContactsRecyclerView;
+    RecyclerView allContactsRecyclerView;
+    ContactAdapter allContactAdapter;
+    SelectedContactsAdapter selectedContactsAdapter;
+    Boolean selected=false;
+    LinearLayout recyclerViewContainer;
 
     ImageView overlay;
     ProgressBar progressBar;
 
-    ContactAdapter adapter;
     ViewGroup contentFrame;
     ZXingScannerView mScannerView;
     Boolean scannerOpen = true;
@@ -96,21 +106,73 @@ public class PayFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_pay, container, false);
 
+        textInputLayout = view.findViewById(R.id.pay_fragment_number_textInputLayout);
         et_number = view.findViewById(R.id.pay_number);
         pay = view.findViewById(R.id.pay_btn_pay);
-        recyclerView = view.findViewById(R.id.pay_fragment_recycler);
+        allContactsRecyclerView = view.findViewById(R.id.pay_fragment_recycler);
+
+        selectedContactsAdapter = new SelectedContactsAdapter(new ArrayList<>());
+        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<>(Utils.deviceContacts), new ArrayList<>(Utils.deviceContacts));
+
+        recyclerViewContainer = view.findViewById(R.id.pay_fragment_recyclerViewsContainer_ll);
+        selectedContactsRecyclerView = view.findViewById(R.id.pay_fragment_selectedContacts_rv);
 
         overlay = view.findViewById(R.id.overlay);
         progressBar = view.findViewById(R.id.pay_progress);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(false);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
+        selectedContactsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()){{
+            setOrientation(RecyclerView.HORIZONTAL);
+        }});
+        selectedContactsRecyclerView.setHasFixedSize(true);
 
-        adapter = new ContactAdapter(getContext(), new ArrayList<>(), new ArrayList<>());
-        adapter.setClickListener((contact, position, v) -> initiateServer(FLAG_MODE_DIRECT_PAY, contact));
+        allContactsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        allContactsRecyclerView.setHasFixedSize(false);
+        allContactsRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
 
-        recyclerView.setAdapter(adapter);
+
+        allContactAdapter.setClickListener(new OnItemClickListener<Contact>() {
+            @Override
+            public void onItemClicked(Contact contact, int position, View v) {
+                Log.i("Testing", "Select: "+position);
+                for(Contact c: selectedContactsAdapter.getContacts()){
+                    if(c.getNumber().equals(contact.getNumber())){
+                        Toast.makeText(getContext(), "Already added", Toast.LENGTH_SHORT).show();
+
+                        return;
+                    }
+                }
+
+                allContactAdapter.select(position);
+                selectedContactsAdapter.add(contact);
+                if(selectedContactsAdapter.getItemCount()==1 && !selected){
+                    selected=true;
+                }
+            }
+
+        });
+
+        selectedContactsAdapter.setClickListener(new OnItemClickListener<Contact>() {
+            @Override
+            public void onItemClicked(final Contact contact, final int position, View v) {
+                v.animate().scaleX(0).scaleY(0).setInterpolator(new DecelerateInterpolator()).setDuration(500).start();
+                (new Handler()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //allContactAdapter.addUserToContact(contact);
+                        selectedContactsAdapter.remove(contact);
+                        allContactAdapter.unSelect(contact.positionInAdapter);
+
+                        if(selectedContactsAdapter.getItemCount()==0 && selected){
+                            selected = false;
+                        }
+                    }
+                }, 1000);
+            }
+
+        });
+
+        selectedContactsRecyclerView.setAdapter(selectedContactsAdapter);
+        allContactsRecyclerView.setAdapter(allContactAdapter);
 
         pay.setOnClickListener(v -> {
             if (et_number.getText().toString().isEmpty()){
@@ -122,16 +184,29 @@ public class PayFragment extends Fragment {
             }
         });
 
-        et_number.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        til_listener_show_keyboard = new View.OnClickListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus){
-                    hideScanner();
-                }else {
-                    showScanner();
-                }
+            public void onClick(View v) {
+                hideScanner();
+                et_number.setEnabled(true);
+                textInputLayout.setEndIconDrawable(R.drawable.ic_qr_scan);
+                textInputLayout.setEndIconOnClickListener(til_listener_hide_keyboard);
             }
-        });
+        };
+
+        til_listener_hide_keyboard = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showScanner();
+                hideKeyboard();
+                et_number.setEnabled(false);
+                textInputLayout.setEndIconDrawable(R.drawable.ic_keyboard_white_24dp);
+                textInputLayout.setEndIconOnClickListener(til_listener_show_keyboard);
+            }
+        };
+
+        textInputLayout.setEndIconDrawable(R.drawable.ic_keyboard_white_24dp);
+        textInputLayout.setEndIconOnClickListener(til_listener_show_keyboard);
 
         et_number.addTextChangedListener(new TextWatcher() {
             @Override
@@ -148,9 +223,12 @@ public class PayFragment extends Fragment {
             public void afterTextChanged(Editable s) {
                 if(s.toString().length()<1){
                     showScanner();
-                    hideKeyboard(view);
+                    hideKeyboard();
+                    et_number.setEnabled(false);
+                    textInputLayout.setEndIconDrawable(R.drawable.ic_keyboard_white_24dp);
+                    textInputLayout.setEndIconOnClickListener(til_listener_show_keyboard);
                 }
-                adapter.applyFilter(s.toString().trim().toLowerCase());
+                allContactAdapter.applyFilter(s.toString().trim().toLowerCase());
             }
         });
 
@@ -235,7 +313,8 @@ public class PayFragment extends Fragment {
             updateVariableData();
             searchUser();
         }else{
-            directPay(contact);
+            phoneNumber = contact.getNumber();
+            searchUser();
         }
     }
 
@@ -251,20 +330,19 @@ public class PayFragment extends Fragment {
         scannerOpen = false;
         mScannerView.stopCamera();
         contentFrame.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
+        recyclerViewContainer.setVisibility(View.VISIBLE);
     }
 
     private void showScanner(){
         scannerOpen = true;
-        recyclerView.setVisibility(View.GONE);
-
+        recyclerViewContainer.setVisibility(View.GONE);
         mScannerView.startCamera();
         contentFrame.setVisibility(View.VISIBLE);
     }
 
 
 
-    public void hideKeyboard(View view) {
+    public void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
         View v = getActivity().getCurrentFocus();

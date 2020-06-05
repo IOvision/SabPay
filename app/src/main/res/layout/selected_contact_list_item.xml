@@ -58,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Danish Jamal"
-        android:textColor="@color/white"
+        android:textColor="#000"
         android:ems="5"
         android:singleLine="true"
         android:ellipsize="marquee"

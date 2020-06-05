@@ -10,5 +10,7 @@ public class DefaultApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Paper.init(getApplicationContext());
+
     }
+
 }
