@@ -26,10 +26,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
 import com.visionio.sabpay.models.Contact;
+import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 
 import java.util.ArrayList;
@@ -187,6 +189,32 @@ public class MainActivity extends AppCompatActivity{
         materialToolbar.setTitle(title);
     }
 
+    private List<Contact> getAllLocalContacts(){
+        List<Contact> contacts = new ArrayList<>();
+        Cursor phones = getApplicationContext().getContentResolver().query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+        while (phones.moveToNext()){
+            String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+            Contact contact = new Contact(id, name, phoneNumber);
+            contacts.add(contact);
+
+        }
+
+        return contacts;
+    }
+
+    private List<String> getNumberArray(List<Contact> contacts){
+        List<String> numbers = new ArrayList<>();
+        for(Contact c: contacts){
+            numbers.add(c.getNumber());
+        }
+        return numbers;
+    }
+
     private void loadContacts(){
 
         final List<Contact> contactList = new ArrayList<>();
@@ -198,6 +226,31 @@ public class MainActivity extends AppCompatActivity{
         } else {
             // Android version is lesser than 6.0 or the permission is already granted.
 
+            List<Contact> allContacts = getAllLocalContacts();
+            List<String> numbers = getNumberArray(allContacts);
+
+
+            mRef.collection("user").whereIn("phone", numbers).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if(task.isSuccessful()){
+                        for(DocumentSnapshot snapshot: task.getResult()){
+                            User user = snapshot.toObject(User.class);
+                            for(Contact c: allContacts){
+                                if(c.getNumber().equals(user.getPhone())){
+                                    c.setUser(user);
+                                    contactList.add(c);
+                                }
+                            }
+                        }
+                        Utils.deviceContacts = contactList;
+                    }else{
+                        Log.d("Error", task.getException().getLocalizedMessage());
+                    }
+                }
+            });
+
+/*
             mRef.collection("public").document("registeredPhone").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -222,6 +275,7 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
             });
+*/
         }
     }
 

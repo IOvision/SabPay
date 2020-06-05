@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,14 +46,13 @@ import com.visionio.sabpay.adapter.ContactAdapter;
 import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 import com.visionio.sabpay.helper.GroupSelectHandler;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
-import com.visionio.sabpay.interfaces.Payment;
 import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.GroupPay;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
-import com.visionio.sabpay.payment.PaymentActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -80,6 +78,8 @@ public class PayFragment extends Fragment {
     Boolean selected=false;
     LinearLayout recyclerViewContainer;
 
+    List<Contact> bufferedContacts = new ArrayList<>();
+
     ImageView overlay;
     ProgressBar progressBar;
 
@@ -98,8 +98,6 @@ public class PayFragment extends Fragment {
     private static final int CAMERA_PERMISSION_CODE = 101;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
-    static final int FLAG_MODE_DIRECT_PAY = -1;
-    static final int FLAG_MODE_SEARCH_AND_PAY = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -160,8 +158,9 @@ public class PayFragment extends Fragment {
                     public void run() {
                         //allContactAdapter.addUserToContact(contact);
                         selectedContactsAdapter.remove(contact);
-                        allContactAdapter.unSelect(contact.positionInAdapter);
-
+                        if(contact.positionInAdapter != 0){
+                            allContactAdapter.unSelect(contact.positionInAdapter);
+                        }
                         if(selectedContactsAdapter.getItemCount()==0 && selected){
                             selected = false;
                         }
@@ -175,13 +174,8 @@ public class PayFragment extends Fragment {
         allContactsRecyclerView.setAdapter(allContactAdapter);
 
         pay.setOnClickListener(v -> {
-            if (et_number.getText().toString().isEmpty()){
-                et_number.setError("Cannot be empty!");
-            } else {
-                initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
-                overlay.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.VISIBLE);
-            }
+            List<Contact> contacts = selectedContactsAdapter.getContacts();
+            Toast.makeText(getContext(), "Pay to: "+contacts.size(), Toast.LENGTH_SHORT).show();
         });
 
         til_listener_show_keyboard = new View.OnClickListener() {
@@ -221,12 +215,8 @@ public class PayFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.toString().length()<1){
-                    showScanner();
-                    hideKeyboard();
-                    et_number.setEnabled(false);
-                    textInputLayout.setEndIconDrawable(R.drawable.ic_keyboard_white_24dp);
-                    textInputLayout.setEndIconOnClickListener(til_listener_show_keyboard);
+                if(s.toString().length()==10){
+                    searchUser();
                 }
                 allContactAdapter.applyFilter(s.toString().trim().toLowerCase());
             }
@@ -246,7 +236,8 @@ public class PayFragment extends Fragment {
                 String res = rawResult.getText();
                 if(Utils.getPaymentType(res)==0){
                     et_number.setText(res);
-                    initiateServer(FLAG_MODE_SEARCH_AND_PAY, null);
+                    updateVariableData();
+                    searchUser();
                 }else{
                     jsonFromQr = res;
                     searchGroupOwner();
@@ -277,8 +268,30 @@ public class PayFragment extends Fragment {
         }
     }
 
-
     void searchUser(){
+        updateVariableData();
+
+        boolean buffered = false;
+
+        for(Contact c: bufferedContacts){
+            if(phoneNumber.equals(c.getNumber())){
+                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
+                alert
+                        .setTitle("Confirm")
+                        .setMessage("This wallet is linked to: "+c.getUser().getName())
+                        .setNegativeButton("No", ((dialog, which) -> {
+                            dialog.dismiss();
+                        }))
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            selectedContactsAdapter.add(c);
+                        }).show();
+                buffered = true;
+                break;
+            }
+        }
+        if(buffered){
+            return;
+        }
         mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -286,11 +299,26 @@ public class PayFragment extends Fragment {
                         if(task.isSuccessful()){
                             if(!task.getResult().getDocuments().isEmpty()){
                                 DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-                                String name = snapshot.getString("name");
-                                receiverDocRef = snapshot.getReference();
-                                Log.d("Snapshot", "onComplete: " + snapshot.getReference().getPath());
-                                Payment.createInstance(receiverDocRef, name);
-                                startActivity(new Intent(getActivity(), PaymentActivity.class));
+                                User user = snapshot.toObject(User.class);
+
+                                Contact c = new Contact();
+                                c.setName(user.getName());
+                                c.setNumber(user.getPhone());
+                                c.setUser(user);
+
+                                bufferedContacts.add(c);
+
+                                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
+                                alert
+                                        .setTitle("Confirm")
+                                        .setMessage("This wallet is linked to: "+user.getName())
+                                        .setNegativeButton("No", ((dialog, which) -> {
+                                            dialog.dismiss();
+                                        }))
+                                        .setPositiveButton("Yes", (dialog, which) -> {
+                                            selectedContactsAdapter.add(c);
+                                        }).show();
+
                             }else{
                                 /*paymentHandler.showPayStatus();
                                 paymentHandler.setError("No wallet linked to this number!!");*/
@@ -307,25 +335,9 @@ public class PayFragment extends Fragment {
                 });
     }
 
-    void initiateServer(int flag, Contact contact){
-        // info: if flag is @FLAG_MODE_SEARCH_AND_PAY then contact will be null
-        if(flag == FLAG_MODE_SEARCH_AND_PAY){
-            updateVariableData();
-            searchUser();
-        }else{
-            phoneNumber = contact.getNumber();
-            searchUser();
-        }
-    }
-
     void updateVariableData(){
         phoneNumber = Utils.formatNumber(et_number.getText().toString().trim(), 0);
     }
-    void directPay(Contact contact){
-        Payment.createInstance(contact.getReference(), contact.getUser().getName());
-        startActivity(new Intent(getActivity(), PaymentActivity.class));
-    }
-
     private void hideScanner(){
         scannerOpen = false;
         mScannerView.stopCamera();
