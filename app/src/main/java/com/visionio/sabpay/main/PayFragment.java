@@ -178,7 +178,7 @@ public class PayFragment extends Fragment {
 
         pay.setOnClickListener(v -> {
             List<Contact> contacts = selectedContactsAdapter.getContacts();
-            Payment.getInstance().addPayee(contacts);
+            Payment.getInstance().setAdapter(selectedContactsAdapter);
             startActivity(new Intent(getActivity(), PaymentActivity.class));
         });
 
@@ -356,8 +356,6 @@ public class PayFragment extends Fragment {
         contentFrame.setVisibility(View.VISIBLE);
     }
 
-
-
     public void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
@@ -431,5 +429,11 @@ public class PayFragment extends Fragment {
                 }
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        mScannerView.stopCamera();
+        super.onPause();
     }
 }

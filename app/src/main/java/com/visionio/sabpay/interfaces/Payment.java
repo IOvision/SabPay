@@ -1,14 +1,12 @@
 package com.visionio.sabpay.interfaces;
 
-import com.visionio.sabpay.models.Contact;
-
-import java.util.List;
+import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 
 public class Payment {
 
     private static Payment pInstance;
 
-    private List<Contact> contacts;
+    private SelectedContactsAdapter adapter;
 
 
     private Payment() {
@@ -23,12 +21,11 @@ public class Payment {
         return  pInstance;
     }
 
-    public void addPayee(List<Contact> contacts){
-        this.contacts = contacts;
+    public SelectedContactsAdapter getAdapter() {
+        return adapter;
     }
 
-    public List<Contact> getPayee(){
-        return contacts;
+    public void setAdapter(SelectedContactsAdapter adapter) {
+        this.adapter = adapter;
     }
-
 }

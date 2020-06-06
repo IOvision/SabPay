@@ -1,6 +1,5 @@
 package com.visionio.sabpay.adapter;
 
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,28 +28,33 @@ public class TransactionStatusAdapter extends RecyclerView.Adapter<TransactionSt
         return new TransactionStatusViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_status_list_item, parent, false));
     }
 
-    public void add(Map<String, String> object){
-        transactionStatus.add(object);
-        notifyDataSetChanged();
-    }
-
     @Override
     public void onBindViewHolder(@NonNull TransactionStatusViewHolder holder, int position) {
         Map<String, String> curr = transactionStatus.get(position);
         holder.id.setText(curr.get("id"));
         holder.time.setText(curr.get("time"));
         holder.user.setText(curr.get("user"));
-        (new Handler()).postDelayed(new Runnable() {
+        /*(new Handler()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 holder.progressBar.setBackgroundResource(R.drawable.ic_confirm);
             }
-        }, 2000);
+        }, 2000);*/
     }
 
     @Override
     public int getItemCount() {
         return transactionStatus.size();
+    }
+
+    public void add(Map<String, String> object){
+        transactionStatus.add(object);
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<Map<String, String>> transactionStatus){
+        this.transactionStatus.addAll(transactionStatus);
+        notifyDataSetChanged();
     }
 
     public class TransactionStatusViewHolder extends RecyclerView.ViewHolder{

@@ -3,6 +3,7 @@ package com.visionio.sabpay.payment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,19 +26,19 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 import com.visionio.sabpay.adapter.TransactionStatusAdapter;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.interfaces.Payment;
 import com.visionio.sabpay.models.Contact;
-import com.visionio.sabpay.models.Transaction;
+import com.visionio.sabpay.models.User;
+import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ import java.util.Map;
 public class PaymentActivity extends AppCompatActivity {
 
     TextView name_tv, balance_tv;
-    CircularImageView avatar;
+    RecyclerView payeeList;
     MaterialToolbar materialToolbar;
     TextInputLayout textInputLayout;
     ProgressBar progressBar;
@@ -62,12 +63,15 @@ public class PaymentActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     TransactionStatusAdapter adapter;
 
-    List<Contact> payee;
+    Payment payment;
+    SelectedContactsAdapter selectedContactsAdapter;
 
     Wallet wallet;
 
     int[] uiManipulator = {1, 0, 0};
     // represents 3 phases of ui. 1 means phase[i] is visible & vice-versa
+
+    boolean isAmountOk = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,32 +84,66 @@ public class PaymentActivity extends AppCompatActivity {
         send = findViewById(R.id.payment_activity_pay);
         materialToolbar = findViewById(R.id.payment_top_bar);
 
-        avatar = findViewById(R.id.payment_receiver_avatar);
+        payeeList = findViewById(R.id.payment_receiver_list_rv);
         balance_tv = findViewById(R.id.payment_activity_balance_tv);
         balanceHeader = findViewById(R.id.payment_activity_wallet_header_ll);
 
         progressBar = findViewById(R.id.payment_activity_transaction_progress);
 
         recyclerView = findViewById(R.id.payment_activity_transactionStatus_rv);
-        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(false);
 
-        adapter = new TransactionStatusAdapter(new ArrayList<>());
+        adapter = new TransactionStatusAdapter(new ArrayList<Map<String, String>>());
+
+        recyclerView.setAdapter(adapter);
 
         mAuth = FirebaseAuth.getInstance();
         mRef = FirebaseFirestore.getInstance();
 
-        payee = Payment.getInstance().getPayee();
+        payment = Payment.getInstance();
+        selectedContactsAdapter = payment.getAdapter();
+
+        selectedContactsAdapter.setClickListener(new OnItemClickListener<Contact>() {
+            @Override
+            public void onItemClicked(Contact object, int position, View view) {
+                int size= selectedContactsAdapter.getContacts().size();
+                if(size==1){
+                    Toast.makeText(PaymentActivity.this, "At least 1 payee need to be selected", Toast.LENGTH_LONG).show();
+                }else{
+                    selectedContactsAdapter.remove(object);
+                    name_tv.setText("Paying to "+selectedContactsAdapter.getContacts().size());
+                }
+
+            }
+        });
+
+        payeeList.setLayoutManager(new LinearLayoutManager(this){{
+            setOrientation(RecyclerView.HORIZONTAL);
+        }});
+        payeeList.setHasFixedSize(false);
+        payeeList.setAdapter(selectedContactsAdapter);
 
         senderDocRef = mRef.collection("user").document(mAuth.getUid());
 
-        name_tv.setText("Paying to "+payee.size());
+        name_tv.setText("Paying to "+selectedContactsAdapter.getContacts().size());
 
 
         fetchWallet();
 
         send.setOnClickListener((View v) -> {
-            updateUi(0, 0, 1);
+            String amount = amount_et.getText().toString().trim();
+            if(!isAmountOk){
+                if(amount.equals("")){
+                    amount_et.setError("Can't be empty");
+                }else{
+                    amount_et.setError("Insufficient Balance");
+                }
+            }else{
+                updateUi(0, 0, 1);
+                payToUserUsingCloudFunction(Integer.parseInt(amount), selectedContactsAdapter.getContacts());
+            }
+
         });
 
         amount_et.addTextChangedListener(new TextWatcher() {
@@ -127,23 +165,19 @@ public class PaymentActivity extends AppCompatActivity {
                 }else{
                     amount = Integer.parseInt(s.toString().trim());
                 }
-                int total = amount*payee.size();
+                int total = amount*selectedContactsAdapter.getContacts().size();
                 if(total>wallet.getBalance()){
                     amount_et.setError("Insufficient Balance");
+                    isAmountOk = false;
                 }else{
                     balance_tv.setText(""+(wallet.getBalance()-total));
+                    isAmountOk = true;
                 }
             }
         });
 
     }
 
-    void initiatePayToUser(){
-        send.setVisibility(View.INVISIBLE);
-        textInputLayout.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-
-    }
 
     void fetchWallet(){
         senderDocRef.collection("wallet").document("wallet").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -160,48 +194,64 @@ public class PaymentActivity extends AppCompatActivity {
 
     }
 
-    void payToUserUsingCloudFunction(){
-        final Transaction transaction = new Transaction();
-        transaction.setId(senderDocRef.collection("transaction").document().getId());
-        transaction.setFrom(senderDocRef);
-        //transaction.setTo(Payment.getInstance().getReceiverDocRef());
-        //transaction.setAmount(amount);
-        transaction.setTimestamp(new Timestamp(new Date()));
+    void addToStatus(String id, Timestamp timestamp, String userName){
+        Map<String, String> status = new HashMap<String, String>(){{
+            put("id", id);
+            put("time", Utils.getDateTime(timestamp));
+            put("user", userName);
+        }};
+        adapter.add(status);
+    }
 
+    void payToUserUsingCloudFunction(int amount, List<Contact> payee){
         Map<String, Object> transactionMap = new HashMap<String, Object>(){{
-            put("id", transaction.getId());
+            put("id", senderDocRef.collection("transaction").document().getId());
             put("type", 0);
-            put("amount", transaction.getAmount());
+            put("amount", amount);
             put("from", senderDocRef);
-            //put("to", Payment.getInstance().getReceiverDocRef());
-            put("timestamp", new Timestamp(new Date()));
         }};
 
         final ListenerRegistration[] lr = {null};
 
+        List<Map<String, String>> status = new ArrayList<>();
 
-        senderDocRef.collection("pending_transaction").document("transaction")
-                .set(transactionMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mRef.runTransaction(new com.google.firebase.firestore.Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull com.google.firebase.firestore.Transaction transaction) throws FirebaseFirestoreException {
+
+                DocumentReference path = senderDocRef.collection("pending_transaction").document("transaction");
+
+
+                for(Contact c:payee){
+                    User user = c.getUser();
+                    DocumentReference toRef = mRef.collection("user").document(user.getUid());
+                    Timestamp timestamp = new Timestamp(new Date());
+
+                    transactionMap.put("to", toRef);
+                    transactionMap.put("timestamp", timestamp);
+
+                    //addToStatus(transactionMap.get("id").toString(), timestamp, user.getName());
+
+                    status.add(new HashMap<String, String>(){{
+                        put("id", transactionMap.get("id").toString());
+                        put("time", Utils.getDateTime(timestamp));
+                        put("user", user.getName());
+                    }});
+
+                    transaction.set(path, transactionMap);
+                }
+
+                return null;
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    lr[0] = senderDocRef.collection("wallet").document("wallet").addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                            Wallet wallet = documentSnapshot.toObject(Wallet.class);
-                            /*if(wallet.getBalance() == initialWalletAmount-amount){
-                                //paymentHandler.setBalance(wallet.getBalance());
-                                lr[0].remove();
-                            }*/
-                        }
-                    });
-
-                    //paymentHandler.setTransactionId(transaction.getId());
-                    SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                    //paymentHandler.setDate(sfd.format(transaction.getTimestamp().toDate()));
-
-                } else {
-                    Toast.makeText(PaymentActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PaymentActivity.this, "Done", Toast.LENGTH_LONG).show();
+                    adapter.addAll(status);
+                }else{
+                    Log.d("TESTING", task.getException().getLocalizedMessage());
                 }
             }
         });
@@ -240,7 +290,7 @@ public class PaymentActivity extends AppCompatActivity {
         }else if(visibility==1){
             visibility = View.VISIBLE;
         }
-        avatar.setVisibility(visibility);
+        payeeList.setVisibility(visibility);
         name_tv.setVisibility(visibility);
         textInputLayout.setVisibility(visibility);
         send.setVisibility(visibility);

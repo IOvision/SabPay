@@ -51,19 +51,15 @@
             />
     </LinearLayout>
 
-    <com.mikhaellopez.circularimageview.CircularImageView
-        android:id="@+id/payment_receiver_avatar"
-        android:layout_width="100dp"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/payment_receiver_list_rv"
+        android:layout_width="wrap_content"
         android:layout_height="100dp"
-        app:srcCompat="@drawable/avatar_icon"
-        app:civ_border="true"
-        app:civ_border_color="@color/mustard"
-        app:civ_border_width="1dp"
-        app:civ_shadow="false"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="150dp"
         android:layout_below="@id/app_bar_layout"
-        android:visibility="gone"/>
+        android:visibility="visible"
+        tools:listitem="@layout/selected_contact_list_item"/>
     <TextView
         android:id="@+id/payment_receiver_name"
         android:layout_width="wrap_content"
@@ -71,9 +67,9 @@
         android:text="Name"
         android:textSize="25dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/payment_receiver_avatar"
+        android:layout_below="@id/payment_receiver_list_rv"
         android:layout_marginTop="10dp"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:id="@+id/payment_activity_amount"
@@ -85,7 +81,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
         app:startIconDrawable="@drawable/rupee_icon"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/payment_activity_amount_et"
@@ -111,7 +107,7 @@
         android:layout_alignParentBottom="true"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/payment_activity_transaction_progress"
@@ -120,6 +116,6 @@
         android:layout_height="wrap_content"
         app:SpinKit_Color="@color/purple"
         android:layout_centerInParent="true"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
 </RelativeLayout>
