@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginTop="16dp">
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/transaction_progress"
+        style="@style/SpinKitView.Large.Circle"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        app:SpinKit_Color="@color/purple"
+        android:layout_centerVertical="true"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toRightOf="@id/transaction_progress"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp">
+        <RelativeLayout
+            android:id="@+id/transaction_detail_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/transaction_id_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Transaction ID: "
+                android:textStyle="bold"
+                android:textColor="@color/purple"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/transaction_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1234567890"
+                android:textColor="@color/grey"
+                android:textSize="20sp"
+                android:layout_toEndOf="@id/transaction_id_header" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/transaction_detail_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+            <TextView
+                android:id="@+id/transaction_time_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time: "
+                android:textStyle="bold"
+                android:textColor="@color/purple"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/transaction_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1234567890"
+                android:textColor="@color/grey"
+                android:textSize="20sp"
+                android:layout_toEndOf="@id/transaction_time_header" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/transaction_detail_to_user_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp">
+        <TextView
+            android:id="@+id/transaction_user_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To: "
+            android:textStyle="bold"
+            android:textColor="@color/purple"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/transaction_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yuck"
+            android:textColor="@color/grey"
+            android:textSize="20sp"
+            android:layout_toEndOf="@id/transaction_user_header" />
+    </RelativeLayout>
+
+
+</RelativeLayout>

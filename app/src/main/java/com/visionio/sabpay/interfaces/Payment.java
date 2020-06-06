@@ -1,52 +1,34 @@
 package com.visionio.sabpay.interfaces;
 
-import android.util.Log;
+import com.visionio.sabpay.models.Contact;
 
-import com.google.firebase.firestore.DocumentReference;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
+import java.util.List;
 
 public class Payment {
 
-    public interface PaymentListener{
-    }
-
     private static Payment pInstance;
-    private DocumentReference receiverDocRef;
-    private String name;
-    private boolean isSuccessful;
 
-    private Payment(DocumentReference a, String b) {
-        receiverDocRef = a;
-        name = b;
-        isSuccessful = false;
-    }
+    private List<Contact> contacts;
 
-    public static void createInstance(DocumentReference a, String b) {
-        pInstance = new Payment(a,b);
+
+    private Payment() {
+
     }
 
     public static Payment getInstance() {
-        return pInstance;
+        if(pInstance != null){
+            return pInstance;
+        }
+        pInstance = new Payment();
+        return  pInstance;
     }
 
-    public String getName(){
-        return pInstance.name;
+    public void addPayee(List<Contact> contacts){
+        this.contacts = contacts;
     }
 
-    public DocumentReference getReceiverDocRef() {
-        return pInstance.receiverDocRef;
+    public List<Contact> getPayee(){
+        return contacts;
     }
 
-    public boolean isSuccessful() {
-        return isSuccessful;
-    }
-
-    public void setSuccess() {
-        isSuccessful = true;
-    }
-
-    public static void setNull() {
-        pInstance = null;
-    }
 }

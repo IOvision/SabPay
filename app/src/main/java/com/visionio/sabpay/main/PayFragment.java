@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,10 +47,12 @@ import com.visionio.sabpay.adapter.ContactAdapter;
 import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 import com.visionio.sabpay.helper.GroupSelectHandler;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
+import com.visionio.sabpay.interfaces.Payment;
 import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.GroupPay;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
+import com.visionio.sabpay.payment.PaymentActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,7 +178,8 @@ public class PayFragment extends Fragment {
 
         pay.setOnClickListener(v -> {
             List<Contact> contacts = selectedContactsAdapter.getContacts();
-            Toast.makeText(getContext(), "Pay to: "+contacts.size(), Toast.LENGTH_SHORT).show();
+            Payment.getInstance().addPayee(contacts);
+            startActivity(new Intent(getActivity(), PaymentActivity.class));
         });
 
         til_listener_show_keyboard = new View.OnClickListener() {
