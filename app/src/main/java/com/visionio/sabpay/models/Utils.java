@@ -4,12 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -17,6 +19,10 @@ public class Utils {
 
     public static int WELCOME_BALANCE = 500;
     public static List<Contact> deviceContacts;
+
+    public static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().toCharArray();
+
+    public static List<ListenerRegistration> registrations = new ArrayList<>();
 
     public static String[] decodePathFromQr(String qrData){
         return qrData.split("/");
@@ -89,6 +95,11 @@ public class Utils {
     public static String getDateTime(com.google.firebase.Timestamp timestamp){
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         return sfd.format(timestamp.toDate());
+    }
+
+    public static String getTransactionId(String baseId, int i){
+        String substring = baseId.substring(0, baseId.length() - 1); // emmit last char
+        return substring + alphabet[i];
     }
 
     public static Bitmap getQrBitmap(String qrText){

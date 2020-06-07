@@ -50,51 +50,26 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp">
             <TextView
-                android:id="@+id/transaction_time_header"
+                android:id="@+id/transaction_to_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Time: "
+                android:text="To: "
                 android:textStyle="bold"
                 android:textColor="@color/purple"
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/transaction_time"
+                android:id="@+id/transaction_to"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1234567890"
+                android:text="Sana"
                 android:textColor="@color/grey"
                 android:textSize="20sp"
-                android:layout_toEndOf="@id/transaction_time_header" />
+                android:layout_toEndOf="@id/transaction_to_header" />
         </RelativeLayout>
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/transaction_detail_to_user_detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp">
-        <TextView
-            android:id="@+id/transaction_user_header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="To: "
-            android:textStyle="bold"
-            android:textColor="@color/purple"
-            android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/transaction_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Yuck"
-            android:textColor="@color/grey"
-            android:textSize="20sp"
-            android:layout_toEndOf="@id/transaction_user_header" />
-    </RelativeLayout>
 
 
 </RelativeLayout>

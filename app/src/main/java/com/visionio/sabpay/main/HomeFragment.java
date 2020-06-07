@@ -26,6 +26,7 @@ import com.google.firebase.storage.StorageReference;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.models.User;
+import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 
 import io.paperdb.Paper;
@@ -75,7 +76,8 @@ public class HomeFragment extends Fragment {
 
     public void setBalanceTv() {
         listenerRegistration = mRef.collection("user").document(mAuth.getUid())
-                .collection("wallet").document("wallet").addSnapshotListener((documentSnapshot, e) -> {
+                .collection("wallet").document("wallet")
+                .addSnapshotListener((documentSnapshot, e) -> {
                     {
                         Wallet wallet = documentSnapshot.toObject(Wallet.class);
                         balanceTv.setText("\u20B9" + wallet.getBalance().toString());
@@ -83,6 +85,7 @@ public class HomeFragment extends Fragment {
                         addMoney.setVisibility(View.VISIBLE);
                     }
                 });
+        Utils.registrations.add(listenerRegistration);
     }
 
     void setAvatar(){

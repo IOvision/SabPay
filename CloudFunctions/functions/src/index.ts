@@ -8,48 +8,72 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
     const transactionObject = change.after.data()
 
     const fromDocumentRef = (<admin.firestore.DocumentReference> transactionObject?.from)
-    const toDocumentRef = (<admin.firestore.DocumentReference> transactionObject?.to)
+    const toDocumentRef: Array<admin.firestore.DocumentReference> = transactionObject?.to
 
-    //const increment = admin.firestore.FieldValue.increment(<number> transactionObject?.amount)
-    //const decrement = admin.firestore.FieldValue.increment(- (<number> transactionObject?.amount))
+    const transaction_promises: any[] = []
 
-    const transaction_promises = []
-
-    const add_transaction_in_from = fromDocumentRef
-    .collection('transaction').doc(String(transactionObject?.id)).set(<Object> transactionObject);
-    transaction_promises.push(add_transaction_in_from)
-
-    const add_transaction_in_to = toDocumentRef
-    .collection('transaction').doc(String(transactionObject?.id)).set(<Object> transactionObject)
-    transaction_promises.push(add_transaction_in_to)
+    const toMap = new Map()
+    let lastFromTrxnId: string = "";
+    const suphix = ['A','B','C','D','E','F','G','H','I','J',
+    'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+    let i=0
+    toDocumentRef.forEach(payee => {
+        const transaction_template = {
+            id: String(transactionObject?.id).replace(/.$/, suphix[i]),
+            amount: transactionObject?.amount,
+            from: transactionObject?.from,
+            to: payee,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            type: transactionObject?.type
+        }
+        transaction_promises.push(
+            payee.collection('transaction')
+            .doc(transaction_template.id).set(transaction_template)
+        )
+        transaction_promises.push(
+            fromDocumentRef.collection('transaction')
+            .doc(transaction_template.id).set(transaction_template)
+        )
+        toMap.set(payee, transaction_template.id)
+        i++
+        if(i==toDocumentRef.length){
+            lastFromTrxnId = transaction_template.id
+        }
+    })
 
     return Promise.all(transaction_promises).then((result) => {
         const update_recent_trnsaction_promises = []
 
-        const fromTransactionRef = fromDocumentRef.collection('transaction').doc(transactionObject?.id)
-        const toTransactionRef = toDocumentRef.collection('transaction').doc(transactionObject?.id)
+        const fromTransactionRef = fromDocumentRef.collection('transaction').doc(lastFromTrxnId)
 
         const add_recent_ransaction_in_from = fromDocumentRef.collection('wallet').doc('wallet')
-        .update('lastTransaction', fromTransactionRef,)
+        .update('lastTransaction', fromTransactionRef)
         update_recent_trnsaction_promises.push(add_recent_ransaction_in_from)
 
-        const add_recent_ransaction_in_to = toDocumentRef.collection('wallet').doc('wallet')
-        .update('lastTransaction', toTransactionRef)
-        update_recent_trnsaction_promises.push(add_recent_ransaction_in_to)
+        for(let entry of toMap){
+            const ref = <admin.firestore.DocumentReference> entry[0]?.collection('transaction')
+            .doc(entry[1])
+            update_recent_trnsaction_promises.push(
+                entry[0].collection('wallet').doc('wallet')
+                .update('lastTransaction', ref)
+            )
+        }
 
         return Promise.all(update_recent_trnsaction_promises).then(output => {
             const wallet_amount_update_promises = []
 
             const amount = parseInt(transactionObject?.amount)
-            console.log(-amount)
         
             const update_wallet_amount_in_from = fromDocumentRef.collection('wallet').doc('wallet')
-            .update('balance', admin.firestore.FieldValue.increment(-amount))
+            .update('balance', admin.firestore.FieldValue.increment(-(amount*toDocumentRef.length)))
             wallet_amount_update_promises.push(update_wallet_amount_in_from)
-            
-            const update_wallet_amount_in_to = toDocumentRef.collection('wallet').doc('wallet')
-            .update('balance', admin.firestore.FieldValue.increment(amount))
-            wallet_amount_update_promises.push(update_wallet_amount_in_to)
+
+            for(let entry of toMap){
+                update_recent_trnsaction_promises.push(
+                    entry[0].collection('wallet').doc('wallet')
+                    .update('balance', admin.firestore.FieldValue.increment(amount))
+                )
+            }
         
             return Promise.all(wallet_amount_update_promises).catch(error => {
                 console.log(error)

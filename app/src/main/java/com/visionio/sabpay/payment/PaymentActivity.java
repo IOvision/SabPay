@@ -1,6 +1,7 @@
 package com.visionio.sabpay.payment;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -13,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,7 +27,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.SelectedContactsAdapter;
@@ -35,7 +34,6 @@ import com.visionio.sabpay.adapter.TransactionStatusAdapter;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.interfaces.Payment;
 import com.visionio.sabpay.models.Contact;
-import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 
@@ -204,57 +202,51 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     void payToUserUsingCloudFunction(int amount, List<Contact> payee){
+        List<DocumentReference> toDocRef = new ArrayList<>();
+        for(Contact c: payee){
+            toDocRef.add(mRef.document("user/"+c.getUser().getUid()));
+        }
         Map<String, Object> transactionMap = new HashMap<String, Object>(){{
             put("id", senderDocRef.collection("transaction").document().getId());
             put("type", 0);
             put("amount", amount);
             put("from", senderDocRef);
+            put("to", toDocRef);
+            put("timestamp", new Timestamp(new Date()));
         }};
 
-        final ListenerRegistration[] lr = {null};
-
-        List<Map<String, String>> status = new ArrayList<>();
-
-        mRef.runTransaction(new com.google.firebase.firestore.Transaction.Function<Void>() {
-            @Nullable
-            @Override
-            public Void apply(@NonNull com.google.firebase.firestore.Transaction transaction) throws FirebaseFirestoreException {
-
-                DocumentReference path = senderDocRef.collection("pending_transaction").document("transaction");
-
-
-                for(Contact c:payee){
-                    User user = c.getUser();
-                    DocumentReference toRef = mRef.collection("user").document(user.getUid());
-                    Timestamp timestamp = new Timestamp(new Date());
-
-                    transactionMap.put("to", toRef);
-                    transactionMap.put("timestamp", timestamp);
-
-                    //addToStatus(transactionMap.get("id").toString(), timestamp, user.getName());
-
-                    status.add(new HashMap<String, String>(){{
-                        put("id", transactionMap.get("id").toString());
-                        put("time", Utils.getDateTime(timestamp));
-                        put("user", user.getName());
-                    }});
-
-                    transaction.set(path, transactionMap);
-                }
-
-                return null;
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+        senderDocRef.collection("pending_transaction")
+                .document("transaction").set(transactionMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(PaymentActivity.this, "Done", Toast.LENGTH_LONG).show();
-                    adapter.addAll(status);
+                    int i=0;
+                    for(Contact c: payee){
+                        int finalI = i;
+                        adapter.add(new HashMap<String, String>(){{
+                            put("id", Utils.getTransactionId(transactionMap.get("id").toString(), finalI));
+                            put("to", c.getUser().getName());
+                        }});
+                        i++;
+                    }
+                    (new Handler()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            onBackPressed();
+                            finish();
+                        }
+                    }, 3000);
                 }else{
                     Log.d("TESTING", task.getException().getLocalizedMessage());
                 }
             }
         });
+
+
+        final ListenerRegistration[] lr = {null};
+
+        List<Map<String, String>> status = new ArrayList<>();
+
     }
 
     void updateUi(int phase_1, int phase_2, int phase_3){
@@ -271,7 +263,6 @@ public class PaymentActivity extends AppCompatActivity {
             updatePhase_3();
         }
     }
-
     void updatePhase_1(){
         int visibility = uiManipulator[0];
         if(visibility==0){
@@ -282,7 +273,6 @@ public class PaymentActivity extends AppCompatActivity {
         progressBar.setVisibility(visibility);
         balance_tv.setText(wallet.getBalance().toString());
     }
-
     void updatePhase_2(){
         int visibility = uiManipulator[1];
         if(visibility==0){
@@ -296,7 +286,6 @@ public class PaymentActivity extends AppCompatActivity {
         send.setVisibility(visibility);
         balanceHeader.setVisibility(visibility);
     }
-
     void updatePhase_3(){
         int visibility = uiManipulator[2];
         if(visibility==0){

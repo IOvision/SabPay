@@ -167,6 +167,9 @@ public class MainActivity extends AppCompatActivity{
     }
 
     void signOut() {
+        for(ListenerRegistration registration: Utils.registrations){
+            registration.remove();
+        }
         mRef.collection("user").document(mAuth.getUid()).update("login", false)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -249,33 +252,6 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
             });
-
-/*
-            mRef.collection("public").document("registeredPhone").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()){
-                        List<String> numbers = (List<String>) task.getResult().get("number");
-
-                        Cursor phones = getApplicationContext().getContentResolver().query(
-                                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
-                                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-                        while (phones.moveToNext()){
-                            String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-                            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-
-                            Contact contact = new Contact(id, name, phoneNumber);
-                            if(numbers.contains(contact.getNumber())){
-                                contactList.add(contact);
-                            }
-                        }
-                        Utils.deviceContacts = contactList;
-                    }else{
-                    }
-                }
-            });
-*/
         }
     }
 

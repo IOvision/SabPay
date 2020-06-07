@@ -1,5 +1,6 @@
 package com.visionio.sabpay.adapter;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,14 +33,13 @@ public class TransactionStatusAdapter extends RecyclerView.Adapter<TransactionSt
     public void onBindViewHolder(@NonNull TransactionStatusViewHolder holder, int position) {
         Map<String, String> curr = transactionStatus.get(position);
         holder.id.setText(curr.get("id"));
-        holder.time.setText(curr.get("time"));
-        holder.user.setText(curr.get("user"));
-        /*(new Handler()).postDelayed(new Runnable() {
+        holder.to.setText(curr.get("to"));
+        (new Handler()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 holder.progressBar.setBackgroundResource(R.drawable.ic_confirm);
             }
-        }, 2000);*/
+        }, 2000);
     }
 
     @Override
@@ -60,16 +60,15 @@ public class TransactionStatusAdapter extends RecyclerView.Adapter<TransactionSt
     public class TransactionStatusViewHolder extends RecyclerView.ViewHolder{
 
         TextView id;
-        TextView time;
-        TextView user;
+        TextView to;
+
 
         ProgressBar progressBar;
 
         public TransactionStatusViewHolder(@NonNull View itemView) {
             super(itemView);
             id = itemView.findViewById(R.id.transaction_id);
-            time = itemView.findViewById(R.id.transaction_time);
-            user = itemView.findViewById(R.id.transaction_user);
+            to = itemView.findViewById(R.id.transaction_to);
             progressBar = itemView.findViewById(R.id.transaction_progress);
         }
     }
