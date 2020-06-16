@@ -108,7 +108,12 @@ public class MainActivity extends AppCompatActivity{
             } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
                 home();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
-                pay();
+                if(Utils.deviceContacts==null){
+                    Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();
+                }else{
+                    pay();
+                }
+
             } else if (item.getItemId() == R.id.bottom_app_bar_main_transaction){
                 transactionHistory();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_offers){
@@ -232,6 +237,10 @@ public class MainActivity extends AppCompatActivity{
             List<Contact> allContacts = getAllLocalContacts();
             List<String> numbers = getNumberArray(allContacts);
 
+            if(numbers.size()==0){
+                Utils.deviceContacts = new ArrayList<>();
+                return;
+            }
 
             mRef.collection("user").whereIn("phone", numbers).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override

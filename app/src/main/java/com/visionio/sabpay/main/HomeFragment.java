@@ -101,7 +101,7 @@ public class HomeFragment extends Fragment {
             User user = Paper.book(mAuth.getUid()).read("user");
             name.setText("Hi, " + user.getFirstName());
         } else {
-            FirebaseFirestore.getInstance().collection("users").document(mAuth.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            FirebaseFirestore.getInstance().collection("user").document(mAuth.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User user = documentSnapshot.toObject(User.class);
