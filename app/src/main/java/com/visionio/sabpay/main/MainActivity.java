@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
+import com.visionio.sabpay.helpdesk.HelpDeskActivity;
 import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity{
 
         if (mAuth.getUid() != null) {
             setUp();
+            startActivity(new Intent(MainActivity.this, HelpDeskActivity.class));
+
         } else {
             startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
             finish();
@@ -81,28 +84,7 @@ public class MainActivity extends AppCompatActivity{
         });
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            /*switch (item.getItemId()) {
-                case R.id.bottom_app_bar_main_home: {
-                    home();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_pay: {
-                    pay();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_group: {
-                    groupPay();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_transaction: {
-                    transactionHistory();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_offers: {
-                    offers();
-                    return true;
-                }
-            }*/
+
             if (item.getItemId() == R.id.bottom_app_bar_main_group){
                 groupPay();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
