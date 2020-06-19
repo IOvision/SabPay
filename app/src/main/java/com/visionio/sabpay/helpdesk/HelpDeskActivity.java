@@ -167,32 +167,47 @@ public class HelpDeskActivity extends AppCompatActivity {
             subject_til.setErrorEnabled(false);
             content_til.setErrorEnabled(false);
         }
-        FirebaseFirestore.getInstance().collection("complains").add(new HashMap<String, Object>(){{
-            put("from", FirebaseAuth.getInstance().getUid());
-            put("subject", subject);
-            put("category", category);
-            put("data", content);
-            put("time", new Timestamp(new Date()));
-        }}).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+        FirebaseFirestore mRef = FirebaseFirestore.getInstance();
+        mRef.document("complains/meta-data").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentReference> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
-                    AlertDialog.Builder alert = new AlertDialog.Builder(HelpDeskActivity.this);
-                    alert.setTitle("Thank You!!");
-                    alert.setMessage("Our expert will contact you soon on your registered mobile/ email.");
-                    alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    int idIndex = task.getResult().getDouble("idIndex").intValue();
+                    String complainId = IdGenerator.getNextId(idIndex);
+
+                    mRef.collection("complains").add(new HashMap<String, Object>(){{
+                        put("id", complainId);
+                        put("from", FirebaseAuth.getInstance().getUid());
+                        put("subject", subject);
+                        put("category", category);
+                        put("data", content);
+                        put("time", new Timestamp(new Date()));
+                    }}).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
+                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                            if(task.isSuccessful()){
+                                AlertDialog.Builder alert = new AlertDialog.Builder(HelpDeskActivity.this);
+                                alert.setTitle("Thank You!!");
+                                alert.setMessage("Our expert will contact you soon on your registered mobile/ email.");
+                                alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                });
+                                alert.show();
+                            }else{
+                                toast(task.getException().getLocalizedMessage());
+                            }
                         }
                     });
-                    alert.show();
+
+
                 }else{
-                    toast(task.getException().getLocalizedMessage());
+                    log(task.getException().getLocalizedMessage());
                 }
             }
         });
-
     }
     void contentProcessor(String text){
         log("Pos: "+content_et.getSelectionStart());

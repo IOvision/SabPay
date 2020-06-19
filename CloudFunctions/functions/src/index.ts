@@ -1,6 +1,55 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import * as nodemailer from 'nodemailer';
 admin.initializeApp()
+
+export const newComplain = 
+functions.firestore.document('complains/{cId}')
+.onCreate((dt, context) => {
+    const complain = dt.data()
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'beta.visionio@gmail.com',
+            pass: 'fhrvvrlioyrmkpvw'
+        }
+    });
+
+    return admin.firestore().doc(`user/${complain?.from}`).get()
+    .then(userDt => {
+        const user = userDt.data()
+
+        const header = 'Thanks for registering complain with us.'
+        const complaidId = `Your complain reference number is ${complain.id}`
+        const detail = 'Our expert will look into it and reach out within 2 business days.'
+        const contact = 'Meanwhile you can ring us at +91 1234567890 for any query'
+        const body = `${header}\n\n${complaidId}\n${detail}\n${contact}`
+
+
+        const mailOptions = {
+            from: 'Beta Vision <beta.visionio@gmail.com>', // Something like: Jane Doe <janedoe@gmail.com>
+            to: user?.email,
+            subject: `no-reply Complain id ${complain.id} Successfuly Registered`, // email subject
+            html: `<p style="font-size: 16px;">${body}</p>
+                <br />
+            ` // email content in HTML
+        };
+
+       
+        transporter.sendMail(mailOptions, (erro: any, info: any) => {
+            if(erro){
+                console.log(erro)
+            }
+            console.log("Mail sended")
+        });
+
+        return admin.firestore().doc('complains/meta-data')
+        .update('idIndex', admin.firestore.FieldValue.increment(1))
+        .catch(error => { console.log(error)} );
+    })
+
+})
 
 export const newTransaction = 
 functions.firestore.document('user/{userId}/pending_transaction/transaction')
@@ -42,7 +91,7 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
     })
 
     return Promise.all(transaction_promises).then((result) => {
-        const update_recent_trnsaction_promises = []
+        const update_recent_trnsaction_promises: any = []
 
         const fromTransactionRef = fromDocumentRef.collection('transaction').doc(lastFromTrxnId)
 
@@ -60,7 +109,7 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
         }
 
         return Promise.all(update_recent_trnsaction_promises).then(output => {
-            const wallet_amount_update_promises = []
+            const wallet_amount_update_promises: any = []
 
             const amount = parseInt(transactionObject?.amount)
         
@@ -131,7 +180,7 @@ functions.firestore
 
         const fromDocumentRef = (<admin.firestore.DocumentReference> transaction?.from)
 
-        const promises = []
+        const promises: any = []
     
         const updatedTransaction = {
             id: transaction?.id,
@@ -192,7 +241,7 @@ export const splitTransaction = functions.firestore
     return admin.firestore().doc(`groups/${groupId}`).get().then(groupResult => {
         const group = groupResult.data()
 
-        const splitPromises = []
+        const splitPromises: any = []
 
         const members: Array<admin.firestore.DocumentReference> = group?.members
         
