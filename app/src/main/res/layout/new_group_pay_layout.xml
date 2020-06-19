@@ -29,7 +29,6 @@
         android:id="@+id/new_gPay_submit_bt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn_custom_purple"
         android:text="Generate"
         android:textColor="@color/white"
         android:layout_below="@id/new_gPay_amount_et"

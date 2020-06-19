@@ -135,7 +135,7 @@ public class VerifyFragment extends Fragment {
                             FirebaseUser user = task.getResult().getUser();
                             progressBar.setVisibility(View.INVISIBLE);
                             if (user != null){
-                                ((AuthenticationActivity)getActivity()).registerFragment();
+
                             }
                         } else {
                             // Sign in failed, display a message and update the UI

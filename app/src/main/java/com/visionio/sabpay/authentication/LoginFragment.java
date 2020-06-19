@@ -36,9 +36,6 @@ import io.paperdb.Paper;
 public class LoginFragment extends Fragment {
 
     FirebaseAuth mAuth;
-    ProgressBar progressBar;
-    ImageView progressBarBg;
-    TextView register;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -51,17 +48,9 @@ public class LoginFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         container.removeAllViews();
         Button btn_login = view.findViewById(R.id.btn_login);
-        register = view.findViewById(R.id.login_register);
+
         final EditText et_email = view.findViewById(R.id.login_email);
         final EditText et_password = view.findViewById(R.id.login_password);
-        progressBar = view.findViewById(R.id.login_progressBar);
-        progressBarBg = view.findViewById(R.id.progressBar_background);
-        Sprite doubleBounce = new DoubleBounce();
-        progressBar.setIndeterminateDrawable(doubleBounce);
-
-        register.setOnClickListener(v -> {
-            ((AuthenticationActivity)getActivity()).registerFragment();
-        });
 
         btn_login.setOnClickListener(v -> {
             String email = et_email.getText().toString().trim();
@@ -74,22 +63,11 @@ public class LoginFragment extends Fragment {
             }else if(password.isEmpty()){
                 et_password.setError("Password cannot be empty");
             }else {
-                show();
                 login(email, password);
             }
         });
 
         return view;
-    }
-
-    void show(){
-        progressBar.setVisibility(View.VISIBLE);
-        progressBarBg.setVisibility(View.VISIBLE);
-    }
-
-    void hide(){
-        progressBar.setVisibility(View.GONE);
-        progressBarBg.setVisibility(View.GONE);
     }
 
     void login(String email, String password) {
@@ -103,7 +81,6 @@ public class LoginFragment extends Fragment {
                         } else {
                             Log.w("Login:", "signInWithEmail:failure", task.getException());
                             Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
-                            hide();
                         }
                     }
                 });
@@ -125,11 +102,9 @@ public class LoginFragment extends Fragment {
                         }
                     }else{
                         Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();
-                        hide();
                     }
                 }else{
                     Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
-                    hide();
                 }
             }
         });

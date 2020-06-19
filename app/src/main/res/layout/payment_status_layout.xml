@@ -116,7 +116,6 @@
         android:text="Pay"
         android:layout_marginHorizontal="75dp"
         android:textColor="@color/white"
-        android:background="@drawable/btn_custom_purple"
         android:layout_below="@id/payment_status_transactionHeading_tv"
         android:layout_marginTop="102dp"/>
 
@@ -126,7 +125,6 @@
         android:layout_height="wrap_content"
         android:text="Cancel"
         android:textColor="@color/white"
-        android:background="@drawable/btn_custom_purple"
         android:layout_below="@id/payment_status_transactionHeading_tv"
         android:layout_marginHorizontal="200dp"
         android:layout_marginTop="102dp"/>

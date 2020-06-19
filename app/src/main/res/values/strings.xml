@@ -21,6 +21,6 @@
     <string name="sabpay_logo">SabPay Logo</string>
     <string name="signup">Signup</string>
     <string name="error_missing_permissions">Missing Permissions</string>
-    <string name="welcome_back"><u>Welcome Back!</u></string>
+    <string name="welcome_back">Welcome Back!</string>
     <string name="e_mail">Email</string>
 </resources>

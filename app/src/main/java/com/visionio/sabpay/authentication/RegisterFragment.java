@@ -81,10 +81,6 @@ public class RegisterFragment extends Fragment {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseAuth = FirebaseAuth.getInstance();
 
-        materialToolbar.setNavigationOnClickListener(v -> {
-            ((AuthenticationActivity)getActivity()).loginFragment();
-        });
-
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

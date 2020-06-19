@@ -2,19 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background"
+    android:layout_width="350dp"
+    android:layout_height="400dp"
     tools:context=".authentication.LoginFragment">
 
-    <ImageView
-        android:id="@+id/sabpay_logo"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:contentDescription="@string/sabpay_logo"
-        android:src="@drawable/sabpay"/>
 
     <TextView
         android:id="@+id/textView"
@@ -22,14 +13,26 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/product_sans_regular"
         android:text="@string/welcome_back"
-        android:textSize="40sp"
-        android:layout_below="@id/sabpay_logo"
+        android:textSize="30sp"
+        android:textColor="@color/grey"
         android:layout_marginTop="50dp"
+        android:layout_marginStart="20dp"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito_semi_bold_italic"
+        android:text="to the world of better Payments."
+        android:textSize="20sp"
+        android:textColor="@color/colorPrimary"
+       android:layout_below="@id/textView"
         android:layout_marginStart="20dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/et_login_email"
-        android:layout_width="350dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:hint="@string/e_mail"
         android:layout_below="@id/textView"
@@ -46,7 +49,8 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/et_login_password"
-        android:layout_width="350dp"
+        android:layout_width="300dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_height="wrap_content"
         android:hint="@string/password"
         app:endIconMode="password_toggle"
@@ -63,64 +67,29 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/login_forgot_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Forgot Password?"
+        android:textSize="15sp"
+        android:textColor="@color/colorPrimary"
+        android:layout_below="@id/et_login_password"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="25dp"/>
+
     <Button
         android:id="@+id/btn_login"
-        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/grey"
         android:fontFamily="@font/product_sans_regular"
         android:text="Login"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="30sp"
-        android:layout_below="@id/et_login_password"
+        android:layout_below="@id/login_forgot_password"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         app:rippleColor="@color/white" />
-
-    <ImageView
-        android:id="@+id/progressBar_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#80000000"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
-
-    <com.github.ybq.android.spinkit.SpinKitView
-        android:id="@+id/login_progressBar"
-        style="@style/SpinKitView.Large.Circle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        app:SpinKit_Color="@color/white"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/btn_login"
-        android:layout_marginTop="30dp">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/product_sans_regular"
-            android:text="Don't have an account?"
-            android:textSize="15sp"/>
-        <TextView
-            android:id="@+id/login_register"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:fontFamily="@font/product_sans_regular"
-            android:text="Create an account."
-            android:textSize="15sp"
-            android:textColor="@color/purple"
-            android:layout_toEndOf="@id/textView3"/>
-
-    </RelativeLayout>
 
 </RelativeLayout>
