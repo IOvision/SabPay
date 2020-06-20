@@ -34,8 +34,9 @@
         <activity android:name=".payment.PaymentActivity" />
 
         <service
-            android:name=".models.MyInstanceId"
-            android:exported="false">
+            android:name=".services.FirebaseService"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

@@ -24,6 +24,8 @@
     <string name="welcome_back"><u>Welcome Back!</u></string>
     <string name="e_mail">Email</string>
 
+    <string name="default_notification_channel_id">110bgd6c</string>
+
     <string-array name="category">
         <item>App Crash</item>
         <item>Wallet Related Issue</item>
