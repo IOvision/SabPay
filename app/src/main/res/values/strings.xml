@@ -23,4 +23,23 @@
     <string name="error_missing_permissions">Missing Permissions</string>
     <string name="welcome_back">Welcome Back!</string>
     <string name="e_mail">Email</string>
+
+    <string name="default_notification_channel_id">110bgd6c</string>
+
+    <string-array name="category">
+        <item>App Crash</item>
+        <item>Wallet Related Issue</item>
+        <item>Payment Related Issue</item>
+        <item>Feature Issue</item>
+    </string-array>
+
+    <string-array name="subject">
+        <item>Payment failed but money deducted</item>
+        <item>Money deducted from bank but not added to wallet</item>
+        <item>GroupPay not working</item>
+        <item>OffPay not working</item>
+        <item>Qr scanner not working</item>
+        <item>Other</item>
+    </string-array>
+
 </resources>

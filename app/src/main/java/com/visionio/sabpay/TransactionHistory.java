@@ -1,13 +1,13 @@
 package com.visionio.sabpay;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.Wave;
@@ -18,8 +18,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.adapter.TransactionAdapter;
+import com.visionio.sabpay.models.Transaction;
 
 import java.util.ArrayList;
 
@@ -42,8 +42,8 @@ public class TransactionHistory extends AppCompatActivity {
         setBottomNavigationView();
         progressBar = findViewById(R.id.transaction_pb);
 
-         Sprite wave = new Wave();
-         progressBar.setIndeterminateDrawable(wave);
+        Sprite wave = new Wave();
+        progressBar.setIndeterminateDrawable(wave);
 
         adapter = new TransactionAdapter(new ArrayList<Transaction>());
 
@@ -53,12 +53,12 @@ public class TransactionHistory extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             loadTransactions();
         }
     }
 
-    void loadTransactions(){
+    void loadTransactions() {
         FirebaseFirestore.getInstance().collection("user")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("transaction")
                 // TODO: check the filter thing
@@ -67,18 +67,14 @@ public class TransactionHistory extends AppCompatActivity {
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (DocumentSnapshot snapshot: queryDocumentSnapshots){
+                for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
                     Transaction currentTransaction = snapshot.toObject(Transaction.class);
-
-                    // TODO: fix getType thing and test the transaction item
-
-
-                    if(currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                    if (currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         currentTransaction.setSendByMe(true);
-                    }else{
+                    } else {
                         currentTransaction.setSendByMe(false);
                     }
-                    Log.i("Testing", currentTransaction.getId()+">>"+currentTransaction.isSendByMe());
+                    Log.i("Testing", currentTransaction.getId() + ">>" + currentTransaction.isSendByMe());
                     currentTransaction.loadUserDataFromReference(adapter);
                     adapter.add(currentTransaction);
                     progressBar.setVisibility(View.GONE);
@@ -88,27 +84,29 @@ public class TransactionHistory extends AppCompatActivity {
         }).addOnFailureListener(e -> Log.i("Testing", e.getLocalizedMessage()));
     }
 
-    void setBottomNavigationView(){
+    void setBottomNavigationView() {
         bottomNavigationView = findViewById(R.id.main_bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_transaction);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()){
-                case R.id.bottom_app_bar_main_transaction : {
+            switch (item.getItemId()) {
+                case R.id.bottom_app_bar_main_transaction: {
                     return true;
                 }
-                case R.id.bottom_app_bar_main_group : return true;
-                case R.id.bottom_app_bar_main_home : {
+                case R.id.bottom_app_bar_main_group:
+                    return true;
+                case R.id.bottom_app_bar_main_home: {
                     finish();
                     return true;
                 }
-                case R.id.bottom_app_bar_main_pay : {
+                case R.id.bottom_app_bar_main_pay: {
 
                 }
             }
             return false;
         });
     }
+
 
     @Override
     public void onBackPressed() {

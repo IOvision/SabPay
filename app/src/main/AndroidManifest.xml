@@ -30,11 +30,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".payment.PaymentActivity"></activity>
+        <activity android:name=".helpdesk.HelpDeskActivity"></activity>
+        <activity android:name=".payment.PaymentActivity" />
 
         <service
-            android:name=".models.MyInstanceId"
-            android:exported="false">
+            android:name=".services.FirebaseService"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -46,7 +48,7 @@
         <activity android:name=".offpay.Send" />
         <activity android:name=".offpay.OffpayActivity" />
         <activity android:name=".OfferDisplayActivity" />
-        <activity android:name=".SplashActivity"></activity>
+        <activity android:name=".SplashActivity" />
         <activity android:name=".group_pay.pending.PendingPaymentActivity" />
         <activity android:name=".group_pay.manageGroup.GroupManageActivity" />
         <activity android:name=".group_pay.manageTransactions.ManageTransactionsActivity" />

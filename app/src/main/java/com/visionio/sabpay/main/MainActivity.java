@@ -30,11 +30,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
+import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity{
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity{
 
         if (mAuth.getUid() != null) {
             setUp();
+            // info: to test help desk comment out below line
+            //startActivity(new Intent(MainActivity.this, HelpDeskActivity.class));
         } else {
             startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
             finish();
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     void setUp() {
-
+        TokenManager.handle(this);
         frameLayout = findViewById(R.id.main_frame);
         bottomNavigationView = findViewById(R.id.main_bottom_navigation);
         materialToolbar = findViewById(R.id.main_top_bar);
@@ -81,28 +85,7 @@ public class MainActivity extends AppCompatActivity{
         });
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            /*switch (item.getItemId()) {
-                case R.id.bottom_app_bar_main_home: {
-                    home();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_pay: {
-                    pay();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_group: {
-                    groupPay();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_transaction: {
-                    transactionHistory();
-                    return true;
-                }
-                case R.id.bottom_app_bar_main_offers: {
-                    offers();
-                    return true;
-                }
-            }*/
+
             if (item.getItemId() == R.id.bottom_app_bar_main_group){
                 groupPay();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
@@ -175,7 +158,10 @@ public class MainActivity extends AppCompatActivity{
         for(ListenerRegistration registration: Utils.registrations){
             registration.remove();
         }
-        mRef.collection("user").document(mAuth.getUid()).update("login", false)
+        mRef.collection("user").document(mAuth.getUid()).update(new HashMap<String, Object>(){{
+            put("login", false);
+            put("instanceId", null);
+        }})
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         mAuth.signOut();
