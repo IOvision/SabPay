@@ -79,12 +79,12 @@ public class RegisterFragment extends Fragment {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseAuth = FirebaseAuth.getInstance();
 
-        btn_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateUser();
-            }
-        });
+        //btn_register.setOnClickListener(new View.OnClickListener() {
+           // @Override
+           // public void onClick(View v) {
+          //      updateUser();
+          //  }
+        //});
 
 
         return view;

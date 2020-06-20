@@ -4,9 +4,12 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,6 +55,7 @@ import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.GroupPay;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
+import com.visionio.sabpay.offpay.OffpayActivity;
 import com.visionio.sabpay.payment.PaymentActivity;
 
 import java.util.ArrayList;
@@ -106,6 +110,24 @@ public class PayFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_pay, container, false);
+
+        ConnectivityManager cm =
+                (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if(!isConnected){
+            MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(getContext());
+            dialog.setTitle("Network not available")
+                    .setMessage("A connection could not be made to our servers. Use OffPay instead?")
+                    .setNegativeButton("No", (dialog1, which) -> {
+                        dialog1.dismiss();
+                    }).setPositiveButton("Yes", ((dialog1, which) -> {
+                        startActivity(new Intent(getActivity(), OffpayActivity.class));
+            })).show();
+        }
 
         textInputLayout = view.findViewById(R.id.pay_fragment_number_textInputLayout);
         et_number = view.findViewById(R.id.pay_number);
@@ -326,7 +348,7 @@ public class PayFragment extends Fragment {
                             }else{
                                 /*paymentHandler.showPayStatus();
                                 paymentHandler.setError("No wallet linked to this number!!");*/
-                                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
+                                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getActivity());
                                 alert.setTitle("No Wallet Found.").setMessage("No Wallet is linked to this Number.")
                                         .setPositiveButton("Okay", (dialog, which) -> {
                                             dialog.dismiss();

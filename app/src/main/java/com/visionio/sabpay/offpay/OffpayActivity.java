@@ -132,6 +132,11 @@ public class OffpayActivity extends AppCompatActivity {
         textView = findViewById(R.id.offpay_user_name);
 
         user = getUser();
+        if (!user.getUid().equals(FirebaseAuth.getInstance().getUid())){
+            Toast.makeText(this, "Cannot use OffPay", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         textView.setText(user.getFirstName() + "," + user.getOffPayBalance());
 
         connectionsClient = Nearby.getConnectionsClient(this);
@@ -240,7 +245,7 @@ public class OffpayActivity extends AppCompatActivity {
     }
 
     public User getUser() {
-        return Paper.book(FirebaseAuth.getInstance().getUid()).read("user");
+        return Paper.book("user").read("user");
     }
 
     public void pay(int amount) {

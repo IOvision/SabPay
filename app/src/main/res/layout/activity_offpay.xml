@@ -7,6 +7,29 @@
     tools:context=".offpay.OffpayActivity"
     android:background="@color/white">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:elevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/main_top_bar"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/white"
+            android:elevation="0dp"
+            app:navigationIcon="@drawable/ic_left_arrow"
+            app:title="OffPay"
+            app:titleTextColor="@color/purple" />
+    </com.google.android.material.appbar.AppBarLayout>
+
     <TextView
         android:id="@+id/offpay_user_name"
         android:layout_width="wrap_content"
@@ -18,14 +41,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.226" />
+        app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
+        app:layout_constraintVertical_bias="0.344" />
 
     <Button
         android:id="@+id/offpay_btn_pay"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Search"
+        android:text="Scan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -41,9 +64,10 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/offpay_btn_create" />
+        app:layout_constraintTop_toBottomOf="@id/offpay_btn_create"
+        app:layout_constraintVertical_bias="0.369" />
 
     <Button
         android:id="@+id/offpay_btn_create"

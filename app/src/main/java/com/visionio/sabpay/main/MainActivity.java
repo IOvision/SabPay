@@ -92,11 +92,10 @@ public class MainActivity extends AppCompatActivity{
                 home();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
                 if(Utils.deviceContacts==null){
-                    Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();
+                  Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();
                 }else{
                     pay();
                 }
-
             } else if (item.getItemId() == R.id.bottom_app_bar_main_transaction){
                 transactionHistory();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_offers){
@@ -219,7 +218,7 @@ public class MainActivity extends AppCompatActivity{
             //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
         } else {
             // Android version is lesser than 6.0 or the permission is already granted.
-
+            Toast.makeText(this, "loading contacts.", Toast.LENGTH_SHORT).show();
             List<Contact> allContacts = getAllLocalContacts();
             List<String> numbers = getNumberArray(allContacts);
 
@@ -228,26 +227,29 @@ public class MainActivity extends AppCompatActivity{
                 return;
             }
 
-            mRef.collection("user").whereIn("phone", numbers).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if(task.isSuccessful()){
-                        for(DocumentSnapshot snapshot: task.getResult()){
-                            User user = snapshot.toObject(User.class);
-                            for(Contact c: allContacts){
-                                if(c.getNumber().equals(user.getPhone())){
-                                    c.setUser(user);
-                                    contactList.add(c);
+            for (String number : numbers){
+                mRef.collection("user").whereEqualTo("phone", number).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(DocumentSnapshot snapshot: task.getResult()){
+                                User user = snapshot.toObject(User.class);
+                                for(Contact c: allContacts){
+                                    if(c.getNumber().equals(user.getPhone())){
+                                        c.setUser(user);
+                                        contactList.add(c);
+                                    }
                                 }
                             }
+                            Utils.deviceContacts = contactList;
+                        }else{
+                            Log.d("Error", task.getException().getLocalizedMessage());
                         }
-                        Utils.deviceContacts = contactList;
-                    }else{
-                        Log.d("Error", task.getException().getLocalizedMessage());
                     }
-                }
-            });
+                });
+            }
         }
+        Toast.makeText(this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
     }
 
     void startPendingPayment(){
