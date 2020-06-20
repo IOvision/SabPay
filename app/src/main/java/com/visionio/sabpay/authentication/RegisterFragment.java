@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -40,7 +41,7 @@ import java.util.List;
  */
 public class RegisterFragment extends Fragment {
 
-    private EditText et_first_name, et_last_name, et_email, et_password, et_repassword, et_phonenumber;
+    private TextInputLayout et_otp, et_phonenumber;
     MaterialToolbar materialToolbar;
     private Button btn_register;
     ProgressBar progressBar;
@@ -67,14 +68,8 @@ public class RegisterFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        et_first_name = view.findViewById(R.id.register_first_name);
-        et_last_name = view.findViewById(R.id.register_last_name);
-        et_email = view.findViewById(R.id.register_email);
-        et_password = view.findViewById(R.id.register_password);
-        et_repassword = view.findViewById(R.id.register_confirm_password);
-        et_phonenumber = view.findViewById(R.id.register_phone_number);
-        btn_register = view.findViewById(R.id.btn_register);
-        progressBar = view.findViewById(R.id.register_progressbar);
+        et_phonenumber = view.findViewById(R.id.et_register_phone);
+        et_otp = view.findViewById(R.id.et_register_otp);
         materialToolbar = view.findViewById(R.id.main_top_bar);
 
         mRef = FirebaseFirestore.getInstance();
@@ -134,7 +129,7 @@ public class RegisterFragment extends Fragment {
                             addFields();
 
                         }else if(task.getException() instanceof FirebaseAuthUserCollisionException){
-                             et_email.setError("User with this email already exists");
+                             //et_email.setError("User with this email already exists");
                              progressBar.setVisibility(View.INVISIBLE);
                         }else{
                             Log.d("Authentication", "Authentication Failed");
@@ -200,17 +195,17 @@ public class RegisterFragment extends Fragment {
     }
 
     private void updateVariableData(){
-        mFirstName = capitalize(et_first_name.getText().toString().trim());
+        /*mFirstName = capitalize(et_first_name.getText().toString().trim());
         mLastName = capitalize(et_last_name.getText().toString().trim());
         mEmail = et_email.getText().toString().trim();
         mPassword = et_password.getText().toString().trim();
         mConfirmPassword = et_repassword.getText().toString().trim();
-        mPhoneNumber = Utils.formatNumber(et_phonenumber.getText().toString().trim(), 0);
+        mPhoneNumber = Utils.formatNumber(et_phonenumber.getText().toString().trim(), 0);*/
 
     }
 
     private boolean validateData(){
-        // checking empty cases
+        /* checking empty cases
         if(Utils.isEmpty(mFirstName)){
             et_first_name.setError("Can't be empty");
             return false;
@@ -260,7 +255,7 @@ public class RegisterFragment extends Fragment {
         }
 
 
-
+        */
         return true;
     }
 
