@@ -185,19 +185,25 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void getAllLocalContacts(){
-        List<Contact> contacts = new ArrayList<>();
-        Cursor phones = getApplicationContext().getContentResolver().query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-        while (phones.moveToNext()){
-            String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+        } else {
+            List<Contact> contacts = new ArrayList<>();
+            Cursor phones = getApplicationContext().getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+            while (phones.moveToNext()) {
+                String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+                String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-            Contact contact = new Contact(id, name, phoneNumber);
-            contacts.add(contact);
+                Contact contact = new Contact(id, name, phoneNumber);
+                contacts.add(contact);
+            }
+            Utils.loadContacts(contacts);
         }
-        Utils.deviceContacts = contacts;
     }
 
     private List<String> getNumberArray(List<Contact> contacts){

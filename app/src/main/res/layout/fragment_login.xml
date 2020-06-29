@@ -6,7 +6,10 @@
     android:layout_height="400dp"
     tools:context=".authentication.LoginFragment">
 
-
+    <RelativeLayout
+        android:id="@+id/login_form"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -91,5 +94,32 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
         app:rippleColor="@color/white" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/login_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/login_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Just a sec."
+            style="@style/TextAppearance.MaterialComponents.Headline4"
+            android:textColor="@color/purple"/>
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/login_progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SpinKitView.Large.Circle"
+            android:layout_below="@id/login_progress_text"
+            android:layout_centerHorizontal="true"
+            app:SpinKit_Color="@color/purple"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -11,13 +11,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.CubeGrid;
 import com.github.ybq.android.spinkit.style.DoubleBounce;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,6 +39,8 @@ import io.paperdb.Paper;
 public class LoginFragment extends Fragment {
 
     FirebaseAuth mAuth;
+    RelativeLayout progress, loginForm;
+    SpinKitView progressBar;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -51,6 +56,11 @@ public class LoginFragment extends Fragment {
 
         final EditText et_email = view.findViewById(R.id.login_email);
         final EditText et_password = view.findViewById(R.id.login_password);
+        progress = view.findViewById(R.id.login_progress);
+        loginForm = view.findViewById(R.id.login_form);
+        progressBar = view.findViewById(R.id.login_progressBar);
+        Sprite sprite = new CubeGrid();
+        progressBar.setIndeterminateDrawable(sprite);
 
         btn_login.setOnClickListener(v -> {
             String email = et_email.getText().toString().trim();
@@ -63,6 +73,7 @@ public class LoginFragment extends Fragment {
             }else if(password.isEmpty()){
                 et_password.setError("Password cannot be empty");
             }else {
+                progressOn();
                 login(email, password);
             }
         });
@@ -72,41 +83,36 @@ public class LoginFragment extends Fragment {
 
     void login(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("Login:", "SignInWithEmail:Success");
-                            updateUI(mAuth.getCurrentUser());
-                        } else {
-                            Log.w("Login:", "signInWithEmail:failure", task.getException());
-                            Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("Login:", "SignInWithEmail:Success");
+                        updateUI(mAuth.getCurrentUser());
+                    } else {
+                        Log.w("Login:", "signInWithEmail:failure", task.getException());
+                        Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
+                        progressOff();
                     }
                 });
     }
 
     void updateUI(FirebaseUser user) {
         final FirebaseFirestore mRef = FirebaseFirestore.getInstance();
-        mRef.collection("user").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    User user = task.getResult().toObject(User.class);
-                    if(!user.getLogin()){
-                        if(user != null){
-                            mRef.collection("user").document(user.getUid()).update("login", true);
-                            storeData(user);
-                            TokenManager.handle(getContext());
-                            startActivity(new Intent(getContext(), MainActivity.class));
-                            getActivity().finish();
-                        }
-                    }else{
-                        Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();
-                    }
+        mRef.collection("user").document(user.getUid()).get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                User user1 = task.getResult().toObject(User.class);
+                if(!user1.getLogin()){
+                    mRef.collection("user").document(user1.getUid()).update("login", true);
+                    storeData(user1);
+                    TokenManager.handle(getContext());
+                    startActivity(new Intent(getContext(), MainActivity.class));
+                    getActivity().finish();
                 }else{
-                    Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();
+                    progressOff();
                 }
+            }else{
+                Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
+                progressOff();
             }
         });
 
@@ -116,4 +122,13 @@ public class LoginFragment extends Fragment {
         Paper.book(user.getUid()).write("user",user);
     }
 
+    void progressOn(){
+        loginForm.setVisibility(View.GONE);
+        progress.setVisibility(View.VISIBLE);
+    }
+
+    void progressOff(){
+        loginForm.setVisibility(View.VISIBLE);
+        progress.setVisibility(View.GONE);
+    }
 }

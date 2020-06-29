@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -100,7 +101,7 @@ public class PayFragment extends Fragment {
     String phoneNumber;
     DocumentReference senderDocRef, receiverDocRef;
 
-    Button pay;
+    ExtendedFloatingActionButton pay;
 
     private static final int CAMERA_PERMISSION_CODE = 101;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;

@@ -20,6 +20,17 @@ public class Utils {
     public static int WELCOME_BALANCE = 500;
     public static List<Contact> deviceContacts;
 
+    public static void loadContacts(List<Contact> list){
+        ArrayList<Contact> temp = new ArrayList<>();
+
+        for (Contact element : list){
+            if (!temp.contains(element)){
+                temp.add(element);
+            }
+        }
+        deviceContacts = temp;
+    }
+
     public static char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().toCharArray();
 
     public static List<ListenerRegistration> registrations = new ArrayList<>();
