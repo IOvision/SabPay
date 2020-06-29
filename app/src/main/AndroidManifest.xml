@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -20,7 +19,7 @@
         android:resource="@drawable/logo" />
     <meta-data
         android:name="com.google.firebase.messaging.default_notification_color"
-        android:resource="@color/colorAccent" />
+        android:resource="@color/colorPrimary" />
 
     <application
         android:name=".DefaultApplication"
@@ -44,8 +43,6 @@
 
         <activity android:name=".ProfileActivity" />
         <activity android:name=".TransactionHistory" />
-        <activity android:name=".offpay.Recieve" />
-        <activity android:name=".offpay.Send" />
         <activity android:name=".offpay.OffpayActivity" />
         <activity android:name=".OfferDisplayActivity" />
         <activity android:name=".SplashActivity" />

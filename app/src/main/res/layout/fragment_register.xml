@@ -29,7 +29,7 @@
         android:layout_marginStart="20dp"/>
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/register_textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/product_sans_regular"
@@ -41,51 +41,51 @@
         android:layout_marginStart="25dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/et_register_phone"
+        android:id="@+id/register_til1"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:hint="Phone Number"
-        app:prefixText="+91"
-        android:layout_below="@id/textView3"
+        android:layout_below="@id/register_textView3"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp">
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/register_phone"
+        android:id="@+id/register_et1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/register_textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/product_sans_regular"
         android:text="Enter the OTP"
         android:textSize="25sp"
         android:textColor="@color/colorPrimary"
-        android:layout_below="@id/et_register_phone"
+        android:layout_below="@id/register_til1"
         android:layout_marginTop="10dp"
         android:layout_marginStart="25dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/et_register_otp"
+        android:id="@+id/register_til2"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="200dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:hint="Code"
-        android:layout_below="@id/textView4"
+        android:layout_below="@id/register_textView4"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/login_email"
+            android:id="@+id/register_et2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
+        android:id="@+id/register_btn_next"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -97,6 +97,15 @@
         app:icon="@drawable/ic_arrow_right"
         app:rippleColor="@color/colorPrimary"
         app:iconGravity="textEnd"/>
+
+    <ProgressBar
+        android:id="@+id/register_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/register_textView3"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:visibility="gone"/>
 
 </RelativeLayout>
 

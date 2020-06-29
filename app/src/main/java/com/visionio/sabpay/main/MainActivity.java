@@ -32,12 +32,16 @@ import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.models.Contact;
+import com.visionio.sabpay.models.OffPayTransaction;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
+import com.visionio.sabpay.offpay.OffpayActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -55,7 +59,6 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         if (mAuth.getUid() != null) {
             setUp();
             // info: to test help desk comment out below line
@@ -64,7 +67,6 @@ public class MainActivity extends AppCompatActivity{
             startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
             finish();
         }
-
     }
 
     @Override
@@ -103,8 +105,8 @@ public class MainActivity extends AppCompatActivity{
             }
             return true;
         });
-        loadContacts();
-
+        //loadContacts();
+        getAllLocalContacts();
     }
 
     @Override
@@ -182,7 +184,7 @@ public class MainActivity extends AppCompatActivity{
         materialToolbar.setTitle(title);
     }
 
-    private List<Contact> getAllLocalContacts(){
+    private void getAllLocalContacts(){
         List<Contact> contacts = new ArrayList<>();
         Cursor phones = getApplicationContext().getContentResolver().query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
@@ -194,10 +196,8 @@ public class MainActivity extends AppCompatActivity{
 
             Contact contact = new Contact(id, name, phoneNumber);
             contacts.add(contact);
-
         }
-
-        return contacts;
+        Utils.deviceContacts = contacts;
     }
 
     private List<String> getNumberArray(List<Contact> contacts){
@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity{
         return numbers;
     }
 
+    /*
     private void loadContacts(){
 
         final List<Contact> contactList = new ArrayList<>();
@@ -227,6 +228,10 @@ public class MainActivity extends AppCompatActivity{
                 return;
             }
 
+            if (Paper.book().contains("contacts")){
+                Utils.deviceContacts = Paper.book().read("contacts");
+            }
+
             for (String number : numbers){
                 mRef.collection("user").whereEqualTo("phone", number).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -242,6 +247,7 @@ public class MainActivity extends AppCompatActivity{
                                 }
                             }
                             Utils.deviceContacts = contactList;
+                            Paper.book().write("contacts", contactList);
                         }else{
                             Log.d("Error", task.getException().getLocalizedMessage());
                         }
@@ -250,7 +256,7 @@ public class MainActivity extends AppCompatActivity{
             }
         }
         Toast.makeText(this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
-    }
+    }*/
 
     void startPendingPayment(){
         startActivityForResult(new Intent(MainActivity.this, PendingPaymentActivity.class), 1);

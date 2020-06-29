@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,16 +18,17 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helper.TokenManager;
@@ -36,7 +37,7 @@ import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -44,21 +45,65 @@ import java.util.List;
  */
 public class RegisterFragment extends Fragment {
 
-    private TextInputLayout et_otp, et_phonenumber;
-    MaterialToolbar materialToolbar;
-    private Button btn_register;
+    TextInputLayout til1, til2;
+    TextView firstTV, secondTV;
+    Button next;
     ProgressBar progressBar;
+    int state = 0; //1-Phone Verification 2-Email 3-Password 4-Name
+
 
     FirebaseFirestore mRef;
-    FirebaseUser firebaseUser;
-    FirebaseAuth firebaseAuth;
 
+    String mName;
     String mFirstName;
     String mLastName;
     String mEmail;
     String mPassword;
     String mConfirmPassword;
     String mPhoneNumber;
+
+    private String mVerificationId;
+
+    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        String TAG = "Phone:";
+
+        @Override
+        public void onVerificationCompleted(PhoneAuthCredential credential) {
+            // This callback will be invoked in two situations:
+            // 1 - Instant verification. In some cases the phone number can be instantly
+            //     verified without needing to send or enter a verification code.
+            // 2 - Auto-retrieval. On some devices Google Play services can automatically
+            //     detect the incoming verification SMS and perform verification without
+            //     user action.
+            signInWithPhoneAuthCredential(credential);
+        }
+
+        @Override
+        public void onVerificationFailed(FirebaseException e) {
+            // This callback is invoked in an invalid request for verification is made,
+            // for instance if the the phone number format is not valid.
+
+            if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                // Invalid request
+                // ...
+
+            } else if (e instanceof FirebaseTooManyRequestsException) {
+                // The SMS quota for the project has been exceeded
+                // ...
+
+            }
+
+            // Show a message and update the UI
+            // ...
+        }
+
+        @Override
+        public void onCodeSent(@NonNull final String verificationId,
+                               @NonNull PhoneAuthProvider.ForceResendingToken token) {
+            mVerificationId = verificationId;
+            nextState();
+        }
+    };
 
     public RegisterFragment() {
         // Required empty public constructor
@@ -71,81 +116,82 @@ public class RegisterFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        et_phonenumber = view.findViewById(R.id.et_register_phone);
-        et_otp = view.findViewById(R.id.et_register_otp);
-        materialToolbar = view.findViewById(R.id.main_top_bar);
+        firstTV = view.findViewById(R.id.register_textView3);
+        secondTV = view.findViewById(R.id.register_textView4);
+
+        til1 = view.findViewById(R.id.register_til1);
+        til2 = view.findViewById(R.id.register_til2);
+
+        progressBar = view.findViewById(R.id.register_progress_bar);
+
+        next = view.findViewById(R.id.register_btn_next);
+        next.setOnClickListener(v -> {
+           buttonStateManager();
+        });
 
         mRef = FirebaseFirestore.getInstance();
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        firebaseAuth = FirebaseAuth.getInstance();
-
-        //btn_register.setOnClickListener(new View.OnClickListener() {
-           // @Override
-           // public void onClick(View v) {
-          //      updateUser();
-          //  }
-        //});
-
-
+        stateManager();
         return view;
     }
 
-    private void updateUser() {
-        updateVariableData();
-        if(validateData()){
-            progressBar.setVisibility(View.VISIBLE);
-            mRef.collection("public").document("registeredPhone").get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()){
-                        List<String> numbers = (List<String>) task.getResult().get("numbers");
-                        if(numbers==null){
-                            register();
-                            return;
-                        }
-                        if(numbers.contains(mPhoneNumber)){
-                            et_phonenumber.setError("Phone Number already registered");
-                            progressBar.setVisibility(View.GONE);
-                        }else {
-                            register();
-                        }
-                    }else {
-                        Utils.toast(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG);
-                    }
-
+    private void buttonStateManager() {
+        if (state==0){
+            mPhoneNumber = "+91";
+            mPhoneNumber = mPhoneNumber.concat(til1.getEditText().getText().toString());
+            if(Utils.isEmpty(mPhoneNumber) || mPhoneNumber.equals("+91")) {
+                til1.setError("Can't be empty");
+            } else {
+                if (mPhoneNumber.length() != 13) {
+                    til1.setError("Invalid number");
+                } else {
+                    Log.d("Button", "buttonStateManager: "+mPhoneNumber);
+                    PhoneAuthProvider.getInstance().verifyPhoneNumber(mPhoneNumber, 60, TimeUnit.SECONDS, getActivity(), mCallbacks);
                 }
-            });
-
+            }
         }
+        else if (state==2){
+            mEmail = til1.getEditText().getText().toString();
+            if(Utils.isEmpty(mEmail)){
+                til1.setError("Can't be empty");
+            } else {
+                nextState();
+            }
+        }
+        else if (state==3){
+            mPassword = til1.getEditText().getText().toString();
+            mConfirmPassword = til2.getEditText().getText().toString();
+            if (!mPassword.equals(mConfirmPassword))
+                til2.setError("Password do not match.");
+            else
+                nextState();
+        }
+        else if (state==4){
+            mName = til1.getEditText().getText().toString();
+            if (Utils.isEmpty(mName)){
+                til1.setError("Name cannot be empty");
+            } else {
+                mName = capitalize(mName);
+                mFirstName = "";
+                mLastName = "";
+                if(mName.split("\\w+").length>1){
 
-    }
-
-    private void register() {
-        firebaseAuth.createUserWithEmailAndPassword(mEmail, mPassword)
-                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Log.d("authentication", "Registered");
-                            firebaseUser = firebaseAuth.getCurrentUser();
-                            addFields();
-
-                        }else if(task.getException() instanceof FirebaseAuthUserCollisionException){
-                             //et_email.setError("User with this email already exists");
-                             progressBar.setVisibility(View.INVISIBLE);
-                        }else{
-                            Log.d("Authentication", "Authentication Failed");
-                            progressBar.setVisibility(View.INVISIBLE);
-                        }
-
-                    }
-                });
+                    mLastName = mName.substring(mName.lastIndexOf(" ")+1);
+                    mFirstName = mName.substring(0, mName.lastIndexOf(' '));
+                }
+                else{
+                    mFirstName = mName;
+                }
+                nextState();
+            }
+        }
     }
 
     private void addFields(){
+        firstTV.setText("Logging you in.");
+        til1.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         final User user = new User();
-        user.setUid(firebaseUser.getUid());
+        user.setUid(FirebaseAuth.getInstance().getUid());
         user.setFirstName(mFirstName);
         user.setLastName(mLastName);
         user.setEmail(mEmail);
@@ -159,15 +205,35 @@ public class RegisterFragment extends Fragment {
         wallet.setBalance(Utils.WELCOME_BALANCE);
         wallet.setLastTransaction(null);
 
+        FirebaseAuth.getInstance().getCurrentUser().updateEmail(mEmail).addOnCompleteListener(task -> {
+           if (task.isSuccessful()){
+               FirebaseAuth.getInstance().getCurrentUser().updatePassword(mPassword).addOnCompleteListener(task1 -> {
+                   if (task1.isSuccessful()){
+                       UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                               .setDisplayName(mName)
+                               .build();
+                       FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
+                               .addOnCompleteListener(task2 -> {
+                                   if (!task2.isSuccessful()){
+                                       Log.d("AUTH", "addFields: " , task2.getException());
+                                   }
+                               });
+                   } else {
+                       Log.d("AUTH", "addFields: " , task1.getException());
+                   }
+               });
+           } else {
+               Log.d("AUTH", "addFields: " , task.getException());
+           }
+        });
+
         mRef.collection("user").document(user.getUid()).set(user);
 
         mRef.runTransaction(new Transaction.Function<Void>() {
             @Nullable
             @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-
+            public Void apply(@NonNull Transaction transaction) {
                 transaction.update(mRef.collection("public").document("registeredPhone"),"number", FieldValue.arrayUnion(mPhoneNumber));
-
                 return null;
             }
         }).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -190,77 +256,11 @@ public class RegisterFragment extends Fragment {
                             getActivity().finish();
                         }else{
                             Utils.toast(getContext(), task.getException().getMessage(), Toast.LENGTH_LONG);
-                            progressBar.setVisibility(View.INVISIBLE);
                         }
                     }
                 });
             }
         });
-    }
-
-    private void updateVariableData(){
-        /*mFirstName = capitalize(et_first_name.getText().toString().trim());
-        mLastName = capitalize(et_last_name.getText().toString().trim());
-        mEmail = et_email.getText().toString().trim();
-        mPassword = et_password.getText().toString().trim();
-        mConfirmPassword = et_repassword.getText().toString().trim();
-        mPhoneNumber = Utils.formatNumber(et_phonenumber.getText().toString().trim(), 0);*/
-
-    }
-
-    private boolean validateData(){
-        /* checking empty cases
-        if(Utils.isEmpty(mFirstName)){
-            et_first_name.setError("Can't be empty");
-            return false;
-        }
-        if(Utils.isEmpty(mLastName)){
-            et_last_name.setError("Can't be empty");
-            return false;
-        }
-        if(Utils.isEmpty(mPhoneNumber) || mPhoneNumber.equals("+91")){
-            et_phonenumber.setError("Can't be empty");
-            return false;
-        }
-        if(Utils.isEmpty(mEmail)){
-            et_email.setError("Can't be empty");
-            return false;
-        }
-        if(Utils.isEmpty(mPassword)){
-            et_password.setError("Can't be empty");
-            return false;
-        }
-        if(Utils.isEmpty(mConfirmPassword)){
-            et_repassword.setError("Can't be empty");
-            return false;
-        }
-
-        //phone check
-        if(mPhoneNumber.length()!=13){
-            et_phonenumber.setError("Invalid number");
-            return false;
-        }
-
-        //email check
-        if(!Utils.isValidEmail(mEmail)){
-            et_email.setError("Email badly formatted");
-            return false;
-        }
-
-
-        //password miss-match and length check
-        if(mPassword.length() < 6){
-            et_password.setError("Min 6 digit required");
-            return false;
-        }
-        if(!mPassword.equals(mConfirmPassword)){
-            et_repassword.setError("Password didn't match");
-            return false;
-        }
-
-
-        */
-        return true;
     }
 
     public static String capitalize(String s) {
@@ -284,4 +284,82 @@ public class RegisterFragment extends Fragment {
         return new String(cArr);
     }
 
+    public void prevState(){
+        --state;
+        stateManager();
+    }
+
+    public void nextState(){
+        ++state;
+        stateManager();
+    }
+
+    public void stateManager(){
+        if (state==0)
+            phone();
+        else if (state==1)
+            code();
+        else if (state==2)
+            email();
+        else if (state==3)
+            password();
+        else if (state==4)
+            name();
+        else if (state==5)
+            addFields();
+    }
+
+    private void code() {
+        secondTV.setVisibility(View.VISIBLE);
+        til2.setVisibility(View.VISIBLE);
+    }
+
+    private void name() {
+        til1.getEditText().setText("");
+        til2.setVisibility(View.GONE);
+        firstTV.setText("What's your name?");
+        til1.setHint("Name");
+    }
+
+    private void password() {
+        til1.getEditText().setText("");
+        til2.getEditText().setText("");
+        firstTV.setText("Security comes First");
+        til2.setVisibility(View.VISIBLE);
+        til1.setHint("Enter your password");
+        til2.setHint("Confirm your password");
+    }
+
+    private void email() {
+        til1.getEditText().setText("");
+        secondTV.setVisibility(View.GONE);
+        til2.setVisibility(View.GONE);
+        til1.setPrefixText("");
+        til1.setHint("Email");
+        firstTV.setText(R.string.register_email);
+    }
+
+    private void phone() {
+        secondTV.setVisibility(View.GONE);
+        til2.setVisibility(View.GONE);
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        FirebaseUser user = task.getResult().getUser();
+                        if (user != null){
+                            nextState();
+                        }
+                    } else {
+                        // Sign in failed, display a message and update the UI
+                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                            Toast.makeText(getContext(), "Wrong OTP!", Toast.LENGTH_SHORT).show();
+                            prevState();
+                        }
+                    }
+                });
+    }
 }

@@ -54,7 +54,6 @@ public class OfflineTransaction {
         this.timestamp = timestamp;
         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         setDate(sfd.format(timestamp.toDate()));
-
     }
 
     public String getDate() {

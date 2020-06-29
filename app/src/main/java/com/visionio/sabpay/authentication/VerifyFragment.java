@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,7 @@ public class VerifyFragment extends Fragment {
         public void onVerificationFailed(FirebaseException e) {
             // This callback is invoked in an invalid request for verification is made,
             // for instance if the the phone number format is not valid.
-
+            Log.d(TAG, "onVerificationFailed: ", e);
             if (e instanceof FirebaseAuthInvalidCredentialsException) {
                 // Invalid request
                 // ...
@@ -65,7 +66,6 @@ public class VerifyFragment extends Fragment {
             } else if (e instanceof FirebaseTooManyRequestsException) {
                 // The SMS quota for the project has been exceeded
                 // ...
-
             }
 
             // Show a message and update the UI
@@ -97,20 +97,14 @@ public class VerifyFragment extends Fragment {
         Button btn_sendOTP = view.findViewById(R.id.btn_sendOtp);
         btn_verify = view.findViewById(R.id.btn_verify);
 
-        btn_sendOTP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                sentOTP(et_number.getText().toString().trim());
-            }
+        btn_sendOTP.setOnClickListener(v -> {
+            progressBar.setVisibility(View.VISIBLE);
+            sentOTP(et_number.getText().toString().trim());
         });
 
-        btn_verify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, et_OTP.getText().toString().trim());
-                signInWithPhoneAuthCredential(credential);
-            }
+        btn_verify.setOnClickListener(v -> {
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, et_OTP.getText().toString().trim());
+            signInWithPhoneAuthCredential(credential);
         });
 
 
@@ -127,21 +121,18 @@ public class VerifyFragment extends Fragment {
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = task.getResult().getUser();
-                            progressBar.setVisibility(View.INVISIBLE);
-                            if (user != null){
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        FirebaseUser user = task.getResult().getUser();
+                        progressBar.setVisibility(View.INVISIBLE);
+                        if (user != null){
 
-                            }
-                        } else {
-                            // Sign in failed, display a message and update the UI
-                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                                Toast.makeText(getContext(), "Wrong OTP!", Toast.LENGTH_SHORT).show();
-                            }
+                        }
+                    } else {
+                        // Sign in failed, display a message and update the UI
+                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                            Toast.makeText(getContext(), "Wrong OTP!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
