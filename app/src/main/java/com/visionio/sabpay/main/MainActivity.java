@@ -210,44 +210,48 @@ public class MainActivity extends AppCompatActivity{
 
     private void loadContacts(){
 
-        final List<Contact> contactList = new ArrayList<>();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
-            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+        if (Paper.book().contains("contacts")){
+            Utils.deviceContacts = Paper.book().read("contacts");
         } else {
-            // Android version is lesser than 6.0 or the permission is already granted.
-            Toast.makeText(this, "loading contacts.", Toast.LENGTH_SHORT).show();
-            List<Contact> allContacts = getAllLocalContacts();
-            List<String> numbers = getNumberArray(allContacts);
+            final List<Contact> contactList = new ArrayList<>();
 
-            if(numbers.size()==0){
-                Utils.deviceContacts = new ArrayList<>();
-                return;
-            }
-            
-            for (String number : numbers){
-                mRef.collection("user").whereEqualTo("phone", number).get().addOnCompleteListener(task -> {
-                    if(task.isSuccessful()){
-                        for(DocumentSnapshot snapshot: task.getResult()){
-                            User user = snapshot.toObject(User.class);
-                            for(Contact c: allContacts){
-                                if(c.getNumber().equals(user.getPhone())){
-                                    c.setUser(user);
-                                    contactList.add(c);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                    checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+                //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+            } else {
+                // Android version is lesser than 6.0 or the permission is already granted.
+                Toast.makeText(this, "loading contacts.", Toast.LENGTH_SHORT).show();
+                List<Contact> allContacts = getAllLocalContacts();
+                List<String> numbers = getNumberArray(allContacts);
+
+                if(numbers.size()==0){
+                    Utils.deviceContacts = new ArrayList<>();
+                    return;
+                }
+
+                for (String number : numbers){
+                    mRef.collection("user").whereEqualTo("phone", number).get().addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            for(DocumentSnapshot snapshot: task.getResult()){
+                                User user = snapshot.toObject(User.class);
+                                for(Contact c: allContacts){
+                                    if(c.getNumber().equals(user.getPhone())){
+                                        c.setUser(user);
+                                        contactList.add(c);
+                                    }
                                 }
                             }
+                            Utils.deviceContacts = contactList;
+                            Paper.book().write("contacts", contactList);
+                        }else{
+                            Log.d("Error", task.getException().getLocalizedMessage());
                         }
-                        Utils.deviceContacts = contactList;
-                        Paper.book().write("contacts", contactList);
-                    }else{
-                        Log.d("Error", task.getException().getLocalizedMessage());
-                    }
-                });
+                    });
+                }
             }
+            Toast.makeText(this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
     }
 
     void startPendingPayment(){

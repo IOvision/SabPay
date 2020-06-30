@@ -1,7 +1,10 @@
 package com.visionio.sabpay.authentication;
 
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,7 +35,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.main.MainActivity;
+import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.User;
+import com.visionio.sabpay.models.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.paperdb.Paper;
 

@@ -15,7 +15,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fill the below form describing the issue you are facing."
-            android:textSize="28sp" />
+            android:textSize="28sp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="10dp"/>
 
         <LinearLayout
             android:id="@+id/category_ll"
@@ -28,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select Category"
+                android:text="Select Category: "
                 android:textColor="#000"
                 android:textSize="16sp" />
 
@@ -37,7 +40,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="16dp"
-                android:paddingEnd="16sp" />
+                android:paddingEnd="16sp"
+                android:layout_margin="1dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -51,7 +55,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select Subject"
+                android:text="Select Subject: "
                 android:textColor="#000"
                 android:textSize="16sp" />
 
@@ -60,7 +64,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="16dp"
-                android:paddingEnd="16sp" />
+                android:paddingEnd="16sp"/>
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -88,7 +92,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16sp"
             android:layout_marginEnd="16dp"
-            android:contentDescription="You can use @ to refrence the transaction"
+            android:contentDescription="You can use @ to reference the transaction"
             android:hint="Describe the problem in detail">
 
             <com.google.android.material.textfield.TextInputEditText

@@ -149,6 +149,10 @@ public class RegisterFragment extends Fragment {
                 }
             }
         }
+        else if(state==1) {
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, til2.getEditText().getText().toString().trim());
+            signInWithPhoneAuthCredential(credential);
+        }
         else if (state==2){
             mEmail = til1.getEditText().getText().toString();
             if(Utils.isEmpty(mEmail)){
@@ -345,6 +349,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        progressBar.setVisibility(View.VISIBLE);
         FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -352,12 +357,14 @@ public class RegisterFragment extends Fragment {
                         FirebaseUser user = task.getResult().getUser();
                         if (user != null){
                             nextState();
+                            progressBar.setVisibility(View.GONE);
                         }
                     } else {
                         // Sign in failed, display a message and update the UI
                         if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                             Toast.makeText(getContext(), "Wrong OTP!", Toast.LENGTH_SHORT).show();
                             prevState();
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });

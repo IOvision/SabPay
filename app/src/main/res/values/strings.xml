@@ -28,6 +28,7 @@
     <string name="default_notification_channel_id">110bgd6c</string>
 
     <string-array name="category">
+        <item>Select one</item>
         <item>App Crash</item>
         <item>Wallet Related Issue</item>
         <item>Payment Related Issue</item>
@@ -35,6 +36,7 @@
     </string-array>
 
     <string-array name="subject">
+        <item>Select one</item>
         <item>Payment failed but money deducted</item>
         <item>Money deducted from bank but not added to wallet</item>
         <item>GroupPay not working</item>
