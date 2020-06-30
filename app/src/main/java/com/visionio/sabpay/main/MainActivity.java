@@ -105,8 +105,7 @@ public class MainActivity extends AppCompatActivity{
             }
             return true;
         });
-        //loadContacts();
-        getAllLocalContacts();
+        loadContacts();
     }
 
     @Override
@@ -184,12 +183,7 @@ public class MainActivity extends AppCompatActivity{
         materialToolbar.setTitle(title);
     }
 
-    private void getAllLocalContacts(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
-            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
-        } else {
+    List<Contact> getAllLocalContacts(){
             List<Contact> contacts = new ArrayList<>();
             Cursor phones = getApplicationContext().getContentResolver().query(
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,
@@ -202,19 +196,18 @@ public class MainActivity extends AppCompatActivity{
                 Contact contact = new Contact(id, name, phoneNumber);
                 contacts.add(contact);
             }
-            Utils.loadContacts(contacts);
-        }
+            return contacts;
     }
 
     private List<String> getNumberArray(List<Contact> contacts){
         List<String> numbers = new ArrayList<>();
         for(Contact c: contacts){
-            numbers.add(c.getNumber());
+            if (!numbers.contains(c.getNumber()))
+                numbers.add(c.getNumber());
         }
         return numbers;
     }
 
-    /*
     private void loadContacts(){
 
         final List<Contact> contactList = new ArrayList<>();
@@ -233,36 +226,29 @@ public class MainActivity extends AppCompatActivity{
                 Utils.deviceContacts = new ArrayList<>();
                 return;
             }
-
-            if (Paper.book().contains("contacts")){
-                Utils.deviceContacts = Paper.book().read("contacts");
-            }
-
+            
             for (String number : numbers){
-                mRef.collection("user").whereEqualTo("phone", number).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
-                            for(DocumentSnapshot snapshot: task.getResult()){
-                                User user = snapshot.toObject(User.class);
-                                for(Contact c: allContacts){
-                                    if(c.getNumber().equals(user.getPhone())){
-                                        c.setUser(user);
-                                        contactList.add(c);
-                                    }
+                mRef.collection("user").whereEqualTo("phone", number).get().addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        for(DocumentSnapshot snapshot: task.getResult()){
+                            User user = snapshot.toObject(User.class);
+                            for(Contact c: allContacts){
+                                if(c.getNumber().equals(user.getPhone())){
+                                    c.setUser(user);
+                                    contactList.add(c);
                                 }
                             }
-                            Utils.deviceContacts = contactList;
-                            Paper.book().write("contacts", contactList);
-                        }else{
-                            Log.d("Error", task.getException().getLocalizedMessage());
                         }
+                        Utils.deviceContacts = contactList;
+                        Paper.book().write("contacts", contactList);
+                    }else{
+                        Log.d("Error", task.getException().getLocalizedMessage());
                     }
                 });
             }
         }
         Toast.makeText(this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
-    }*/
+    }
 
     void startPendingPayment(){
         startActivityForResult(new Intent(MainActivity.this, PendingPaymentActivity.class), 1);

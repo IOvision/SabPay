@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,89 +8,114 @@
     android:background="@color/white">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
+        android:id="@+id/offpay_app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:elevation="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
-
+        android:elevation="0dp">
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/main_top_bar"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:id="@+id/offpay_main_top_bar"
+            android:elevation="0dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            app:title="SabPay"
             android:backgroundTint="@color/white"
-            android:elevation="0dp"
-            app:navigationIcon="@drawable/ic_left_arrow"
-            app:title="OffPay"
-            app:titleTextColor="@color/purple" />
+            app:titleTextColor="@color/purple"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            app:titleTextAppearance="@style/TextAppearance.App.Custom1"
+            app:navigationIcon="@drawable/icon_back_purple"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
-        android:id="@+id/offpay_user_name"
+        android:id="@+id/offpay_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/product_sans_regular"
-        android:text="UserName"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@+id/offpay_btn_pay"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
-        app:layout_constraintVertical_bias="0.344" />
+        android:text="Username"
+        android:textSize="25sp"
+        android:textColor="@android:color/black"
+        android:layout_below="@id/offpay_app_bar_layout"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"/>
 
-    <Button
-        android:id="@+id/offpay_btn_scan"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="Scan"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.39" />
-
-    <Button
-        android:id="@+id/offpay_btn_pay"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="Pay"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/offpay_btn_create"
-        app:layout_constraintVertical_bias="0.369" />
-
-    <Button
-        android:id="@+id/offpay_btn_create"
+    <TextView
+        android:id="@+id/offpay_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="304dp"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/offpay_btn_scan"
-        app:layout_constraintVertical_bias="0.525" />
+        android:text="Balance"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/offpay_username"
+        android:layout_centerHorizontal="true"/>
 
-    <EditText
+    <com.skyfishjy.library.RippleBackground
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/content"
+        app:rb_color="@color/purple"
+        app:rb_radius="32dp"
+        app:rb_rippleAmount="4"
+        app:rb_duration="3000"
+        app:rb_scale="6">
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/centerImage"
+            android:src="@drawable/ic_phone"
+            android:visibility="visible"/>
+    </com.skyfishjy.library.RippleBackground>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/offpay_amount"
-        android:layout_width="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="Amount"
-        app:layout_constraintBottom_toTopOf="@+id/offpay_btn_scan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/offpay_user_name" />
+        android:hint="Amount"
+        android:layout_below="@id/offpay_balance"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="200dp"
+        android:visibility="gone">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/offpay_amount_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="PAY"
+        android:layout_below="@id/offpay_amount"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"/>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:id="@+id/offpay_scan_btn"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+
+            android:text="SCAN" />
+
+        <Button
+            android:id="@+id/offpay_advertise"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="ADVERTISE" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+</RelativeLayout>

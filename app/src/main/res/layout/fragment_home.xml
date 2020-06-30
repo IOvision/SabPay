@@ -66,22 +66,44 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/home_add_money"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             app:backgroundTint="@color/purple"
             app:rippleColor="@color/white"
             android:textColor="@color/white"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginTop="25dp"
+            android:layout_below="@id/home_card"
             app:icon="@drawable/icon_add_money"
             app:iconTint="@color/white"
             android:text="Add Money"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            android:layout_centerHorizontal="true" />
 
+        <ImageView
+            android:layout_toStartOf="@id/home_help_desk_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_helpdesk"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/home_help_desk_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Helpdesk!"
+            android:background="@drawable/btn_custom"
+            android:textAllCaps="false"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"/>
 
     </RelativeLayout>
 

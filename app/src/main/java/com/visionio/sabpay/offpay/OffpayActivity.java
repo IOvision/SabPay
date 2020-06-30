@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.hash.HashCode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.skyfishjy.library.RippleBackground;
 import com.visionio.sabpay.models.OffPayTransaction;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.R;
@@ -56,7 +58,7 @@ import io.paperdb.Paper;
 
 public class OffpayActivity extends AppCompatActivity {
 
-    Button btn_pay, btn_scan, btn_find;
+    //Button btn_pay, btn_scan, btn_find;
     EditText amount;
     private ConnectionsClient connectionsClient;
     private String EndpointId;
@@ -108,7 +110,7 @@ public class OffpayActivity extends AppCompatActivity {
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     if (result.getStatus().isSuccess()) {
-                        btn_pay.setVisibility(View.VISIBLE);
+                        //btn_pay.setVisibility(View.VISIBLE);
                         amount.setVisibility(View.VISIBLE);
                         Log.d("Connection", "onConnectionResult: connection successful");
                         connectionsClient.stopDiscovery();
@@ -123,7 +125,7 @@ public class OffpayActivity extends AppCompatActivity {
                 @Override
                 public void onDisconnected(String endpointId) {
                     Log.d("Connection", "onDisconnected: disconnected from the opponent");
-                    btn_pay.setVisibility(View.GONE);
+                    //btn_pay.setVisibility(View.GONE);
                     amount.setVisibility(View.GONE);
                 }
             };
@@ -156,19 +158,12 @@ public class OffpayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_offpay);
 
-        btn_scan = findViewById(R.id.offpay_btn_scan);
-        btn_pay = findViewById(R.id.offpay_btn_pay);
-        btn_find = findViewById(R.id.offpay_btn_create);
-
-        amount = findViewById(R.id.offpay_amount);
-
-        textView = findViewById(R.id.offpay_user_name);
 
         //textView.setText(user.getFirstName() + "," + user.getOffPayBalance());
 
         connectionsClient = Nearby.getConnectionsClient(this);
 
-        btn_scan.setOnClickListener(v -> {
+        /*btn_scan.setOnClickListener(v -> {
             if (ongoing) {
                 disconnect();
             } else {
@@ -176,32 +171,41 @@ public class OffpayActivity extends AppCompatActivity {
             }
         });
 
-        btn_pay.setOnClickListener(v -> {
+        //btn_pay.setOnClickListener(v -> {
             pay(Integer.parseInt(amount.getText().toString()));
         });
 
         btn_find.setOnClickListener(v -> {
             discover();
-        });
+        });*/
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final RippleBackground rippleBackground=(RippleBackground)findViewById(R.id.content);
+        ImageView imageView=(ImageView)findViewById(R.id.centerImage);
+        imageView.setVisibility(View.VISIBLE);
+        rippleBackground.startRippleAnimation();
     }
 
     private void advertise() {
         startAdvertising();
-        btn_scan.setText("Stop");
+        //btn_scan.setText("Stop");
         ongoing=true;
     }
 
     private void discover() {
         startDiscovery();
-        btn_scan.setText("Stop");
+        //btn_scan.setText("Stop");
         ongoing=true;
     }
 
     public void disconnect() {
         EndpointId = null;
         connectionsClient.stopAllEndpoints();
-        btn_scan.setText("Connect");
+        //0btn_scan.setText("Connect");
         ongoing=false;
     }
 

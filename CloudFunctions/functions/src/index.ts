@@ -122,6 +122,18 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
                     entry[0].collection('wallet').doc('wallet')
                     .update('balance', admin.firestore.FieldValue.increment(amount))
                 )
+                const payload = {
+                    notification : {
+                        title : "Money Recieved!",
+                        body : `You have recieved Rs.${amount}`
+                    }
+                }
+                entry[0].get().then(data => {
+                    let instanceID = data['instanceId']
+                    admin.messaging().sendToDevice(instanceID, payload).catch(error => console.log(error))
+                }).catch(error => {
+                    console.log(error);
+                })
             }
         
             return Promise.all(wallet_amount_update_promises).catch(error => {
@@ -272,7 +284,4 @@ export const splitTransaction = functions.firestore
         })
 
     })
-
 })
-
-

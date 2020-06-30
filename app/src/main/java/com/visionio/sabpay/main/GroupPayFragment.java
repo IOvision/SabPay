@@ -35,6 +35,8 @@ import com.visionio.sabpay.models.Utils;
 import java.util.ArrayList;
 
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class GroupPayFragment extends Fragment {
 
@@ -89,6 +91,22 @@ public class GroupPayFragment extends Fragment {
         recyclerView.setItemAnimator(new SlideInLeftAnimator());
         recyclerView.setAdapter(adapter);
         loadData();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        super.onResume();
+
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500);
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), "GROUP_FRAGMENT_SHOWCASE");
+
+        sequence.addSequenceItem(my_groups, "Create your group today!!", "Got it");
+        sequence.addSequenceItem(new_gpay, "Pay using gPay", "Got it");
+        sequence.addSequenceItem(pending_transactions, "See your pending transactions here", "Got it");
+        sequence.start();
     }
 
     private void showQr(GroupPay groupPay) {

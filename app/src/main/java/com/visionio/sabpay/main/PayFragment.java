@@ -63,6 +63,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class PayFragment extends Fragment {
 
@@ -161,11 +163,9 @@ public class PayFragment extends Fragment {
                 for(Contact c: selectedContactsAdapter.getContacts()){
                     if(c.getNumber().equals(contact.getNumber())){
                         Toast.makeText(getContext(), "Already added", Toast.LENGTH_SHORT).show();
-
                         return;
                     }
                 }
-
                 allContactAdapter.select(position);
                 selectedContactsAdapter.add(contact);
                 if(selectedContactsAdapter.getItemCount()==1 && !selected){
@@ -252,6 +252,21 @@ public class PayFragment extends Fragment {
         setUp(view);
         ((MainActivity)getActivity()).setTitle("Pay");
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        super.onResume();
+
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500);
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), "PAY_FRAGMENT_SHOWCASE");
+
+        sequence.addSequenceItem(et_number, "", "Got it");
+        sequence.addSequenceItem(pay, "Clickk here to initiate payment", "Got it");
+        sequence.start();
     }
 
     void setUp(View view){
