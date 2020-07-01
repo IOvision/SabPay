@@ -19,15 +19,6 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-            finish();
-        }
-
-        imageView = findViewById(R.id.appIcon);
-
-        imageView.animate().alpha(1).scaleY(1).scaleX(1).setDuration(3000).start();
-
         (new Handler()).postDelayed(() -> {
             startActivity(new Intent(SplashActivity.this, MainActivity.class));
             finish();

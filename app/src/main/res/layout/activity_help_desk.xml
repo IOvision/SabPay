@@ -14,11 +14,12 @@
             android:id="@+id/heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fill the below form describing the issue you are facing."
+            android:text="Help us know about the issue"
             android:textSize="28sp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="40dp"
-            android:layout_marginEnd="10dp"/>
+            android:fontFamily="@font/product_sans_regular"
+            android:textColor="@color/purple"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp" />
 
         <LinearLayout
             android:id="@+id/category_ll"
@@ -26,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/heading"
             android:orientation="horizontal"
+            android:layout_marginTop="30dp"
             android:padding="16dp">
 
             <TextView
@@ -109,6 +111,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/content_til"
             android:layout_margin="16dp"
+            android:layout_alignParentBottom="true"
             android:text="Ask for help"/>
 
 

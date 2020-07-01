@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,7 +7,15 @@
     android:layout_height="match_parent"
     tools:context=".main.HomeFragment">
 
+    <ImageView
+        android:layout_width="207dp"
+        android:layout_height="395dp"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitEnd"
+        android:src="@drawable/ic_vine" />
+
     <RelativeLayout
+        android:id="@+id/home"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -16,7 +24,8 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp">
+            android:layout_marginTop="30dp"
+            app:cardCornerRadius="20dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -72,8 +81,6 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
             app:backgroundTint="@color/purple"
             app:rippleColor="@color/white"
             android:textColor="@color/white"
@@ -85,26 +92,73 @@
             android:textAllCaps="false"
             android:layout_centerHorizontal="true" />
 
-        <ImageView
-            android:layout_toStartOf="@id/home_help_desk_btn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/icon_helpdesk"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="10dp"/>
-
-        <Button
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/home_help_desk_btn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="Helpdesk!"
-            android:background="@drawable/btn_custom"
-            android:textAllCaps="false"
-            android:layout_alignParentEnd="true"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="10dp"/>
+            android:layout_alignParentEnd="true"
+            app:backgroundTint="@color/purple"
+            app:rippleColor="@color/white"
+            android:textColor="@color/white"
+            app:icon="@drawable/ic_047_24_hours_support"
+            app:iconTint="@color/white"
+            android:text="Helpdesk!"
+            android:textAllCaps="false" />
+
+
 
     </RelativeLayout>
 
-</FrameLayout>
+    <RelativeLayout
+        android:id="@+id/home_add"
+        android:layout_width="300dp"
+        android:layout_height="400dp"
+        android:layout_centerInParent="true"
+        android:background="@color/white"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Money"
+            android:textSize="30sp"
+            android:textColor="@color/grey"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"/>
+
+        <EditText
+            android:id="@+id/home_add_et"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/textview"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="60dp" />
+
+        <Button
+            android:id="@+id/home_add_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add"
+            android:layout_below="@id/home_add_et"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"/>
+
+        <Button
+            android:id="@+id/home_add_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_below="@id/home_add_btn"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"/>
+        
+    </RelativeLayout>
+
+
+
+</RelativeLayout>

@@ -45,17 +45,18 @@
         <activity android:name=".TransactionHistory" />
         <activity android:name=".offpay.OffpayActivity" />
         <activity android:name=".OfferDisplayActivity" />
-        <activity android:name=".SplashActivity" />
+        <activity android:name=".SplashActivity" >
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".group_pay.pending.PendingPaymentActivity" />
         <activity android:name=".group_pay.manageGroup.GroupManageActivity" />
         <activity android:name=".group_pay.manageTransactions.ManageTransactionsActivity" />
         <activity android:name=".authentication.AuthenticationActivity" />
         <activity android:name=".main.MainActivity">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
 
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
     </application>
 

@@ -188,7 +188,7 @@ public class HelpDeskActivity extends AppCompatActivity {
                             if(task.isSuccessful()){
                                 AlertDialog.Builder alert = new AlertDialog.Builder(HelpDeskActivity.this);
                                 alert.setTitle("Thank You!!");
-                                alert.setMessage("Our expert will contact you soon on your registered mobile/ email.");
+                                alert.setMessage("Our expert will contact you soon on your registered mobile/email.");
                                 alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
