@@ -41,8 +41,9 @@
                 android:layout_height="wrap_content"
                 android:text="1234567890"
                 android:textColor="@color/grey"
-                android:textSize="20sp"
-                android:layout_toEndOf="@id/transaction_id_header" />
+                android:textSize="15sp"
+                android:layout_toEndOf="@id/transaction_id_header"
+                android:layout_centerInParent="true"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/transaction_detail_2"
@@ -64,8 +65,9 @@
                 android:layout_height="wrap_content"
                 android:text="Sana"
                 android:textColor="@color/grey"
-                android:textSize="20sp"
-                android:layout_toEndOf="@id/transaction_to_header" />
+                android:textSize="15sp"
+                android:layout_toEndOf="@id/transaction_to_header"
+                android:layout_centerInParent="true"/>
         </RelativeLayout>
     </LinearLayout>
 

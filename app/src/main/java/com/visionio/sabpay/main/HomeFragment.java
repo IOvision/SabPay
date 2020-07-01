@@ -50,6 +50,7 @@ import com.visionio.sabpay.models.AddTransaction;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
+import com.visionio.sabpay.services.FeedbackActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class HomeFragment extends Fragment {
     ProgressBar balance_pb;
     ListenerRegistration listenerRegistration;
     Button btn_add, btn_cancel;
-    ExtendedFloatingActionButton helpDesk_btn;
+    ExtendedFloatingActionButton helpDesk_btn, feedback_btn;
     RelativeLayout add;
     String amount;
     EditText et_amount;
@@ -94,6 +95,9 @@ public class HomeFragment extends Fragment {
         btn_add = view.findViewById(R.id.home_add_btn);
         btn_cancel = view.findViewById(R.id.home_add_cancel);
         et_amount = view.findViewById(R.id.home_add_et);
+        feedback_btn = view.findViewById(R.id.home_feedback_btn);
+
+        feedback_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), FeedbackActivity.class)));
 
         helpDesk_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), HelpDeskActivity.class)));
 
@@ -132,6 +136,7 @@ public class HomeFragment extends Fragment {
         sequence.addSequenceItem(balanceTv, "Check your wallet balance here", "Got it");
         sequence.addSequenceItem(addMoney, "Add money to your SabPay wallet", "Got it");
         sequence.addSequenceItem(helpDesk_btn, "Post any queries or any help needed", "Got it");
+        sequence.addSequenceItem(feedback_btn, "Don't forget to provide us with your feedback", "Got it");
         sequence.start();
     }
 

@@ -88,6 +88,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
+        android:id="@+id/offpay_pay_btn"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="PAY"
@@ -108,7 +109,6 @@
             android:id="@+id/offpay_scan_btn"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-
             android:text="SCAN" />
 
         <Button

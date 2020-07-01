@@ -54,16 +54,19 @@ import java.util.List;
 import java.util.Map;
 
 import io.paperdb.Paper;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 
 public class OffpayActivity extends AppCompatActivity {
 
-    //Button btn_pay, btn_scan, btn_find;
+    Button btn_pay, btn_scan, btn_find;
     EditText amount;
     private ConnectionsClient connectionsClient;
     private String EndpointId;
     private boolean ongoing = false;
     TextView textView;
+    ImageView center_image;
 
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
@@ -160,10 +163,13 @@ public class OffpayActivity extends AppCompatActivity {
 
 
         //textView.setText(user.getFirstName() + "," + user.getOffPayBalance());
-
+        btn_scan = findViewById(R.id.offpay_scan_btn);
+        btn_find = findViewById(R.id.offpay_advertise);
+        btn_pay = findViewById(R.id.offpay_pay_btn);
+        amount = findViewById(R.id.offpay_amount_et);
         connectionsClient = Nearby.getConnectionsClient(this);
-
-        /*btn_scan.setOnClickListener(v -> {
+        center_image = findViewById(R.id.centerImage);
+        btn_scan.setOnClickListener(v -> {
             if (ongoing) {
                 disconnect();
             } else {
@@ -171,23 +177,32 @@ public class OffpayActivity extends AppCompatActivity {
             }
         });
 
-        //btn_pay.setOnClickListener(v -> {
+        btn_pay.setOnClickListener(v -> {
             pay(Integer.parseInt(amount.getText().toString()));
         });
 
         btn_find.setOnClickListener(v -> {
             discover();
-        });*/
+        });
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500);
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(OffpayActivity.this, "OFFPAY_ACTIVITY_SHOWCASE");
+
+        sequence.addSequenceItem(btn_scan, "Sender clicks here ", "Got it");
+        sequence.addSequenceItem(btn_find, "Receiver clicks here at the same time", "Got it");
+        sequence.addSequenceItem(center_image, "nearby device found will be shown to select ", "Got it");
+        sequence.start();
         final RippleBackground rippleBackground=(RippleBackground)findViewById(R.id.content);
         ImageView imageView=(ImageView)findViewById(R.id.centerImage);
         imageView.setVisibility(View.VISIBLE);
         rippleBackground.startRippleAnimation();
+
     }
 
     private void advertise() {
