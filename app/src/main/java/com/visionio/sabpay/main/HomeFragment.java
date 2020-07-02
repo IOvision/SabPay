@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -65,7 +64,6 @@ import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class HomeFragment extends Fragment {
 
-    LinearLayout linear;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseFirestore mRef = FirebaseFirestore.getInstance();
     TextView balanceTv, wallet_text, current_balance_text;
@@ -103,7 +101,6 @@ public class HomeFragment extends Fragment {
         add_money_pg = view.findViewById(R.id.home_add_money_pg);
         wallet_text = view.findViewById(R.id.home_your_wallet);
         current_balance_text = view.findViewById(R.id.home_current_balance);
-        linear = view.findViewById(R.id.home_linear);
         feedback_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), FeedbackActivity.class)));
 
         helpDesk_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), HelpDeskActivity.class)));
@@ -151,7 +148,6 @@ public class HomeFragment extends Fragment {
         sequence.addSequenceItem(addMoney, "Add money to your SabPay wallet", "Got it");
         sequence.addSequenceItem(helpDesk_btn, "Post any queries or any help needed", "Got it");
         sequence.addSequenceItem(feedback_btn, "Don't forget to provide us with your feedback", "Got it");
-        sequence.addSequenceItem(linear, "When offline use your amazing new feature 'Offpay'", "Got it");
         sequence.start();
     }
 
@@ -243,7 +239,7 @@ public class HomeFragment extends Fragment {
         paramMap.put("CHECKSUMHASH", transaction.getChecksum().trim());
         Log.d("Checksum", "@"+transaction.getChecksum());
         PaytmOrder order = new PaytmOrder(paramMap);
-        PaytmPGService pgService = PaytmPGService.getStagingService();
+        PaytmPGService pgService = PaytmPGService.getProductionService();
         pgService.initialize(order, null);
         pay(pgService);
     }
@@ -279,7 +275,7 @@ public class HomeFragment extends Fragment {
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Unsuccessful!!!");
-                        alert.setMessage("Network error occurred. Check your network connectivity and try again later.");
+                        alert.setMessage("Network error occured. Check your network connectivity and try again later.");
                         alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

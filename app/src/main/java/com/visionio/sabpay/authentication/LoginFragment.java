@@ -111,10 +111,9 @@ public class LoginFragment extends Fragment {
                 if(!user1.getLogin()){
                     mRef.collection("user").document(user1.getUid()).update("login", true);
                     storeData(user1);
-                    Intent intent = new Intent(getActivity(), MainActivity.class);
-                    intent.putExtra("login", true);
-                    startActivity(intent);
-                    getActivity().finishAffinity();
+                    TokenManager.handle(getContext());
+                    startActivity(new Intent(getContext(), MainActivity.class));
+                    getActivity().finish();
                 }else{
                     Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();
                     progressOff();
