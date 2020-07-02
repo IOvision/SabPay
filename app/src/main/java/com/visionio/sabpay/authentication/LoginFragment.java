@@ -127,7 +127,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void storeData(User user) {
-        Paper.book(user.getUid()).write("user",user);
+        Paper.book("user").write("user",user);
     }
 
     void progressOn(){

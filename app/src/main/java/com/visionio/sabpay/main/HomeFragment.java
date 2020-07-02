@@ -213,11 +213,11 @@ public class HomeFragment extends Fragment {
         String CallbackURL = "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=".concat(transaction.getOrderID());
         paramMap = new HashMap<String, String>();
         paramMap.put("CALLBACK_URL", CallbackURL);
-        paramMap.put("CHANNEL_ID", "WAP");//
+        paramMap.put("CHANNEL_ID", "WAP");
         paramMap.put("CUST_ID", transaction.getCustomerID());
-        paramMap.put("INDUSTRY_TYPE_ID", "Retail");//
-        paramMap.put("MID", "SNjnoG01015198317056");//
-        paramMap.put("WEBSITE", "WEBSTAGING");//
+        paramMap.put("INDUSTRY_TYPE_ID", "Retail");
+        paramMap.put("MID", "SNjnoG01015198317056");
+        paramMap.put("WEBSITE", "WEBSTAGING");
         paramMap.put("ORDER_ID", transaction.getOrderID());
         paramMap.put("TXN_AMOUNT", transaction.getAmount());
         paramMap.put("CHECKSUMHASH", transaction.getChecksum().trim());
