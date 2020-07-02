@@ -80,12 +80,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                 holder.amount.setText("+ \u20B9" + current.getAmount());
             } else {
                 holder.amount.setText("- \u20B9" + current.getAmount());
+            }
+            current.loadUserDataFromReference(this);
         }
 
         holder.description.setText(current.getDescription());
         holder.dateTime.setText(current.getDate());
-        //current.loadUserDataFromReference(this);
-        }
     }
 
     @Override

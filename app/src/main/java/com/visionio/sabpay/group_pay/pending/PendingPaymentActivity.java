@@ -106,6 +106,7 @@ public class PendingPaymentActivity extends AppCompatActivity {
     }
 
     private void loadPendingTransactions(){
+        adapter.allClear();
         mRef.collection("user/"+mAuth.getUid()+"/pending_gPay_transactions")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()

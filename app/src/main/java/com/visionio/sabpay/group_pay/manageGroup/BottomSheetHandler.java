@@ -30,13 +30,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.visionio.sabpay.models.Contact;
-import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
 import com.visionio.sabpay.adapter.SelectedContactsAdapter;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.enums.REQUEST;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
+import com.visionio.sabpay.models.Contact;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.paperdb.Paper;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 public class BottomSheetHandler {
@@ -336,7 +336,8 @@ public class BottomSheetHandler {
     }
 
     void addContact(){
-       for(Contact contact: Utils.deviceContacts){
+        List<Contact> deviceContacts = Paper.book().read("contacts");
+       for(Contact contact: deviceContacts){
            allContactAdapter.add(contact);
        }
     }
