@@ -1,9 +1,38 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
-
 admin.initializeApp()
-
+export const notify = 
+functions.https.onRequest((req, res)=>{
+    //url/notify?to={1234567890}?title={title}&msg={msg}
+    // https://us-central1-sabpay-ab94e.cloudfunctions.net/notify
+    const to = ""+req.query.to
+    const title= ""+req.query.title
+    let message = ""+req.query.msg
+    admin.firestore().collection(`user`).where('phone', '==', `+91${to}`).get()
+    .then(udSnap => {
+        if(udSnap.docs.length==0){
+            return res.send("User Not Found")
+        }
+        const ud = udSnap.docs[0]
+        const push_token = ud.data().instanceId
+        if(push_token===null){
+            return res.send("No token/ instanceID found");
+        }
+        const payload = {
+            token: push_token,
+            notification: {
+                  title: title,
+                  body: message
+                }
+            }
+        return admin.messaging().send(payload)
+        .then(()=>{
+            return res.send('Send')
+        })
+        .catch((error) => {return res.send(error)})
+    }).catch((error) => {return res.send(error)})
+})
 export const newComplain = 
 functions.firestore.document('complains/{cId}')
 .onCreate((dt, context) => {
@@ -23,9 +52,8 @@ functions.firestore.document('complains/{cId}')
 
         const header = 'Thanks for registering complain with us.'
         const complaidId = `Your complain reference number is ${complain.id}`
-        const detail = 'Our expert will look into it and reach out within 2 business days.'
-        const contact = 'Meanwhile you can ring us at +91 1234567890 for any query'
-        const body = `${header}\n\n${complaidId}\n${detail}\n${contact}`
+        const detail = 'Our expert will look into it and reach back to you in 30 min.'
+        const body = `${header}\n\n${complaidId}\n${detail}`
 
 
         const mailOptions = {
@@ -51,7 +79,6 @@ functions.firestore.document('complains/{cId}')
     })
 
 })
-
 export const newTransaction = 
 functions.firestore.document('user/{userId}/pending_transaction/transaction')
 .onWrite((change) => {
@@ -123,23 +150,6 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
                     entry[0].collection('wallet').doc('wallet')
                     .update('balance', admin.firestore.FieldValue.increment(amount))
                 )
-                fromDocumentRef.get().then(from => {
-                    const name = from.data()?.name
-                    const payload = {
-                        notification : {
-                            title : "Money Recieved!",
-                            body : `You have recieved Rs.${amount} from ${name}`
-                        }
-                    }
-                    entry[0].get().then(user => {
-                        let instanceID = user.data()?.instanceId
-                        console.log(instanceID)
-                        admin.messaging().sendToDevice(instanceID, payload).catch(error => console.log(error))
-                    }).catch(error => {
-                        console.log(error);
-                    })
-                }).catch(error => console.log(error))
-               
             }
         
             return Promise.all(wallet_amount_update_promises).catch(error => {
@@ -153,7 +163,6 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
         console.log(error)
     })   
 })
-
 export const gPayTransaction = 
 functions.firestore
 .document('user/{userId}/pending_gPay_transactions/{tId}')
@@ -248,7 +257,6 @@ functions.firestore
     });
     
 })
-
 export const splitTransaction = functions.firestore
 .document('/groups/{grouId}/transactions/{id}')
 .onCreate((result, context) => {
@@ -290,4 +298,7 @@ export const splitTransaction = functions.firestore
         })
 
     })
+
 })
+
+
