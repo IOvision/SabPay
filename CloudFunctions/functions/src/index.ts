@@ -52,9 +52,8 @@ functions.firestore.document('complains/{cId}')
 
         const header = 'Thanks for registering complain with us.'
         const complaidId = `Your complain reference number is ${complain.id}`
-        const detail = 'Our expert will look into it and reach out within 2 business days.'
-        const contact = 'Meanwhile you can ring us at +91 1234567890 for any query'
-        const body = `${header}\n\n${complaidId}\n${detail}\n${contact}`
+        const detail = 'Our expert will look into it and reach back to you in 30 min.'
+        const body = `${header}\n\n${complaidId}\n${detail}`
 
 
         const mailOptions = {
