@@ -63,6 +63,7 @@
                     android:textSize="30sp"/>
 
                 <TextView
+                    android:id="@+id/home_current_balance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/home_balance"
@@ -135,7 +136,7 @@
     <RelativeLayout
         android:id="@+id/home_add"
         android:layout_width="300dp"
-        android:layout_height="400dp"
+        android:layout_height="500dp"
         android:layout_centerInParent="true"
         android:background="@color/white"
         android:visibility="gone">
@@ -146,24 +147,39 @@
             android:layout_height="wrap_content"
             android:text="Add Money"
             android:textSize="30sp"
-            android:textColor="@color/grey"
+            android:textColor="@color/purple"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"/>
+            android:layout_marginTop="30dp"
+            android:maxLines="1"
+            android:inputType="text"/>
 
-        <EditText
-            android:id="@+id/home_add_et"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/home_add_tf"
             android:layout_width="200dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="50dp"
-            android:layout_below="@+id/textview"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="60dp" />
+            android:layout_marginTop="60dp"
+            android:layout_below="@+id/textview">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/home_add_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:hint="Amount"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <Button
             android:id="@+id/home_add_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add"
-            android:layout_below="@id/home_add_et"
+            android:background="@drawable/btn_custom_corner"
+            android:layout_below="@id/home_add_tf"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="50dp"/>
 
@@ -174,7 +190,16 @@
             android:text="Cancel"
             android:layout_below="@id/home_add_btn"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"/>
+            android:layout_marginTop="30dp"
+            android:background="@drawable/btn_custom_corner"/>
+        <ProgressBar
+            android:id="@+id/home_add_money_pg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/home_add_cancel"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"/>
         
     </RelativeLayout>
 

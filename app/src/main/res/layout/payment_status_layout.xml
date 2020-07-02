@@ -107,7 +107,7 @@
         android:ems="10"
         android:hint="Amount"
         android:inputType="number"
-        />
+        android:maxLines="1" />
 
     <Button
         android:id="@+id/payment_status_pay_btn"
