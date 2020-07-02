@@ -22,6 +22,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.visionio.sabpay.GpayProcedureActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.group_pay.manageGroup.GroupManageActivity;
 import com.visionio.sabpay.group_pay.manageTransactions.GroupPayAdapter;
@@ -41,7 +42,7 @@ import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 public class GroupPayFragment extends Fragment {
 
     Button pending_transactions, my_groups;
-    FloatingActionButton  new_gpay;
+    FloatingActionButton new_gpay, directions;
 
     RecyclerView recyclerView;
     GroupPayAdapter adapter;
@@ -63,6 +64,7 @@ public class GroupPayFragment extends Fragment {
         my_groups = view.findViewById(R.id.btn_my_groups);
         new_gpay = view.findViewById(R.id.btn_new_gpay);
         recyclerView = view.findViewById(R.id.group_pay_recycler_view);
+        directions = view.findViewById(R.id.btn_dir_gpay);
         ((MainActivity)getActivity()).setTitle("Group Pay");
         return view;
     }
@@ -74,6 +76,8 @@ public class GroupPayFragment extends Fragment {
         pending_transactions.setOnClickListener(v -> ((MainActivity)getActivity()).startPendingPayment());
 
         my_groups.setOnClickListener(v -> startActivity(new Intent(getActivity(), GroupManageActivity.class)));
+
+        directions.setOnClickListener(v -> startActivity(new Intent(getActivity(), GpayProcedureActivity.class)));
 
         new_gpay.setOnClickListener(v -> {
             NewGPayHandler handler = new NewGPayHandler(getContext(), mAuth, mRef);
@@ -104,8 +108,9 @@ public class GroupPayFragment extends Fragment {
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), "GROUP_FRAGMENT_SHOWCASE");
 
         sequence.addSequenceItem(my_groups, "Create your group today!!", "Got it");
-        sequence.addSequenceItem(new_gpay, "Pay using gPay", "Got it");
+        sequence.addSequenceItem(new_gpay, "Receive using gPay. Create qr for receiving money.", "Got it");
         sequence.addSequenceItem(pending_transactions, "See your pending transactions here", "Got it");
+        sequence.addSequenceItem(directions, "Don't forget to see the direction for use before starting.", "Got it");
         sequence.start();
     }
 
