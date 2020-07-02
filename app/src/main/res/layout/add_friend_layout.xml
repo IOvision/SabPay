@@ -31,7 +31,9 @@
             android:hint="Enter Group Name"
             android:padding="12dp"
             android:layout_margin="8dp"
-            android:layout_below="@id/add_member_heading_tv"/>
+            android:layout_below="@id/add_member_heading_tv"
+            android:maxLines="1"
+            android:inputType="text"/>
 
         <EditText
             android:id="@+id/add_member_search_et"
@@ -46,7 +48,9 @@
             android:hint="Search"
             android:paddingLeft="8dp"
             android:textColor="#000"
-            android:layout_below="@id/add_member_groupName_et"/>
+            android:layout_below="@id/add_member_groupName_et"
+            android:maxLines="1"
+            android:inputType="text"/>
 
         <LinearLayout
             android:id="@+id/add_member_selectedContactsContainer_ll"

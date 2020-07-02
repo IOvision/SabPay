@@ -125,7 +125,9 @@
             android:hint="Type Something.."
             android:textSize="12dp"
             android:textAlignment="center"
-            android:layout_below="@id/popup_text_input_layout_orSeparator_tv"/>
+            android:layout_below="@id/popup_text_input_layout_orSeparator_tv"
+            android:maxLines="1"
+            android:inputType="text"/>
 
 
 

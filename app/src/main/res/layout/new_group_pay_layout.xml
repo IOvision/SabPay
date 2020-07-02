@@ -23,7 +23,9 @@
         android:hint="Amount"
         android:textAlignment="center"
         android:padding="8dp"
-        android:background="@drawable/et_custom"/>
+        android:background="@drawable/et_custom"
+        android:maxLines="1"
+        android:inputType="text"/>
 
     <Button
         android:id="@+id/new_gPay_submit_bt"

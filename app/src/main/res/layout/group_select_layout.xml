@@ -12,7 +12,9 @@
         android:background="@drawable/et_custom"
         android:layout_margin="16dp"
         android:drawableStart="@drawable/ic_search_black_24dp"
-        android:paddingLeft="16dp"/>
+        android:paddingLeft="16dp"
+        android:maxLines="1"
+        android:inputType="text"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/group_select_layout_groupList_rv"

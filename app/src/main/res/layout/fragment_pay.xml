@@ -27,7 +27,8 @@
             android:inputType="number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="false"/>
+            android:enabled="false"
+            android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <RelativeLayout
