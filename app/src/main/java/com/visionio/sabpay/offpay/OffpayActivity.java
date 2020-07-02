@@ -56,11 +56,14 @@ import java.util.List;
 import java.util.Map;
 
 import io.paperdb.Paper;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 
 public class OffpayActivity extends AppCompatActivity {
 
     Button btn_pay, btn_advertise, btn_scan;
+
     EditText amount;
     private ConnectionsClient connectionsClient;
     private String EndpointId;
@@ -70,6 +73,7 @@ public class OffpayActivity extends AppCompatActivity {
     TextInputLayout til;
     User user;
     TextView username, balance;
+
 
     private final PayloadCallback payloadCallback =
             new PayloadCallback() {
@@ -220,6 +224,24 @@ public class OffpayActivity extends AppCompatActivity {
         btn_advertise.setOnClickListener(v -> {
             discover();
         });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500);
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(OffpayActivity.this, "OFFPAY_ACTIVITY_SHOWCASE");
+
+        sequence.addSequenceItem(btn_scan, "Sender clicks here ", "Got it");
+        sequence.addSequenceItem(btn_advertise, "Receiver clicks here at the same time", "Got it");
+        sequence.addSequenceItem(imageView, "nearby device found will be shown to select ", "Got it");
+        sequence.start();
+        final RippleBackground rippleBackground=(RippleBackground)findViewById(R.id.content);
+        ImageView imageView=(ImageView)findViewById(R.id.centerImage);
+        imageView.setVisibility(View.VISIBLE);
+        rippleBackground.startRippleAnimation();
 
     }
 

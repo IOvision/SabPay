@@ -92,13 +92,15 @@
             android:textAllCaps="false"
             android:layout_centerHorizontal="true" />
 
+
+
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/home_help_desk_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="71dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             app:backgroundTint="@color/purple"
@@ -107,6 +109,23 @@
             app:icon="@drawable/ic_047_24_hours_support"
             app:iconTint="@color/white"
             android:text="Helpdesk!"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/home_feedback_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:textAlignment="center"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            app:backgroundTint="@color/purple"
+            app:rippleColor="@color/white"
+            android:textColor="@color/white"
+            app:icon="@drawable/ic_feedback"
+            app:iconTint="@color/white"
+            android:text="Feedback"
             android:textAllCaps="false" />
 
 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".services.FeedbackActivity">
+
+    <ImageView
+        android:id="@+id/feedback_logo"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/ic_sabpay"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/feedback_note"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:hint="Want to tell us something?"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/feedback_logo">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/feedback_note_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxHeight="400dp"
+            android:minHeight="100dp"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/feedback_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rate us "
+        android:layout_below="@id/feedback_note"
+        android:textSize="25sp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"/>
+
+    <RatingBar
+        android:id="@+id/feedback_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/feedback_tv"
+        android:layout_marginTop="20dp"/>
+
+    <Button
+        android:id="@+id/feedback_submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:layout_below="@id/feedback_bar"
+        android:layout_centerHorizontal="true"/>
+
+    <ProgressBar
+        android:id="@+id/offpay_progressbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/feedback_submit"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"/>
+
+</RelativeLayout>

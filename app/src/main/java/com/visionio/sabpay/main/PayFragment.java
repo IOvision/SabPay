@@ -264,7 +264,7 @@ public class PayFragment extends Fragment {
         config.setDelay(500);
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), "PAY_FRAGMENT_SHOWCASE");
 
-        sequence.addSequenceItem(et_number, "", "Got it");
+        sequence.addSequenceItem(et_number, "Enter receivers number here", "Got it");
         sequence.addSequenceItem(pay, "Click here to initiate payment", "Got it");
         sequence.start();
     }
