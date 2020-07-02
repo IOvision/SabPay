@@ -92,6 +92,7 @@ public class RegisterFragment extends Fragment {
                 // ...
 
             }
+            Log.i("test", e.getLocalizedMessage());
 
             // Show a message and update the UI
             // ...

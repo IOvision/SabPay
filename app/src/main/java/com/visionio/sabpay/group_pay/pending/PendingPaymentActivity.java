@@ -1,12 +1,5 @@
 package com.visionio.sabpay.group_pay.pending;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -15,6 +8,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,12 +22,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.visionio.sabpay.models.GroupPay;
-import com.visionio.sabpay.models.Transaction;
-import com.visionio.sabpay.models.Wallet;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
+import com.visionio.sabpay.models.GroupPay;
+import com.visionio.sabpay.models.Transaction;
+import com.visionio.sabpay.models.Wallet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,8 +123,8 @@ public class PendingPaymentActivity extends AppCompatActivity {
                                 if(background.getVisibility()==View.VISIBLE){
                                     background.setVisibility(View.GONE);
                                 }
-
                                 Transaction transaction = snapshot.toObject(Transaction.class);
+                                transaction.loadUserDataFromReference(adapter);
                                 adapter.add(transaction);
                             }
                             refreshLayout.setRefreshing(false);
