@@ -29,7 +29,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.main.MainActivity;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
@@ -194,9 +193,10 @@ public class RegisterFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            TokenManager.handleOnLoginSignUp(getContext());
-                            startActivity(new Intent(getActivity(), MainActivity.class));
-                            getActivity().finish();
+                            Intent intent = new Intent(getActivity(), MainActivity.class);
+                            intent.putExtra("login", true);
+                            startActivity(intent);
+                            getActivity().finishAffinity();
                         }else{
                             Utils.toast(getContext(), task.getException().getMessage(), Toast.LENGTH_LONG);
                             progressBar.setVisibility(View.INVISIBLE);

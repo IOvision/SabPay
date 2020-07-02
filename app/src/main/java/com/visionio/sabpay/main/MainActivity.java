@@ -57,6 +57,13 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         if (mAuth.getUid() != null) {
+            Bundle bundle = getIntent().getExtras();
+            if(bundle!=null){
+                boolean login = bundle.getBoolean("login", false);
+                if(login){
+                    TokenManager.handleOnLoginSignUp(this);
+                }
+            }
             setUp();
             // info: to test help desk comment out below line
             //startActivity(new Intent(MainActivity.this, HelpDeskActivity.class));
@@ -83,6 +90,7 @@ public class MainActivity extends AppCompatActivity{
             signOut();
             return true;
         });
+
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
 

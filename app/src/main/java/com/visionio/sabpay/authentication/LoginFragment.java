@@ -27,7 +27,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.main.MainActivity;
 import com.visionio.sabpay.models.User;
 
@@ -120,9 +119,10 @@ public class LoginFragment extends Fragment {
                         if(user != null){
                             mRef.collection("user").document(user.getUid()).update("login", true);
                             storeData(user);
-                            TokenManager.handle(getContext());
-                            startActivity(new Intent(getContext(), MainActivity.class));
-                            getActivity().finish();
+                            Intent intent = new Intent(getActivity(), MainActivity.class);
+                            intent.putExtra("login", true);
+                            startActivity(intent);
+                            getActivity().finishAffinity();
                         }
                     }else{
                         Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();

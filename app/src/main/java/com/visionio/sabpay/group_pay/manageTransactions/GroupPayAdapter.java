@@ -1,5 +1,6 @@
 package com.visionio.sabpay.group_pay.manageTransactions;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.visionio.sabpay.models.GroupPay;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
+import com.visionio.sabpay.models.Utils;
 
 import java.util.List;
 
@@ -41,11 +43,12 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         return new GroupPayViewHolder(v);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull final GroupPayViewHolder holder, final int position) {
         final GroupPay  current = groupPayList.get(position);
-        holder.id.setText(current.getId());
-        holder.amount.setText(current.getAmount().toString());
+        holder.date.setText(Utils.getDate(current.getTimestamp()));
+        holder.amount.setText(String.format("Rs. %s",current.getAmount().toString()));
         holder.parts.setText(current.getParts().toString());
 
         if(!current.getActive()){
@@ -90,7 +93,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
 
     public class GroupPayViewHolder extends RecyclerView.ViewHolder{
 
-        TextView id;
+        TextView date;
         TextView amount;
         TextView parts;
         RecyclerView recyclerView;
@@ -103,7 +106,7 @@ public class GroupPayAdapter extends RecyclerView.Adapter<GroupPayAdapter.GroupP
         public GroupPayViewHolder(@NonNull View itemView) {
             super(itemView);
             view = itemView;
-            id = view.findViewById(R.id.gPay_item_id_tv);
+            date = view.findViewById(R.id.gPay_item_date_tv);
             amount = view.findViewById(R.id.gPay_item_amount_tv);
             parts = view.findViewById(R.id.gPay_item_parts_tv);
             progressBar = view.findViewById(R.id.gPay_item_transactionProgress_pb);
