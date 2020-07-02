@@ -1,8 +1,35 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
+const getchecksum = require('./checksum.js');
 
 admin.initializeApp()
+
+export const getChecksum = functions.https.onCall((data, context) => {
+    const docRef = <admin.firestore.DocumentReference> data.docRef;
+    docRef.collection('public').doc('Paytm').get().then(data1 => {
+        const mid = data1.data()?.MID;
+        const itID = data1.data()?.INDUSTRY_TYPE_ID;
+        const channel = data1.data()?.CHANNEL_ID;
+        const oId = data1.data()?.orderId;
+        const custId = context.auth?.uid;
+        const website = data1.data()?.WEBSITE;
+        const amount = data.amount;
+        getchecksum(mid, itID, channel, oId, custId, website, amount, (err, checksum) => {
+            return {
+                mid: mid,
+                itID: itID,
+                channel: channel,
+                oId: oId,
+                custId: custId,
+                website: website,
+                amount: amount,
+                checksum: checksum
+            }
+        });
+    }).catch(error => console.log(error));
+});
+
 
 export const notify = 
 functions.https.onRequest((req, res)=>{
