@@ -7,13 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".main.HomeFragment">
 
-    <LinearLayout
-        android:id="@+id/home_linear"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:orientation="horizontal"
-        android:layout_centerInParent="true"/>
-
     <ImageView
         android:layout_width="207dp"
         android:layout_height="395dp"

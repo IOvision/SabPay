@@ -92,6 +92,7 @@ public class RegisterFragment extends Fragment {
                 // ...
 
             }
+            Log.i("test", e.getLocalizedMessage());
 
             // Show a message and update the UI
             // ...
@@ -255,10 +256,9 @@ public class RegisterFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            Intent intent = new Intent(getActivity(), MainActivity.class);
-                            intent.putExtra("login", true);
-                            startActivity(intent);
-                            getActivity().finishAffinity();
+                            TokenManager.handleOnLoginSignUp(getContext());
+                            startActivity(new Intent(getActivity(), MainActivity.class));
+                            getActivity().finish();
                         }else{
                             Utils.toast(getContext(), task.getException().getMessage(), Toast.LENGTH_LONG);
                         }
@@ -345,8 +345,8 @@ public class RegisterFragment extends Fragment {
     }
 
     private void phone() {
-        secondTV.setVisibility(View.INVISIBLE);
-        til2.setVisibility(View.INVISIBLE);
+        secondTV.setVisibility(View.GONE);
+        til2.setVisibility(View.GONE);
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:layout_marginTop="8dp"
@@ -23,7 +24,7 @@
         android:layout_marginLeft="16dp"
         android:layout_toRightOf="@id/transaction_list_item_icon_iv"
         android:fontFamily="@font/roboto_regular"
-        android:text="Gpay to: Danish"
+        tools:text="Gpay to: Danish"
         android:textColor="#000"
         android:textSize="20sp" />
 

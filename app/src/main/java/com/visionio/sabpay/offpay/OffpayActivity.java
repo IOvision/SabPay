@@ -339,7 +339,7 @@ public class OffpayActivity extends AppCompatActivity {
                 Toast.makeText(this, "Payload Sent!", Toast.LENGTH_SHORT).show();
             });
             user.send(amount);
-            Paper.book("user").write("user",user);
+            Paper.book().write("user",user);
         } else {
             Toast.makeText(this, "Not Enough Balance!", Toast.LENGTH_SHORT).show();
         }

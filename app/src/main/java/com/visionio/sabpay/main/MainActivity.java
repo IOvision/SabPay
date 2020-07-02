@@ -26,16 +26,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.models.Contact;
-import com.visionio.sabpay.models.OffPayTransaction;
-import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
-import com.visionio.sabpay.offpay.OffpayActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,14 +56,10 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (mAuth.getUid() != null) {
-            Bundle bundle = getIntent().getExtras();
-            if(bundle!=null){
-                boolean login = bundle.getBoolean("login", false);
-                if(login){
-                    TokenManager.handleOnLoginSignUp(this);
-                }
-            }
             setUp();
+            // info: to test help desk comment out below line
+            //startActivity(new Intent(MainActivity.this, HelpDeskActivity.class));
+            //startActivity(new Intent(MainActivity.this, OffpayActivity.class));
         } else {
             startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
             finish();
@@ -214,7 +206,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void loadContacts(){
-
+        Paper.book().delete("contacts");
         if (Paper.book().contains("contacts")){
             Utils.deviceContacts = Paper.book().read("contacts");
         } else {
@@ -235,27 +227,37 @@ public class MainActivity extends AppCompatActivity{
                     return;
                 }
 
-                for (String number : numbers){
-                    mRef.collection("user").whereEqualTo("phone", number).get().addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            for(DocumentSnapshot snapshot: task.getResult()){
-                                User user = snapshot.toObject(User.class);
-                                for(Contact c: allContacts){
-                                    if(c.getNumber().equals(user.getPhone())){
-                                        c.setUser(user);
-                                        contactList.add(c);
+                mRef.document("/public/registeredPhone").get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    List<String> numRegList;
+                                    try{
+                                        numRegList = (List<String>) task.getResult().get("number");
+                                    }catch (Exception e){
+                                        numRegList = new ArrayList<>();
                                     }
+                                    List<Contact> commonContacts = new ArrayList<>();
+                                    for(String numReg: numRegList){
+                                        for(Contact inDeviceContact: allContacts){
+                                            if(inDeviceContact.getNumber().equals(numReg)){
+                                                commonContacts.add(inDeviceContact);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    Utils.deviceContacts = contactList;
+                                    Paper.book().write("contacts", commonContacts);
+                                    Toast.makeText(MainActivity.this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Log.i("test", task.getException().getLocalizedMessage());
                                 }
                             }
-                            Utils.deviceContacts = contactList;
-                            Paper.book().write("contacts", contactList);
-                        }else{
-                            Log.d("Error", task.getException().getLocalizedMessage());
-                        }
-                    });
-                }
+                        });
+
+
             }
-            Toast.makeText(this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
         }
     }
 

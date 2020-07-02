@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
+
 const getchecksum = require('./checksum.js');
 
 admin.initializeApp()
@@ -29,6 +30,7 @@ export const getChecksum = functions.https.onCall((data, context) => {
         });
     }).catch(error => console.log(error));
 });
+
 
 
 export const notify = 
@@ -62,7 +64,6 @@ functions.https.onRequest((req, res)=>{
         .catch((error) => {return res.send(error)})
     }).catch((error) => {return res.send(error)})
 })
-
 export const newComplain = 
 functions.firestore.document('complains/{cId}')
 .onCreate((dt, context) => {
@@ -82,9 +83,8 @@ functions.firestore.document('complains/{cId}')
 
         const header = 'Thanks for registering complain with us.'
         const complaidId = `Your complain reference number is ${complain.id}`
-        const detail = 'Our expert will look into it and reach back to you in 24 hours.'
+        const detail = 'Our expert will look into it and reach back to you in 30 min.'
         const body = `${header}\n\n${complaidId}\n${detail}`
-
 
 
         const mailOptions = {
@@ -110,7 +110,6 @@ functions.firestore.document('complains/{cId}')
     })
 
 })
-
 export const newTransaction = 
 functions.firestore.document('user/{userId}/pending_transaction/transaction')
 .onWrite((change) => {
@@ -182,23 +181,6 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
                     entry[0].collection('wallet').doc('wallet')
                     .update('balance', admin.firestore.FieldValue.increment(amount))
                 )
-                fromDocumentRef.get().then(from => {
-                    const name = from.data()?.name
-                    const payload = {
-                        notification : {
-                            title : "Money Recieved!",
-                            body : `You have recieved Rs.${amount} from ${name}`
-                        }
-                    }
-                    entry[0].get().then(user => {
-                        let instanceID = user.data()?.instanceId
-                        console.log(instanceID)
-                        admin.messaging().sendToDevice(instanceID, payload).catch(error => console.log(error))
-                    }).catch(error => {
-                        console.log(error);
-                    })
-                }).catch(error => console.log(error))
-               
             }
         
             return Promise.all(wallet_amount_update_promises).catch(error => {
@@ -212,7 +194,6 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
         console.log(error)
     })   
 })
-
 export const gPayTransaction = 
 functions.firestore
 .document('user/{userId}/pending_gPay_transactions/{tId}')
@@ -307,7 +288,6 @@ functions.firestore
     });
     
 })
-
 export const splitTransaction = functions.firestore
 .document('/groups/{grouId}/transactions/{id}')
 .onCreate((result, context) => {
@@ -349,4 +329,7 @@ export const splitTransaction = functions.firestore
         })
 
     })
+
 })
+
+

@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -62,6 +61,7 @@ import com.visionio.sabpay.payment.PaymentActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.paperdb.Paper;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
@@ -137,8 +137,9 @@ public class PayFragment extends Fragment {
         pay = view.findViewById(R.id.pay_btn_pay);
         allContactsRecyclerView = view.findViewById(R.id.pay_fragment_recycler);
 
+        List<Contact> con = Paper.book().read("contacts");
         selectedContactsAdapter = new SelectedContactsAdapter(new ArrayList<>());
-        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<>(Utils.deviceContacts), new ArrayList<>(Utils.deviceContacts));
+        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<>(con), new ArrayList<>(con));
 
         recyclerViewContainer = view.findViewById(R.id.pay_fragment_recyclerViewsContainer_ll);
         selectedContactsRecyclerView = view.findViewById(R.id.pay_fragment_selectedContacts_rv);

@@ -1,6 +1,5 @@
 package com.visionio.sabpay.adapter;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
+import com.visionio.sabpay.models.Transaction;
 
 import java.util.List;
 
@@ -85,7 +84,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
         holder.description.setText(current.getDescription());
         holder.dateTime.setText(current.getDate());
-        current.loadUserDataFromReference(this);
+        //current.loadUserDataFromReference(this);
         }
     }
 
