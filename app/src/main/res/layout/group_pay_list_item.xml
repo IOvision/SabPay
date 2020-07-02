@@ -10,30 +10,30 @@
     <RelativeLayout
         android:id="@+id/gPay_item_mainContainer_rl"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="100dp"
         android:background="@color/grey">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/gPay_item_id_tv"
+                android:id="@+id/gPay_item_date_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_regular"
-                android:text="EdNzcbo2EJXgURS0BHjf"
+                tools:text="EdNzcbo2EJXgURS0BHjf"
                 android:textColor="@color/white"
-                android:textSize="24sp" />
+                android:textSize="22sp" />
 
             <TextView
                 android:id="@+id/gPay_item_amount_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rs. 1000"
-                android:textSize="12sp"
+                tools:text="Rs. 1000"
+                android:textSize="16sp"
                 android:fontFamily="monospace"
                 android:textColor="@color/white"/>
         </LinearLayout>
