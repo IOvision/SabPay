@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -64,6 +65,7 @@ public class HomeFragment extends Fragment {
     String amount;
     EditText et_amount;
     Map<String, String> paramMap;
+    LinearLayout ll;
     //AddTransaction transaction = new AddTransaction(amount.getText().toString(), user.getCustomerID());
 
     public HomeFragment() {
@@ -89,6 +91,7 @@ public class HomeFragment extends Fragment {
         add_money_pg = view.findViewById(R.id.home_add_money_pg);
         wallet_text = view.findViewById(R.id.home_your_wallet);
         current_balance_text = view.findViewById(R.id.home_current_balance);
+        ll = view.findViewById(R.id.home_ll);
         feedback_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), FeedbackActivity.class)));
 
         helpDesk_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), HelpDeskActivity.class)));
@@ -136,6 +139,7 @@ public class HomeFragment extends Fragment {
         sequence.addSequenceItem(addMoney, "Add money to your SabPay wallet", "Got it");
         sequence.addSequenceItem(helpDesk_btn, "Post any queries or any help needed", "Got it");
         sequence.addSequenceItem(feedback_btn, "Don't forget to provide us with your feedback", "Got it");
+        sequence.addSequenceItem(ll, "Don't forget to use our offpay feature with internet off", "Got it.");
         sequence.start();
     }
 

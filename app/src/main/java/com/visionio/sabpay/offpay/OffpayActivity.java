@@ -81,7 +81,7 @@ public class OffpayActivity extends AppCompatActivity {
                 @Override
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     OffPayTransaction a = new OffPayTransaction(payload.asBytes());
-                    user = Paper.book("user").read("user");
+                    user = getUser();
                     user.receive(a.getAmount());
                     balance.setText("Balance :" + user.getOffPayBalance());
                     Paper.book("user").write("user",user);
@@ -189,7 +189,7 @@ public class OffpayActivity extends AppCompatActivity {
         username = findViewById(R.id.offpay_username);
         balance = findViewById(R.id.offpay_balance);
 
-        user = Paper.book("user").read("user");
+        user = getUser();
 
         username.setText(user.getName());
         balance.setText("Balance :" + user.getOffPayBalance());
@@ -309,16 +309,13 @@ public class OffpayActivity extends AppCompatActivity {
         recreate();
     }
 
-    static int fromByteArray(byte[] bytes) {
-        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
-    }
 
     public User getUser() {
         return Paper.book("user").read("user");
     }
 
     public void pay(int amount) {
-        user = Paper.book("user").read("user");
+        user = getUser();
         if (user.getOffPayBalance() >= amount){
             OffPayTransaction pay = new OffPayTransaction(FirebaseAuth.getInstance().getUid(), amount);
             Payload payload = Payload.fromBytes(pay.toBytes());
