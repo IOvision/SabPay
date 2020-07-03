@@ -6,30 +6,32 @@ const getchecksum = require('./checksum.js');
 
 admin.initializeApp()
 
-export const getChecksum = functions.https.onCall((data, context) => {
-    const docRef = <admin.firestore.DocumentReference> data.docRef;
-    docRef.collection('public').doc('Paytm').get().then(data1 => {
-        const mid = data1.data()?.MID;
-        const itID = data1.data()?.INDUSTRY_TYPE_ID;
-        const channel = data1.data()?.CHANNEL_ID;
-        const oId = data1.data()?.orderId;
-        const custId = context.auth?.uid;
-        const website = data1.data()?.WEBSITE;
-        const amount = data.amount;
-        getchecksum(mid, itID, channel, oId, custId, website, amount, (err, checksum) => {
-            return {
-                mid: mid,
-                itID: itID,
-                channel: channel,
-                oId: oId,
-                custId: custId,
-                website: website,
-                amount: amount,
-                checksum: checksum
-            }
-        });
-    }).catch(error => console.log(error));
+export const getChecksum = functions.https.onCall(async (data, context) => { 
+    var docRef = admin.firestore().collection("public").doc("Paytm");
+    const data1 = await docRef.get();
+    const mid =  <string>data1.data()?.MID;
+    const itID = <string> data1.data()?.INDUSTRY_TYPE_ID;
+    const channel = <string> data1.data()?.CHANNEL_ID;
+    const oId  = <string> data1.data()?.orderId;
+    const custId = <string> context.auth?.uid;
+    const website = <string> data1.data()?.WEBSITE;
+    const amount = <string> data.amount+'.00';
+    const callbackurl = data1.data()?.CALLBACK_URL+oId;
+    const merchantkey = data1.data()?.MERCHANTKEY;
+    let checksum = await getchecksum(mid, itID, channel, oId, custId, website, amount, callbackurl, merchantkey)
+    return {
+        CALLBACK_URL: callbackurl,
+        CHANNEL_ID: channel,
+        CHECKSUMHASH: checksum,
+        CUST_ID: custId,
+        INDUSTRY_TYPE_ID: itID,
+        MID: mid,
+        WEBSITE: website,
+        ORDER_ID: oId,
+        TXN_AMOUNT: amount
+    }
 });
+
 
 
 

@@ -2,8 +2,6 @@ package com.visionio.sabpay.main;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -22,34 +19,27 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.ThreeBounce;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.paytm.pgsdk.PaytmOrder;
 import com.paytm.pgsdk.PaytmPGService;
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helpdesk.HelpDeskActivity;
 import com.visionio.sabpay.models.AddTransaction;
-import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 import com.visionio.sabpay.services.FeedbackActivity;
@@ -57,9 +47,7 @@ import com.visionio.sabpay.services.FeedbackActivity;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.paperdb.Paper;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class HomeFragment extends Fragment {
@@ -124,7 +112,15 @@ public class HomeFragment extends Fragment {
         btn_add.setOnClickListener(v -> {
             add_money_pg.setVisibility(View.VISIBLE);
             amount = et_amount.getText().toString();
-            initializeTransaction();
+            initializeTransaction().addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()) {
+                        Exception e = task.getException();
+                        Log.d("function", "onComplete: "+e.getLocalizedMessage());
+                        }
+                    }
+            });
         });
         btn_cancel.setOnClickListener(v -> {
             wallet_text.setVisibility(View.VISIBLE);
@@ -165,84 +161,36 @@ public class HomeFragment extends Fragment {
         Utils.registrations.add(listenerRegistration);
     }
 
-    private void initializeTransaction() {
 
-        DocumentReference DocRef = FirebaseFirestore.getInstance().collection("user").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        DocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
+    private Task<String> initializeTransaction() {
+        // Create the arguments to the callable function.
+        Log.d("function", "initializeTransaction: zzzz");
+        Map<String, String> data = new HashMap<>();
+        data.put("amount", amount);
 
-                    User user = task.getResult().toObject(User.class);
-                    AddTransaction transaction = new AddTransaction(amount, user.getUid());
-
-                    //getting orderID from database
-                    DocumentReference documentReference = FirebaseFirestore.getInstance().collection("public").document("Paytm");
-                    documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot documentSnapshot = task.getResult();
-                                if (documentSnapshot.exists()) {
-                                    String test = documentSnapshot.getString("orderId");
-                                    transaction.setOrderID(test);
-                                    transaction.setUrl("https://us-central1-payment-1de29.cloudfunctions.net/generateChecksum?oID=" + transaction.getOrderID() + "&custID=" + transaction.getCustomerID() + "&amount=" + transaction.getAmount());
-
-                                    //updated orderId
-                                    DocumentReference order  = FirebaseFirestore.getInstance().collection("public").document("Paytm");
-                                    order.update("orderId", Integer.toString(Integer.parseInt(transaction.getOrderID())+1));
-                                    getChecksum(transaction);
-
-                                } else {
-                                    Log.d("Document Snapshot", "No such document");
-                                }
-                            } else {
-                            }
-                        }
-                    });
-
-                }
-            }
-        });
+        return FirebaseFunctions.getInstance()
+                .getHttpsCallable("getChecksum")
+                .call(data)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        // This continuation runs on either success or failure, but if the task
+                        // has failed then getResult() will throw an Exception which will be
+                        // propagated down.
+                        HashMap<String, String> result = (HashMap<String, String>) task.getResult().getData();
+                        Log.d("result of the function", "result: " + task.getResult().getData());
+                        PaytmOrder order = new PaytmOrder(result);
+                        PaytmPGService pgService = PaytmPGService.getStagingService();
+                        pgService.initialize(order, null);
+                        pay(pgService);
+                        return "done";
+                    }
+                });
     }
 
-    private void getChecksum(AddTransaction transaction) {
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, transaction.getUrl(), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.d("Response",response);
-                transaction.setChecksum(response);
-                initiateTransaction(transaction);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("GET request", "Damn! That didn't work");
-            }
-        });
 
-        queue.add(stringRequest);
-    }
 
-    private void initiateTransaction(AddTransaction transaction) {
-        String CallbackURL = "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=".concat(transaction.getOrderID());
-        paramMap = new HashMap<String, String>();
-        paramMap.put("CALLBACK_URL", CallbackURL);
-        paramMap.put("CHANNEL_ID", "WAP");
-        paramMap.put("CUST_ID", transaction.getCustomerID());
-        paramMap.put("INDUSTRY_TYPE_ID", "Retail");
-        paramMap.put("MID", "SNjnoG01015198317056");
-        paramMap.put("WEBSITE", "WEBSTAGING");
-        paramMap.put("ORDER_ID", transaction.getOrderID());
-        paramMap.put("TXN_AMOUNT", transaction.getAmount());
-        paramMap.put("CHECKSUMHASH", transaction.getChecksum().trim());
-        Log.d("Checksum", "@"+transaction.getChecksum());
-        PaytmOrder order = new PaytmOrder(paramMap);
-        PaytmPGService pgService = PaytmPGService.getProductionService();
-        pgService.initialize(order, null);
-        pay(pgService);
-    }
+
 
     private void pay(PaytmPGService pgService) {
         pgService.startPaymentTransaction(getContext(), true, true,
@@ -254,7 +202,6 @@ public class HomeFragment extends Fragment {
                         Log.d("paytm", "entered");
                         Log.d("paytmtransaction result", "Payment successful: " + inResponse.toString());
                         updateWallet();
-
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Successful!!!");
@@ -266,7 +213,6 @@ public class HomeFragment extends Fragment {
                             }
                         });
                         alert.show();
-
                     }
 
                     @Override

@@ -105,7 +105,7 @@ public class PaymentActivity extends AppCompatActivity {
         selectedContactsAdapter.setClickListener(new OnItemClickListener<Contact>() {
             @Override
             public void onItemClicked(Contact object, int position, View view) {
-                int size= selectedContactsAdapter.getContacts().size();
+                int size = selectedContactsAdapter.getContacts().size();
                 if(size==1){
                     Toast.makeText(PaymentActivity.this, "At least 1 payee need to be selected", Toast.LENGTH_LONG).show();
                 }else{

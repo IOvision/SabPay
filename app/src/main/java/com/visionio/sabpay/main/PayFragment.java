@@ -139,7 +139,7 @@ public class PayFragment extends Fragment {
 
         List<Contact> con = Paper.book().read("contacts");
         selectedContactsAdapter = new SelectedContactsAdapter(new ArrayList<>());
-        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<>(con), new ArrayList<>(con));
+        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<Contact>(con), new ArrayList<Contact>(con));
 
         recyclerViewContainer = view.findViewById(R.id.pay_fragment_recyclerViewsContainer_ll);
         selectedContactsRecyclerView = view.findViewById(R.id.pay_fragment_selectedContacts_rv);
@@ -257,8 +257,6 @@ public class PayFragment extends Fragment {
 
     @Override
     public void onResume() {
-        super.onResume();
-
         super.onResume();
 
         ShowcaseConfig config = new ShowcaseConfig();
