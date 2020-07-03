@@ -148,19 +148,6 @@ public class OffpayActivity extends AppCompatActivity {
         btn_advertise.setVisibility(View.VISIBLE);
     }
 
-    /*private void showAlert(ConnectionInfo connectionInfo) {
-        MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(this);
-        alert.setTitle("User Found")
-                .setMessage("Connect to " + connectionInfo.getEndpointName() + "?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-
-                })
-                .setNegativeButton("No", ((dialog, which) -> {
-                    dialog.dismiss();
-                }));
-        alert.show();
-    }*/
-
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
                 @Override
@@ -339,6 +326,7 @@ public class OffpayActivity extends AppCompatActivity {
                 Toast.makeText(this, "Payload Sent!", Toast.LENGTH_SHORT).show();
             });
             user.send(amount);
+            balance.setText(user.getOffPayBalance());
             Paper.book("user").write("user",user);
         } else {
             Toast.makeText(this, "Not Enough Balance!", Toast.LENGTH_SHORT).show();
