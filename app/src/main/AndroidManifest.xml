@@ -46,7 +46,6 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".TransactionHistory" />
         <activity android:name=".offpay.OffpayActivity" />
-        <activity android:name=".OfferDisplayActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />

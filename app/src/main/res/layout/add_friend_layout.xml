@@ -87,12 +87,18 @@
                 android:layout_margin="8dp"
                 android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/add_member_allContacts_rv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:listitem="@layout/contact_list_item"
-                android:layout_below="@id/add_member_search_et"/>
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/add_member_allContacts_rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:listitem="@layout/contact_list_item"
+                    android:layout_below="@id/add_member_search_et"
+                    />
+            </androidx.core.widget.NestedScrollView>
         </LinearLayout>
 
         <TextView

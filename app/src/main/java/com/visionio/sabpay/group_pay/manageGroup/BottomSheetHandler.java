@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
@@ -46,7 +47,7 @@ import java.util.Map;
 import io.paperdb.Paper;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
-public class BottomSheetHandler {
+public class BottomSheetHandler{
 
     Context context;
     Activity activity;
@@ -179,6 +180,8 @@ public class BottomSheetHandler {
 
         selectedContactsRecyclerView.setAdapter(selectedContactsAdapter);
         allContactsRecyclerView.setAdapter(allContactAdapter);
+
+
 
         allContactAdapter.setClickListener(new OnItemClickListener<Contact>() {
             @Override
@@ -559,3 +562,5 @@ public class BottomSheetHandler {
         dialog.dismiss();
     }
 }
+
+
