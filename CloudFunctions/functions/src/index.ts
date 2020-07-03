@@ -12,13 +12,15 @@ export const getChecksum = functions.https.onCall(async (data, context) => {
     const mid =  <string>data1.data()?.MID;
     const itID = <string> data1.data()?.INDUSTRY_TYPE_ID;
     const channel = <string> data1.data()?.CHANNEL_ID;
-    const oId  = <string> data1.data()?.orderId;
+    const oId : string = <string> data1.data()?.orderId;
     const custId = <string> context.auth?.uid;
     const website = <string> data1.data()?.WEBSITE;
     const amount = <string> data.amount+'.00';
     const callbackurl = data1.data()?.CALLBACK_URL+oId;
     const merchantkey = data1.data()?.MERCHANTKEY;
     let checksum = await getchecksum(mid, itID, channel, oId, custId, website, amount, callbackurl, merchantkey)
+    admin.firestore().doc('public/Paytm').update('orderId', admin.firestore.FieldValue.increment(1))
+    .catch(error => { console.log(error)} );
     return {
         CALLBACK_URL: callbackurl,
         CHANNEL_ID: channel,
@@ -27,7 +29,7 @@ export const getChecksum = functions.https.onCall(async (data, context) => {
         INDUSTRY_TYPE_ID: itID,
         MID: mid,
         WEBSITE: website,
-        ORDER_ID: oId,
+        ORDER_ID: oId.toString(),
         TXN_AMOUNT: amount
     }
 });

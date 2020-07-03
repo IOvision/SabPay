@@ -112,15 +112,7 @@ public class HomeFragment extends Fragment {
         btn_add.setOnClickListener(v -> {
             add_money_pg.setVisibility(View.VISIBLE);
             amount = et_amount.getText().toString();
-            initializeTransaction().addOnCompleteListener(new OnCompleteListener<String>() {
-                @Override
-                public void onComplete(@NonNull Task<String> task) {
-                    if (!task.isSuccessful()) {
-                        Exception e = task.getException();
-                        Log.d("function", "onComplete: "+e.getLocalizedMessage());
-                        }
-                    }
-            });
+            initializeTransaction();
         });
         btn_cancel.setOnClickListener(v -> {
             wallet_text.setVisibility(View.VISIBLE);
@@ -177,9 +169,9 @@ public class HomeFragment extends Fragment {
                         // This continuation runs on either success or failure, but if the task
                         // has failed then getResult() will throw an Exception which will be
                         // propagated down.
-                        HashMap<String, String> result = (HashMap<String, String>) task.getResult().getData();
+                        paramMap = (HashMap<String, String>) task.getResult().getData();
                         Log.d("result of the function", "result: " + task.getResult().getData());
-                        PaytmOrder order = new PaytmOrder(result);
+                        PaytmOrder order = new PaytmOrder(paramMap);
                         PaytmPGService pgService = PaytmPGService.getStagingService();
                         pgService.initialize(order, null);
                         pay(pgService);
@@ -334,7 +326,6 @@ public class HomeFragment extends Fragment {
                     FirebaseFirestore.getInstance().collection("money_add").document(paramMap.get("ORDER_ID")).set(paramMap);
                 } else {
                     Log.d("fetching data", "Error fetching wallet data");
-
                 }
             }
         });
