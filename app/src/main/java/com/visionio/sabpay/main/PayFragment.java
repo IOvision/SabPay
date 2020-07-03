@@ -203,7 +203,8 @@ public class PayFragment extends Fragment {
         pay.setOnClickListener(v -> {
             List<Contact> contacts = selectedContactsAdapter.getContacts();
             Payment.getInstance().setAdapter(selectedContactsAdapter);
-            startActivity(new Intent(getActivity(), PaymentActivity.class));
+            checkContactsAndPay();
+
         });
 
         til_listener_show_keyboard = new View.OnClickListener() {
@@ -253,6 +254,29 @@ public class PayFragment extends Fragment {
         setUp(view);
         ((MainActivity)getActivity()).setTitle("Pay");
         return view;
+    }
+
+    private void checkContactsAndPay() {
+        for (Contact c : selectedContactsAdapter.getContacts()){
+            if (c.getUser()==null){
+                mRef.collection("user").whereEqualTo("phone", c.getNumber()).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (!task.getResult().getDocuments().isEmpty()) {
+                                        DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                                        User user = snapshot.toObject(User.class);
+                                        c.setName(user.getName());
+                                        c.setNumber(user.getPhone());
+                                        c.setUser(user);
+                                    }
+                                }
+                            }
+                        });
+            }
+        }
+        startActivity(new Intent(getActivity(), PaymentActivity.class));
     }
 
     @Override
@@ -361,8 +385,6 @@ public class PayFragment extends Fragment {
                                         }).show();
 
                             }else{
-                                /*paymentHandler.showPayStatus();
-                                paymentHandler.setError("No wallet linked to this number!!");*/
                                 MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getActivity());
                                 alert.setTitle("No Wallet Found.").setMessage("No Wallet is linked to this Number.")
                                         .setPositiveButton("Okay", (dialog, which) -> {

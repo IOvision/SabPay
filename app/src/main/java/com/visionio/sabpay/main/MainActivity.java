@@ -26,11 +26,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.models.Contact;
+import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 
 import java.util.ArrayList;
@@ -242,6 +244,21 @@ public class MainActivity extends AppCompatActivity{
                                     for(String numReg: numRegList){
                                         for(Contact inDeviceContact: allContacts){
                                             if(inDeviceContact.getNumber().equals(numReg)){
+                                                mRef.collection("user").whereEqualTo("phone", inDeviceContact.getNumber()).get()
+                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                           @Override
+                                                           public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                               if (task.isSuccessful()) {
+                                                                   if (!task.getResult().getDocuments().isEmpty()) {
+                                                                       DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                                                                       User user = snapshot.toObject(User.class);
+                                                                       inDeviceContact.setName(user.getName());
+                                                                       inDeviceContact.setNumber(user.getPhone());
+                                                                       inDeviceContact.setUser(user);
+                                                                   }
+                                                               }
+                                                           }
+                                                        });
                                                 commonContacts.add(inDeviceContact);
                                                 break;
                                             }
