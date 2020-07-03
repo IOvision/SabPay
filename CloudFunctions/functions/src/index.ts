@@ -185,6 +185,23 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
                     entry[0].collection('wallet').doc('wallet')
                     .update('balance', admin.firestore.FieldValue.increment(amount))
                 )
+
+                fromDocumentRef.get().then(from => {
+                    const name = from.data()?.name
+                    const payload = {
+                        notification : {
+                            title : "Money Recieved!",
+                            body : `You have recieved Rs.${amount} from ${name}`
+                        }
+                    }
+                    entry[0].get().then(user => {
+                        let instanceID = user.data()?.instanceId
+                        console.log(instanceID)
+                        admin.messaging().sendToDevice(instanceID, payload).catch(error => console.log(error))
+                    }).catch(error => {
+                        console.log(error);
+                    })
+                }).catch(error => console.log(error))
             }
         
             return Promise.all(wallet_amount_update_promises).catch(error => {

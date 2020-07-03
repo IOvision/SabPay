@@ -39,6 +39,8 @@ import com.visionio.sabpay.models.Wallet;
 
 import java.util.concurrent.TimeUnit;
 
+import io.paperdb.Paper;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -204,7 +206,7 @@ public class RegisterFragment extends Fragment {
         user.setOffPayBalance(200);
 
         user.setLogin(true);
-
+        Paper.book("user").write("user",user);
 
         final Wallet wallet = new Wallet();
         wallet.setBalance(Utils.WELCOME_BALANCE);

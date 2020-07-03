@@ -123,7 +123,6 @@ public class LoginFragment extends Fragment {
                 progressOff();
             }
         });
-
     }
 
     private void storeData(User user) {
