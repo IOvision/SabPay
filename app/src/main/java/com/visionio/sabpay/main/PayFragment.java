@@ -78,6 +78,8 @@ public class PayFragment extends Fragment {
     TextInputLayout textInputLayout;
     EditText et_number;
 
+    LinearLayout ll;
+
     View.OnClickListener til_listener_show_keyboard;
     View.OnClickListener til_listener_hide_keyboard;
 
@@ -144,6 +146,7 @@ public class PayFragment extends Fragment {
         recyclerViewContainer = view.findViewById(R.id.pay_fragment_recyclerViewsContainer_ll);
         selectedContactsRecyclerView = view.findViewById(R.id.pay_fragment_selectedContacts_rv);
 
+        ll = view.findViewById(R.id.pay_ll);
         overlay = view.findViewById(R.id.overlay);
         progressBar = view.findViewById(R.id.pay_progress);
 
@@ -287,8 +290,10 @@ public class PayFragment extends Fragment {
         config.setDelay(500);
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), "PAY_FRAGMENT_SHOWCASE");
 
-        sequence.addSequenceItem(et_number, "Enter receivers number here", "Got it");
+        sequence.addSequenceItem(et_number, "Enter receiver's number here", "Got it");
+        sequence.addSequenceItem(ll, "You can pay to multiple users in one go by selecting them. ", "Got it.");
         sequence.addSequenceItem(pay, "Click here to initiate payment", "Got it");
+
         sequence.start();
     }
 

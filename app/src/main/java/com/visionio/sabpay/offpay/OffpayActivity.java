@@ -10,6 +10,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -85,6 +89,8 @@ public class OffpayActivity extends AppCompatActivity {
                     user.receive(a.getAmount());
                     balance.setText("Balance :" + user.getOffPayBalance());
                     Paper.book("user").write("user",user);
+                    playNotification();
+
                     /*if (Paper.book().contains("transactions")){
                         ArrayList<byte[]> transactions = Paper.book().read("transactions");
                         transactions.add(payload.asBytes());
@@ -101,6 +107,18 @@ public class OffpayActivity extends AppCompatActivity {
                     }
                 }
             };
+
+    private void playNotification() {
+
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private final ConnectionLifecycleCallback connectionLifecycleCallback =
             new ConnectionLifecycleCallback() {

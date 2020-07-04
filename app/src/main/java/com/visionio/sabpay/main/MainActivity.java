@@ -59,9 +59,6 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         if (mAuth.getUid() != null) {
             setUp();
-            // info: to test help desk comment out below line
-            //startActivity(new Intent(MainActivity.this, HelpDeskActivity.class));
-            //startActivity(new Intent(MainActivity.this, OffpayActivity.class));
         } else {
             startActivity(new Intent(MainActivity.this, AuthenticationActivity.class));
             finish();

@@ -2,6 +2,9 @@ package com.visionio.sabpay.main;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -138,8 +141,8 @@ public class HomeFragment extends Fragment {
         sequence.addSequenceItem(balanceTv, "Check your wallet balance here", "Got it");
         sequence.addSequenceItem(addMoney, "Add money to your SabPay wallet", "Got it");
         sequence.addSequenceItem(helpDesk_btn, "Post any queries or any help needed", "Got it");
-        sequence.addSequenceItem(feedback_btn, "Don't forget to provide us with your feedback", "Got it");
-        sequence.addSequenceItem(ll, "Don't forget to use our offpay feature with internet off", "Got it.");
+        sequence.addSequenceItem(feedback_btn, "Don't forget to provide us with your valuable feedback", "Got it");
+        sequence.addSequenceItem(ll, "Don't forget to use our offpay feature with internet off. To try it switch off your internet and open pay tab. A dialog will redirect you to offpay.", "Got it.");
         sequence.start();
     }
 
