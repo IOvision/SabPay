@@ -161,7 +161,6 @@ public class MainActivity extends AppCompatActivity{
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         mAuth.signOut();
-                        Log.d("signOut", "signOut: "+listenerRegistration);
                         Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
                         startActivity(intent);
                     } else {
@@ -283,7 +282,6 @@ public class MainActivity extends AppCompatActivity{
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==1){
-            Log.d("ActivityResult", "onActivityResult: Result Acquired!");
             bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_group);
         }
     }

@@ -124,7 +124,6 @@ public class OffpayActivity extends AppCompatActivity {
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                    Log.d("Connection", "onConnectionInitiated: accepting connection");
                     Nearby.getConnectionsClient(getApplicationContext()).acceptConnection(endpointId, payloadCallback);
                     connectionsClient.stopAdvertising();
                 }
@@ -133,19 +132,16 @@ public class OffpayActivity extends AppCompatActivity {
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     if (result.getStatus().isSuccess()) {
                         payMode();
-                        Log.d("Connection", "onConnectionResult: connection successful");
                         connectionsClient.stopDiscovery();
                         EndpointId = endpointId;
                         Toast.makeText(OffpayActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
                     } else {
-                        Log.d("Connection", "onConnectionResult: connection failed");
                         Toast.makeText(OffpayActivity.this, result.getStatus().getStatusMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onDisconnected(String endpointId) {
-                    Log.d("Connection", "onDisconnected: disconnected from the opponent");
                     scanMode();
                 }
             };

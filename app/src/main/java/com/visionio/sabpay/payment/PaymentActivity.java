@@ -101,7 +101,6 @@ public class PaymentActivity extends AppCompatActivity {
 
         payment = Payment.getInstance();
         selectedContactsAdapter = payment.getAdapter();
-        Log.d("Payment", "onCreate: "+selectedContactsAdapter.getItemCount());
         selectedContactsAdapter.setClickListener(new OnItemClickListener<Contact>() {
             @Override
             public void onItemClicked(Contact object, int position, View view) {
@@ -139,7 +138,6 @@ public class PaymentActivity extends AppCompatActivity {
                 }
             }else{
                 updateUi(0, 0, 1);
-                Log.d("payment", "onCreate: "+selectedContactsAdapter.getContacts());
                 payToUserUsingCloudFunction(Integer.parseInt(amount), selectedContactsAdapter.getContacts());
             }
 
@@ -238,7 +236,6 @@ public class PaymentActivity extends AppCompatActivity {
                         }
                     }, 3000);
                 }else{
-                    Log.d("TESTING", task.getException().getLocalizedMessage());
                 }
             }
         });

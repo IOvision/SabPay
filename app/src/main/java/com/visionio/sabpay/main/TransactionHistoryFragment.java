@@ -76,7 +76,6 @@ public class TransactionHistoryFragment extends Fragment {
                     }else{
                         currentTransaction.setSendByMe(false);
                     }
-                    Log.d("Testing1", currentTransaction.getFrom().getId()+">>"+currentTransaction.isSendByMe());
                     currentTransaction.loadUserDataFromReference(adapter);
                     adapter.add(currentTransaction);
                     progressBar.setVisibility(View.GONE);

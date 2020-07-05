@@ -144,7 +144,6 @@ public class Transaction implements Serializable {
     }
 
     public void loadUserDataFromReference(final TransactionAdapter adapter){
-        Log.d("Trans", id + ", " + isSendByMe);
         if(type==1){
             (FirebaseFirestore.getInstance()).document(Utils.getPathToUser("/"+to.getPath())).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override

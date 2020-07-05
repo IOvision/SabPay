@@ -163,7 +163,6 @@ public class HomeFragment extends Fragment {
 
     private Task<String> initializeTransaction() {
         // Create the arguments to the callable function.
-        Log.d("function", "initializeTransaction: zzzz");
         Map<String, String> data = new HashMap<>();
         data.put("amount", amount);
 
@@ -177,7 +176,6 @@ public class HomeFragment extends Fragment {
                         // has failed then getResult() will throw an Exception which will be
                         // propagated down.
                         paramMap = (HashMap<String, String>) task.getResult().getData();
-                        Log.d("result of the function", "result: " + task.getResult().getData());
                         PaytmOrder order = new PaytmOrder(paramMap);
                         PaytmPGService pgService = PaytmPGService.getStagingService();
                         pgService.initialize(order, null);
@@ -198,8 +196,6 @@ public class HomeFragment extends Fragment {
                     //on successful payment
                     @Override
                     public void onTransactionResponse(Bundle inResponse) {
-                        Log.d("paytm", "entered");
-                        Log.d("paytmtransaction result", "Payment successful: " + inResponse.toString());
                         updateWallet();
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
@@ -216,7 +212,6 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void networkNotAvailable() {
-                        Log.d("paytmtransaction result", "Network unavailable");
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Unsuccessful!!!");
@@ -262,7 +257,6 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
-                        Log.d("paytmtransaction result", "error loading page response " + inErrorMessage + " + " + inFailingUrl);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Unsuccessful!!!");
@@ -278,7 +272,6 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onBackPressedCancelTransaction() {
-                        Log.d("paytmtransaction result", "cancel call back response");
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Unsuccessful!!!");
@@ -294,7 +287,6 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
-                        Log.d("paytmtransaction result", "Transaction cancel");
                         Toast.makeText(getContext(), "You canceled the transaction :(", Toast.LENGTH_SHORT).show();
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
@@ -332,7 +324,6 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "Check your wallet balance for a surprise", Toast.LENGTH_SHORT).show();
                     FirebaseFirestore.getInstance().collection("money_add").document(paramMap.get("ORDER_ID")).set(paramMap);
                 } else {
-                    Log.d("fetching data", "Error fetching wallet data");
                 }
             }
         });

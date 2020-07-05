@@ -147,7 +147,6 @@ public class RegisterFragment extends Fragment {
                 if (mPhoneNumber.length() != 13) {
                     til1.setError("Invalid number");
                 } else {
-                    Log.d("Button", "buttonStateManager: "+mPhoneNumber);
                     PhoneAuthProvider.getInstance().verifyPhoneNumber(mPhoneNumber, 60, TimeUnit.SECONDS, getActivity(), mCallbacks);
                 }
             }
@@ -222,15 +221,12 @@ public class RegisterFragment extends Fragment {
                        FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
                                .addOnCompleteListener(task2 -> {
                                    if (!task2.isSuccessful()){
-                                       Log.d("AUTH", "addFields: " , task2.getException());
                                    }
                                });
                    } else {
-                       Log.d("AUTH", "addFields: " , task1.getException());
                    }
                });
            } else {
-               Log.d("AUTH", "addFields: " , task.getException());
            }
         });
 

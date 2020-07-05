@@ -93,7 +93,6 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Log.d("Login:", "SignInWithEmail:Success");
                         updateUI(mAuth.getCurrentUser());
                     } else {
                         Log.w("Login:", "signInWithEmail:failure", task.getException());
