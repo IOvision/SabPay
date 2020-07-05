@@ -337,7 +337,7 @@ public class OffpayActivity extends AppCompatActivity {
                 Toast.makeText(this, "Payload Sent!", Toast.LENGTH_SHORT).show();
             });
             user.send(amount);
-            balance.setText(user.getOffPayBalance());
+            balance.setText(String.valueOf(user.getOffPayBalance()));
             Paper.book("user").write("user",user);
         } else {
             Toast.makeText(this, "Not Enough Balance!", Toast.LENGTH_SHORT).show();
