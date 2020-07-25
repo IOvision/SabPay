@@ -10,6 +10,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -81,10 +85,12 @@ public class OffpayActivity extends AppCompatActivity {
                 @Override
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     OffPayTransaction a = new OffPayTransaction(payload.asBytes());
-                    user = Paper.book("user").read("user");
+                    user = getUser();
                     user.receive(a.getAmount());
                     balance.setText("Balance :" + user.getOffPayBalance());
                     Paper.book("user").write("user",user);
+                    playNotification();
+
                     /*if (Paper.book().contains("transactions")){
                         ArrayList<byte[]> transactions = Paper.book().read("transactions");
                         transactions.add(payload.asBytes());
@@ -102,11 +108,22 @@ public class OffpayActivity extends AppCompatActivity {
                 }
             };
 
+    private void playNotification() {
+
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private final ConnectionLifecycleCallback connectionLifecycleCallback =
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                    Log.d("Connection", "onConnectionInitiated: accepting connection");
                     Nearby.getConnectionsClient(getApplicationContext()).acceptConnection(endpointId, payloadCallback);
                     connectionsClient.stopAdvertising();
                 }
@@ -115,19 +132,16 @@ public class OffpayActivity extends AppCompatActivity {
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     if (result.getStatus().isSuccess()) {
                         payMode();
-                        Log.d("Connection", "onConnectionResult: connection successful");
                         connectionsClient.stopDiscovery();
                         EndpointId = endpointId;
                         Toast.makeText(OffpayActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
                     } else {
-                        Log.d("Connection", "onConnectionResult: connection failed");
                         Toast.makeText(OffpayActivity.this, result.getStatus().getStatusMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onDisconnected(String endpointId) {
-                    Log.d("Connection", "onDisconnected: disconnected from the opponent");
                     scanMode();
                 }
             };
@@ -147,19 +161,6 @@ public class OffpayActivity extends AppCompatActivity {
         btn_scan.setVisibility(View.VISIBLE);
         btn_advertise.setVisibility(View.VISIBLE);
     }
-
-    /*private void showAlert(ConnectionInfo connectionInfo) {
-        MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(this);
-        alert.setTitle("User Found")
-                .setMessage("Connect to " + connectionInfo.getEndpointName() + "?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-
-                })
-                .setNegativeButton("No", ((dialog, which) -> {
-                    dialog.dismiss();
-                }));
-        alert.show();
-    }*/
 
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
@@ -202,7 +203,7 @@ public class OffpayActivity extends AppCompatActivity {
         username = findViewById(R.id.offpay_username);
         balance = findViewById(R.id.offpay_balance);
 
-        user = Paper.book("user").read("user");
+        user = getUser();
 
         username.setText(user.getName());
         balance.setText("Balance :" + user.getOffPayBalance());
@@ -322,16 +323,13 @@ public class OffpayActivity extends AppCompatActivity {
         recreate();
     }
 
-    static int fromByteArray(byte[] bytes) {
-        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
-    }
 
     public User getUser() {
         return Paper.book("user").read("user");
     }
 
     public void pay(int amount) {
-        user = Paper.book("user").read("user");
+        user = getUser();
         if (user.getOffPayBalance() >= amount){
             OffPayTransaction pay = new OffPayTransaction(FirebaseAuth.getInstance().getUid(), amount);
             Payload payload = Payload.fromBytes(pay.toBytes());
@@ -339,7 +337,8 @@ public class OffpayActivity extends AppCompatActivity {
                 Toast.makeText(this, "Payload Sent!", Toast.LENGTH_SHORT).show();
             });
             user.send(amount);
-            Paper.book().write("user",user);
+            balance.setText(String.valueOf(user.getOffPayBalance()));
+            Paper.book("user").write("user",user);
         } else {
             Toast.makeText(this, "Not Enough Balance!", Toast.LENGTH_SHORT).show();
         }

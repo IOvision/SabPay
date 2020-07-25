@@ -101,7 +101,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             if(contact.getUser()==null && c.getUser()!=null && contact.getNumber().equals(c.getNumber())){
                 contact.setUser(c.getUser());
             }
-
         }
     }
 

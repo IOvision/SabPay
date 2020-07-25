@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GpayProcedureActivity">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/dir_heading_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Directions to use Gpay"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="30sp"
+        android:textColor="@color/purple"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/dir_one_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\u2022 Receiver generates qr code by entering amount"
+        android:layout_below="@id/dir_heading_tv"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@android:color/black"/>
+
+    <ImageView
+        android:id="@+id/dir_one_mv"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:src="@drawable/ic_guide_1"
+        android:layout_below="@id/dir_one_tv"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"/>
+
+        <ImageView
+            android:id="@+id/dir_two_mv"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:src="@drawable/ic_guide_2"
+            android:layout_below="@id/dir_one_tv"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"/>
+
+        <TextView
+            android:id="@+id/dir_two_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\u2022 One member of the sender's group creates a group."
+            android:layout_below="@id/dir_one_mv"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:textSize="18dp"
+            android:textColor="@android:color/black"/>
+
+        <ImageView
+            android:id="@+id/dir_four_mv"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:src="@drawable/ic_guide_4"
+            android:layout_below="@id/dir_two_tv"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"/>
+
+        <ImageView
+            android:id="@+id/dir_three_mv"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:src="@drawable/ic_guide_3"
+            android:layout_below="@id/dir_two_tv"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"/>
+
+        <ImageView
+            android:id="@+id/dir_five_mv"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:src="@drawable/ic_guide_5"
+            android:layout_below="@id/dir_four_mv"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"/>
+
+
+    <TextView
+        android:id="@+id/dir_three_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\u2022 He/She then scans the qr code and splits the bill by selecting the group."
+        android:layout_below="@id/dir_five_mv"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@android:color/black"/>
+
+        <ImageView
+            android:id="@+id/dir_six_mv"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:src="@drawable/ic_guide_6"
+            android:layout_below="@id/dir_three_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/dir_four_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\u2022 All the members get request in pending transaction section of group pay."
+        android:layout_below="@id/dir_six_mv"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@android:color/black"/>
+
+        <ImageView
+            android:id="@+id/dir_seven_mv"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:src="@drawable/ic_guide_7"
+            android:layout_below="@id/dir_four_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/dir_five_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\u2022 Click on transaction to pay. Enter amount and send."
+        android:layout_below="@id/dir_seven_mv"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@android:color/black"/>
+
+        <ImageView
+            android:id="@+id/dir_eight_mv"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:src="@drawable/ic_guide_8"
+            android:layout_below="@id/dir_five_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/dir_six_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\u2022 Its that simple. Try it out!!."
+        android:layout_below="@id/dir_eight_mv"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="50dp"/>
+    </RelativeLayout>
+
+
+</ScrollView>

@@ -43,7 +43,6 @@ public class User implements Serializable {
     }
 
     public void setPhone(String phone) {
-        Log.d("setPhone ", "Entered into setPhone function");
         this.phone = phone;
     }
 

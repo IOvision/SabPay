@@ -114,7 +114,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         uploadTask.addOnFailureListener(exception -> {
             Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.d("Image", "onActivityResult: "+ exception.getCause());
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {

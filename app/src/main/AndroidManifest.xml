@@ -30,6 +30,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".GpayProcedureActivity"></activity>
         <activity android:name=".helpdesk.HelpDeskActivity" />
         <activity android:name=".payment.PaymentActivity" />
 
@@ -42,11 +43,10 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".services.FeedbackActivity"/>
+        <activity android:name=".services.FeedbackActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".TransactionHistory" />
         <activity android:name=".offpay.OffpayActivity" />
-        <activity android:name=".OfferDisplayActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -58,7 +58,7 @@
         <activity android:name=".group_pay.manageGroup.GroupManageActivity" />
         <activity android:name=".group_pay.manageTransactions.ManageTransactionsActivity" />
         <activity android:name=".authentication.AuthenticationActivity" />
-        <activity android:name=".main.MainActivity"></activity>
+        <activity android:name=".main.MainActivity" />
     </application>
 
 </manifest>

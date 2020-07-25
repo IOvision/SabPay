@@ -26,9 +26,9 @@
             android:id="@+id/offer_item_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/avenir_pro"
+            android:fontFamily="@font/product_sans_regular"
             android:text="Offer Name"
-            android:textColor="#000"
+            android:textColor="@color/purple"
             android:textSize="24sp" />
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:text="Offer Description"
             android:textSize="12sp"
-            android:fontFamily="monospace"
+            android:fontFamily="@font/product_sans_regular"
             android:textColor="#616060"
             android:layout_marginStart="8dp"/>
 

@@ -2,8 +2,9 @@ package com.visionio.sabpay.main;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -22,34 +23,27 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.ThreeBounce;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.paytm.pgsdk.PaytmOrder;
 import com.paytm.pgsdk.PaytmPGService;
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helpdesk.HelpDeskActivity;
 import com.visionio.sabpay.models.AddTransaction;
-import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 import com.visionio.sabpay.services.FeedbackActivity;
@@ -57,9 +51,7 @@ import com.visionio.sabpay.services.FeedbackActivity;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.paperdb.Paper;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 public class HomeFragment extends Fragment {
@@ -76,6 +68,7 @@ public class HomeFragment extends Fragment {
     String amount;
     EditText et_amount;
     Map<String, String> paramMap;
+    LinearLayout ll;
     //AddTransaction transaction = new AddTransaction(amount.getText().toString(), user.getCustomerID());
 
     public HomeFragment() {
@@ -101,6 +94,7 @@ public class HomeFragment extends Fragment {
         add_money_pg = view.findViewById(R.id.home_add_money_pg);
         wallet_text = view.findViewById(R.id.home_your_wallet);
         current_balance_text = view.findViewById(R.id.home_current_balance);
+        ll = view.findViewById(R.id.home_ll);
         feedback_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), FeedbackActivity.class)));
 
         helpDesk_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), HelpDeskActivity.class)));
@@ -147,7 +141,8 @@ public class HomeFragment extends Fragment {
         sequence.addSequenceItem(balanceTv, "Check your wallet balance here", "Got it");
         sequence.addSequenceItem(addMoney, "Add money to your SabPay wallet", "Got it");
         sequence.addSequenceItem(helpDesk_btn, "Post any queries or any help needed", "Got it");
-        sequence.addSequenceItem(feedback_btn, "Don't forget to provide us with your feedback", "Got it");
+        sequence.addSequenceItem(feedback_btn, "Don't forget to provide us with your valuable feedback", "Got it");
+        sequence.addSequenceItem(ll, "Don't forget to use our offpay feature with internet off. To try it switch off your internet and open pay tab. A dialog will redirect you to offpay.", "Got it.");
         sequence.start();
     }
 
@@ -165,84 +160,34 @@ public class HomeFragment extends Fragment {
         Utils.registrations.add(listenerRegistration);
     }
 
-    private void initializeTransaction() {
 
-        DocumentReference DocRef = FirebaseFirestore.getInstance().collection("user").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        DocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
+    private Task<String> initializeTransaction() {
+        // Create the arguments to the callable function.
+        Map<String, String> data = new HashMap<>();
+        data.put("amount", amount);
 
-                    User user = task.getResult().toObject(User.class);
-                    AddTransaction transaction = new AddTransaction(amount, user.getUid());
-
-                    //getting orderID from database
-                    DocumentReference documentReference = FirebaseFirestore.getInstance().collection("public").document("Paytm");
-                    documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot documentSnapshot = task.getResult();
-                                if (documentSnapshot.exists()) {
-                                    String test = documentSnapshot.getString("orderId");
-                                    transaction.setOrderID(test);
-                                    transaction.setUrl("https://us-central1-payment-1de29.cloudfunctions.net/generateChecksum?oID=" + transaction.getOrderID() + "&custID=" + transaction.getCustomerID() + "&amount=" + transaction.getAmount());
-
-                                    //updated orderId
-                                    DocumentReference order  = FirebaseFirestore.getInstance().collection("public").document("Paytm");
-                                    order.update("orderId", Integer.toString(Integer.parseInt(transaction.getOrderID())+1));
-                                    getChecksum(transaction);
-
-                                } else {
-                                    Log.d("Document Snapshot", "No such document");
-                                }
-                            } else {
-                            }
-                        }
-                    });
-
-                }
-            }
-        });
+        return FirebaseFunctions.getInstance()
+                .getHttpsCallable("getChecksum")
+                .call(data)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        // This continuation runs on either success or failure, but if the task
+                        // has failed then getResult() will throw an Exception which will be
+                        // propagated down.
+                        paramMap = (HashMap<String, String>) task.getResult().getData();
+                        PaytmOrder order = new PaytmOrder(paramMap);
+                        PaytmPGService pgService = PaytmPGService.getStagingService();
+                        pgService.initialize(order, null);
+                        pay(pgService);
+                        return "done";
+                    }
+                });
     }
 
-    private void getChecksum(AddTransaction transaction) {
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, transaction.getUrl(), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.d("Response",response);
-                transaction.setChecksum(response);
-                initiateTransaction(transaction);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("GET request", "Damn! That didn't work");
-            }
-        });
 
-        queue.add(stringRequest);
-    }
 
-    private void initiateTransaction(AddTransaction transaction) {
-        String CallbackURL = "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=".concat(transaction.getOrderID());
-        paramMap = new HashMap<String, String>();
-        paramMap.put("CALLBACK_URL", CallbackURL);
-        paramMap.put("CHANNEL_ID", "WAP");
-        paramMap.put("CUST_ID", transaction.getCustomerID());
-        paramMap.put("INDUSTRY_TYPE_ID", "Retail");
-        paramMap.put("MID", "SNjnoG01015198317056");
-        paramMap.put("WEBSITE", "WEBSTAGING");
-        paramMap.put("ORDER_ID", transaction.getOrderID());
-        paramMap.put("TXN_AMOUNT", transaction.getAmount());
-        paramMap.put("CHECKSUMHASH", transaction.getChecksum().trim());
-        Log.d("Checksum", "@"+transaction.getChecksum());
-        PaytmOrder order = new PaytmOrder(paramMap);
-        PaytmPGService pgService = PaytmPGService.getProductionService();
-        pgService.initialize(order, null);
-        pay(pgService);
-    }
+
 
     private void pay(PaytmPGService pgService) {
         pgService.startPaymentTransaction(getContext(), true, true,
@@ -251,10 +196,7 @@ public class HomeFragment extends Fragment {
                     //on successful payment
                     @Override
                     public void onTransactionResponse(Bundle inResponse) {
-                        Log.d("paytm", "entered");
-                        Log.d("paytmtransaction result", "Payment successful: " + inResponse.toString());
                         updateWallet();
-
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Successful!!!");
@@ -266,12 +208,10 @@ public class HomeFragment extends Fragment {
                             }
                         });
                         alert.show();
-
                     }
 
                     @Override
                     public void networkNotAvailable() {
-                        Log.d("paytmtransaction result", "Network unavailable");
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Unsuccessful!!!");
@@ -317,7 +257,6 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
-                        Log.d("paytmtransaction result", "error loading page response " + inErrorMessage + " + " + inFailingUrl);
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Unsuccessful!!!");
@@ -333,7 +272,6 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onBackPressedCancelTransaction() {
-                        Log.d("paytmtransaction result", "cancel call back response");
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
                         alert.setTitle("Unsuccessful!!!");
@@ -349,7 +287,6 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
-                        Log.d("paytmtransaction result", "Transaction cancel");
                         Toast.makeText(getContext(), "You canceled the transaction :(", Toast.LENGTH_SHORT).show();
                         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                         final AlertDialog show = alert.show();
@@ -387,8 +324,6 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "Check your wallet balance for a surprise", Toast.LENGTH_SHORT).show();
                     FirebaseFirestore.getInstance().collection("money_add").document(paramMap.get("ORDER_ID")).set(paramMap);
                 } else {
-                    Log.d("fetching data", "Error fetching wallet data");
-
                 }
             }
         });

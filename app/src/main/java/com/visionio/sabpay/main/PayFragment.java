@@ -78,6 +78,8 @@ public class PayFragment extends Fragment {
     TextInputLayout textInputLayout;
     EditText et_number;
 
+    LinearLayout ll;
+
     View.OnClickListener til_listener_show_keyboard;
     View.OnClickListener til_listener_hide_keyboard;
 
@@ -139,11 +141,12 @@ public class PayFragment extends Fragment {
 
         List<Contact> con = Paper.book().read("contacts");
         selectedContactsAdapter = new SelectedContactsAdapter(new ArrayList<>());
-        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<>(con), new ArrayList<>(con));
+        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<Contact>(con), new ArrayList<Contact>(con));
 
         recyclerViewContainer = view.findViewById(R.id.pay_fragment_recyclerViewsContainer_ll);
         selectedContactsRecyclerView = view.findViewById(R.id.pay_fragment_selectedContacts_rv);
 
+        ll = view.findViewById(R.id.pay_ll);
         overlay = view.findViewById(R.id.overlay);
         progressBar = view.findViewById(R.id.pay_progress);
 
@@ -203,7 +206,8 @@ public class PayFragment extends Fragment {
         pay.setOnClickListener(v -> {
             List<Contact> contacts = selectedContactsAdapter.getContacts();
             Payment.getInstance().setAdapter(selectedContactsAdapter);
-            startActivity(new Intent(getActivity(), PaymentActivity.class));
+            checkContactsAndPay();
+
         });
 
         til_listener_show_keyboard = new View.OnClickListener() {
@@ -255,18 +259,41 @@ public class PayFragment extends Fragment {
         return view;
     }
 
+    private void checkContactsAndPay() {
+        for (Contact c : selectedContactsAdapter.getContacts()){
+            if (c.getUser()==null){
+                mRef.collection("user").whereEqualTo("phone", c.getNumber()).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (!task.getResult().getDocuments().isEmpty()) {
+                                        DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                                        User user = snapshot.toObject(User.class);
+                                        c.setName(user.getName());
+                                        c.setNumber(user.getPhone());
+                                        c.setUser(user);
+                                    }
+                                }
+                            }
+                        });
+            }
+        }
+        startActivity(new Intent(getActivity(), PaymentActivity.class));
+    }
+
     @Override
     public void onResume() {
-        super.onResume();
-
         super.onResume();
 
         ShowcaseConfig config = new ShowcaseConfig();
         config.setDelay(500);
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), "PAY_FRAGMENT_SHOWCASE");
 
-        sequence.addSequenceItem(et_number, "Enter receivers number here", "Got it");
+        sequence.addSequenceItem(et_number, "Enter receiver's number here", "Got it");
+        sequence.addSequenceItem(ll, "You can pay to multiple users in one go by selecting them. ", "Got it.");
         sequence.addSequenceItem(pay, "Click here to initiate payment", "Got it");
+
         sequence.start();
     }
 
@@ -363,8 +390,6 @@ public class PayFragment extends Fragment {
                                         }).show();
 
                             }else{
-                                /*paymentHandler.showPayStatus();
-                                paymentHandler.setError("No wallet linked to this number!!");*/
                                 MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getActivity());
                                 alert.setTitle("No Wallet Found.").setMessage("No Wallet is linked to this Number.")
                                         .setPositiveButton("Okay", (dialog, which) -> {

@@ -23,6 +23,7 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.OfferViewHol
 
     public void add(Offer offer){
         offerArrayList.add(offer);
+        notifyDataSetChanged();
     }
 
     @NonNull
