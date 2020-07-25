@@ -79,6 +79,129 @@ functions.firestore.document('complains/{cId}')
     })
 
 })
+export const transaction_api = 
+functions.https.onRequest((req, res)=>{
+    const default_api_key = 'qIEvxBbP8V6e1YLXICde';
+    const v = req.url.split('/')
+    if(v.length!==2 || (v.length==2 && v[1].substring(0,3)!=='pay')){
+        res.statusCode = 400;
+        res.send('Bad Request { end point not supported }');
+        return;
+    }
+    const from = req.query.from;// senders biometric
+    var to: any =  req.query.to;// receivers mobile number
+    var amount: any = req.query.amount;// amount to send
+    const api_key = req.query.api_key;// api key from admin
+
+    if(from==undefined||to==undefined||amount==undefined||api_key==undefined){
+        res.statusCode = 400;
+        res.send('Bad Request { invalid query params }');
+        return;
+    }
+    if(api_key!==default_api_key){
+        res.statusCode = 401;
+        res.send('Bad Request { unauthorised user api key invalid }');
+        return;
+    }
+    if(to.length!=10){
+        res.statusCode = 401;
+        res.send('Bad Request { \'to\' only excepts 10 digit mobile number }');
+        return;
+    }else{
+        to = `+91${to}`;
+    }
+    if(parseFloat(amount.toString())==0.0){
+        res.statusCode = 401;
+        res.send('Bad Request { Payment amount must be grater than zero }');
+        return;
+    }else{
+        amount = parseFloat(amount.toString());
+    }
+
+    admin.firestore().doc(`biometric/${from}`).get()
+    .then(from_dt=>{
+        if(!from_dt.exists){
+            res.statusCode = 200;
+            return res.send(`Invalid sender biometric: ${from}`);
+        }
+        const from_user = <admin.firestore.DocumentReference> from_dt.data()?.user;
+
+        return admin.firestore().collection('user').where('phone', '==', to).get()
+        .then(to_dt=>{
+            if(to_dt.docs.length==0){
+                res.statusCode = 200;
+                return res.send(`User not found with mobile ${to}`);
+            }
+
+            return from_user.collection('wallet').doc('wallet').get()
+            .then(wallet_dt=>{
+                if(<number>wallet_dt.data()?.balance < amount){
+                    res.statusCode = 200;
+                    return res.send(`Insufficient balance.
+                    Current Balance: ${wallet_dt.data()?.balance}
+                    Payment Amount: ${amount}`)
+                }
+
+                const to_user = to_dt.docs[0];
+                const txnId = to_user.ref.collection('transaction').doc().id;
+                const txnObj = {
+                    amount: amount,
+                    id: txnId,
+                    from: from_user,
+                    to: to_user.ref,
+                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                    type: 0
+                }
+                const transaction_movment: any = []
+
+                transaction_movment.push(
+                    from_user.collection('transaction').doc(txnId).set(txnObj)
+                );
+                transaction_movment.push(
+                    to_user.ref.collection('transaction').doc(txnId).set(txnObj)
+                );
+                transaction_movment.push(
+                    from_user.collection('wallet').doc('wallet').update(
+                        {
+                            balance: admin.firestore.FieldValue.increment(-amount),
+                            lastTransaction: from_user.collection('transaction').doc(txnId)
+                        }
+                    )
+                );
+                transaction_movment.push(
+                    to_user.ref.collection('wallet').doc('wallet').update(
+                        {
+                            balance: admin.firestore.FieldValue.increment(+amount),
+                            lastTransaction: to_user.ref.collection('transaction').doc(txnId)
+                        }
+                    )
+                );
+                return Promise.all(transaction_movment)
+                .then(()=>{
+                    const receiver_name = to_user.data()?.firstName;
+                    res.statusCode = 200;
+                    return res.send(`₹ ${amount} transfered to ${receiver_name}\'s account`);
+                })
+                .catch(error=>{
+                    res.statusCode = 500;
+                    return res.send(error);
+                })
+            })
+            .catch(error=>{
+                res.statusCode = 500;
+                return res.send(error);
+            })
+        })
+        .catch(error=>{
+            res.statusCode = 500;
+            return res.send(error);
+        })
+    })
+    .catch(error=>{
+        res.statusCode = 500;
+        return res.send(error);
+    })
+})
 export const newTransaction = 
 functions.firestore.document('user/{userId}/pending_transaction/transaction')
 .onWrite((change) => {

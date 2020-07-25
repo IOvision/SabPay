@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void offers() {
-        OfferFragment fragment = new OfferFragment();
+        InventoryFragment fragment = new InventoryFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.main_frame, fragment);
@@ -272,5 +272,10 @@ public class MainActivity extends AppCompatActivity{
             Log.d("ActivityResult", "onActivityResult: Result Acquired!");
             bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_group);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
