@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -24,6 +26,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,8 +34,11 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.adapter.InventoryAdapter;
+import com.visionio.sabpay.models.Inventory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,11 +49,11 @@ public class InventoryFragment extends Fragment {
 
     private int locationRequestCode = 1000;
     double within = 3;
-
+    private RecyclerView recyclerView;
+    InventoryAdapter adapter;
     FirebaseFirestore mRef;
-
-
-
+    ArrayList<Inventory> inventoryArrayList;
+    Inventory inventory;
     public InventoryFragment() {
         // Required empty public constructor
     }
@@ -57,6 +63,7 @@ public class InventoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_invnetory, container, false);
+        recyclerView = view.findViewById(R.id.inventory_recycler);
         ((MainActivity)getActivity()).setTitle("Inventory");
         return view;
     }
@@ -65,6 +72,9 @@ public class InventoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRef = FirebaseFirestore.getInstance();
+        inventoryArrayList = new ArrayList<>();
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // todo: fix access location and use it instead of hard coded lat and long
         accessLocation();
@@ -93,7 +103,40 @@ public class InventoryFragment extends Fragment {
 
 
         getNearbyInventory(lat, lon, within);
+        adapter = new InventoryAdapter(getActivity(), inventoryArrayList);
+        recyclerView.setAdapter(adapter);
     }
+
+//    private void loadInventory() {
+//
+//        adapter = new InventoryAdapter(getActivity(), inventoryArrayList);
+//        recyclerView.setAdapter(adapter);
+//        if(inventoryArrayList.size() > 0) {
+//            inventoryArrayList.clear();
+//        }
+//        mRef.collection("inventory").get()
+//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if(task.isSuccessful()) {
+//                            for(DocumentSnapshot querySnapshot: task.getResult()) {
+//                                inventory = querySnapshot.toObject(Inventory.class);
+//                                inventoryArrayList.add(inventory);
+//                            }
+//                            adapter = new InventoryAdapter(getActivity(), inventoryArrayList);
+//                            recyclerView.setAdapter(adapter);
+//                        } else {
+//                             Log.d("inventory", task.getException().getLocalizedMessage());
+//                        }
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(getActivity(), "problem***********" + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
 
     private void getNearbyInventory(double latitude, double longitude, double distance){
         //gets inventory within distance km
@@ -111,6 +154,10 @@ public class InventoryFragment extends Fragment {
         GeoPoint lesserGeopoint = new GeoPoint(lowerLat, lowerLon);
         GeoPoint greaterGeopoint = new GeoPoint(greaterLat, greaterLon);
 
+        if(inventoryArrayList.size() > 0) {
+            inventoryArrayList.clear();
+        }
+
         Query query = mRef.collection("inventory")
                 .whereGreaterThan("location", lesserGeopoint)
                 .whereLessThan("location", greaterGeopoint);
@@ -119,14 +166,16 @@ public class InventoryFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
-                    List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
-                    Log.i("test ", "onComplete: test "+snapshots.size());
+                    //List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
+                    for(DocumentSnapshot querySnapshot: task.getResult()) {
+                        inventory = querySnapshot.toObject(Inventory.class);
+                        inventoryArrayList.add(inventory);
+                    }
                 }else{
                     Log.i("test ", "onComplete: test "+task.getException().getLocalizedMessage());
                 }
             }
         });
-
     }
 
     void accessLocation(){
@@ -148,7 +197,7 @@ public class InventoryFragment extends Fragment {
                     try{
                         int latestIdx = locationResult.getLocations().size() - 1;
                         Location location = locationResult.getLocations().get(latestIdx);
-                        Log.i("test", "Lattitude: " + location.getLatitude());
+                        Log.i("test", "Latitude: " + location.getLatitude());
                         Log.i("test","Longitude: " + location.getLongitude());
                         double test_lat = location.getLatitude();
                         double test_long = location.getLongitude();

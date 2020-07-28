@@ -2,6 +2,7 @@ package com.visionio.sabpay.models;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,16 @@ public class Inventory {
     DocumentReference owner; // user/id ref of owner of this inventory
     boolean opened; // tells whether the shop/inventory is open or close
     int totalItems; // tells total number of unique items... for example it shop has 2 bananas and 3 apples so totalItems = 2.
+    //String location;
+    GeoPoint location;
 
+    public GeoPoint getLocation() {
+        return location;
+    }
+
+    public void setLocation(GeoPoint location) {
+        this.location = location;
+    }
 
     public Inventory() {
         totalItems = 0;
