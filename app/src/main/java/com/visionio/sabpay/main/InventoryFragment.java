@@ -2,6 +2,8 @@ package com.visionio.sabpay.main;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -30,7 +32,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,7 +42,7 @@ import java.util.List;
 public class InventoryFragment extends Fragment {
 
     private int locationRequestCode = 1000;
-    double within = 6;
+    double within = 3;
 
     FirebaseFirestore mRef;
 
@@ -61,7 +65,34 @@ public class InventoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRef = FirebaseFirestore.getInstance();
+
+        // todo: fix access location and use it instead of hard coded lat and long
         accessLocation();
+        double lat = 25.283307;
+        double lon = 83.003229;
+
+        Geocoder geocoder;
+        List<Address> addresses = null;
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(lat, lon, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(addresses!=null){
+            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalCode = addresses.get(0).getPostalCode();
+            String knownName = addresses.get(0).getFeatureName();
+
+        }
+
+
+        getNearbyInventory(lat, lon, within);
     }
 
     private void getNearbyInventory(double latitude, double longitude, double distance){
