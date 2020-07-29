@@ -283,16 +283,93 @@ functions.https.onRequest((req, res)=>{
     })
 })
 
+export const refund =
+functions.https.onRequest((req,res)=>{
+    res.contentType('json');
+    if(req.method != 'GET'){ 
+        res.statusCode = 405;
+        res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
+        return;
+    }
+    const userId = req.query.userId;
+    const txnId = req.query.transactionId;
+    const api_key = req.query.api_key
 
+    if(api_key!==default_api_key){
+        res.statusCode = 402;
+        res.send({status: res.statusCode, error: `Invalid query params: Api Key`});
+        return;
+    }
+    if(userId==null||userId.length==0){
+        res.statusCode = 402;
+        res.send({status: res.statusCode, error: `Invalid query params: UserId`});
+        return;
+    }
+    if(txnId==null||txnId.length==0){
+        res.statusCode = 402;
+        res.send({status: res.statusCode, error: `Invalid query params: TransactionId`});
+        return;
+    }
+    admin.firestore().doc(`user/${userId}/transaction/${txnId}`).get()
+    .then(txnData=>{
+        if(!txnData.exists){
+            res.statusCode = 200;
+            return res.send({status: res.statusCode, error: `User with id: ${userId} has no transaction with id: ${txnId}`});
+        }
+        const transaction = txnData.data();
+        const task: any[] = [];
 
+        const fromRef = <admin.firestore.DocumentReference>transaction?.from;
+        const toRef = <admin.firestore.DocumentReference>transaction?.to;
+        const amount = <number>transaction?.amount;
 
+        const updateTime = admin.firestore.FieldValue.serverTimestamp();
 
+        task.push(
+            fromRef.collection('wallet').doc('wallet').update('balance', admin.firestore.FieldValue.increment(amount))
+        );
+        task.push(
+            toRef.collection('wallet').doc('wallet').update('balance', admin.firestore.FieldValue.increment(-amount))
+        );
+        task.push(
+            admin.firestore().doc(`user/${userId}/transaction/${txnId}`).update({
+                'type': -1,
+                'timestamp': updateTime
+            })
+        );
+        task.push(
+            toRef.collection('transaction').doc(`${txnId}`).update({
+                'type': -1,
+                'timestamp': updateTime
+            })
+        );
 
-
+        return Promise.all(task)
+        .then(()=>{
+            res.statusCode = 200;
+            return res.send({status: res.statusCode, error: `Amount Refund Successfully`, amount: amount});
+        })
+        .catch(err => {
+            console.log(err)
+            res.statusCode = 522;
+            res.send({
+            status: res.statusCode, 
+            error: 'Internal Server Error'});
+        })
+    })
+    .catch(err => {
+        console.log(err)
+        res.statusCode = 522;
+        res.send({
+        status: res.statusCode, 
+        error: 'Internal Server Error'
+        });
+    })
+})
 
 export const newComplain = 
 functions.firestore.document('complains/{cId}')
-.onCreate((dt, context) => {
+.onCreate((dt) => {
     const complain = dt.data()
 
     const transporter = nodemailer.createTransport({

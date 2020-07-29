@@ -19,7 +19,7 @@
 }
 
 
-urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/placeOrder?id=HeoFhe2SHNgKrmoP9N2aA4WB9Nf2&api_key=qIEvxBbP8V6e1YLXICde
+urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/placeOrder?id={userId}&api_key={key}
 
 
 # Generate Invoice
@@ -30,4 +30,4 @@ urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/placeOrder?id=HeoFh
     "discount": 50
 }
 
-urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/generateInvoice
+urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/refund?api_key={key}&userId={id}&transactionId={id}
