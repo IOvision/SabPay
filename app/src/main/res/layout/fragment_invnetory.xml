@@ -10,8 +10,9 @@
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/offer_recycler"
+            android:id="@+id/inventory_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+
     </RelativeLayout>
 </FrameLayout>
