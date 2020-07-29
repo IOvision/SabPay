@@ -1,33 +1,39 @@
 # Place-Order
+Body:
+```json
 {
     "orders": [
         {
             "items": [
-                {
-                    "id": "1Spe5y6MNL4jYdV8Q7Ok",
-                    "cost": 14,
-                    "qty": 2,
-                    "title": "Bislarei",
-                    "description": "badiya pani"
-                }
-            ],
-            "inventoryId": "uWcOQvpGl3nwyhWviGgE",
-            "transactionId": null,
+                {item from firebase},
+                {},
+                {}...],
+            "inventoryId": "inventoryId",
+            "transactionId": "transactionId", // null if payment is not done 
             "discount": 50
         }
     ]
 }
-
-
-urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/placeOrder?id={userId}&api_key={key}
+```
+mehtod: POST<br>
+urlDemo: https://us-central1-sabpay-ab94e.cloudfunctions.net/placeOrder?id={userId}&api_key={key}<br>
+return: list of invoice object as json
 
 
 # Generate Invoice
-
+Body:
+```json
 {
-    "orderId": "qxrZaWIP1cIUCK4qsd3s",
-    "transactionId": "G9KKMPHXX9NCIhwHGK4C",
+    "orderId": "orderId",
+    "transactionId": "transactoinId",
     "discount": 50
 }
+```
+mehtod: POST<br>
+urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/generateInvoice?api_key={key}<br>
+return: list of invoice object as json
 
+# Refund
+
+mehtod: GET<br>
 urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/refund?api_key={key}&userId={id}&transactionId={id}

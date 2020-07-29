@@ -179,6 +179,13 @@ functions.https.onRequest((req, res)=>{
         res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
         return;
     }
+    const api_key = req.query.api_key
+
+    if(api_key!==default_api_key){
+        res.statusCode = 402;
+        res.send({status: res.statusCode, error: `Invalid query params: Api Key`});
+        return;
+    }
 
     const body = req.body
     const itemParams = ['orderId', 'transactionId','discount'];
