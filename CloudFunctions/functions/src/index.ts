@@ -1,7 +1,9 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
+import * as CircularJSON from 'circular-json'
 admin.initializeApp()
+const default_api_key = 'qIEvxBbP8V6e1YLXICde';
 export const notify = 
 functions.https.onRequest((req, res)=>{
     //url/notify?to={1234567890}?title={title}&msg={msg}
@@ -33,6 +35,261 @@ functions.https.onRequest((req, res)=>{
         .catch((error) => {return res.send(error)})
     }).catch((error) => {return res.send(error)})
 })
+export const placeOrder = 
+functions.https.onRequest((req, res)=>{
+    res.contentType('json');
+    if(req.method != 'POST'){ 
+        res.statusCode = 405;
+        res.setHeader('Content-Type', 'application/json');
+        res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
+        return;
+    }
+    /*
+    body: {
+        orders: [
+            {
+                items: [{firestoreItemObject}],
+                inventoryId: 'inventory-id', 
+                transactionId: 'transaction-id',
+                discount = 85(int%), 
+            },
+            {},
+            {}
+        ]
+    }
+    */
+
+    const userId = req.query.id;
+    const api_key = req.query.api_key
+
+    if(api_key!==default_api_key){
+        res.statusCode = 402;
+        res.send({status: res.statusCode, error: `Invalid Api Key`});
+        return;
+    }
+
+    if(userId==null || userId.length==0){
+        res.statusCode = 400;
+        res.send({status: res.statusCode, error: `Missing or invalid query params`});
+        return;
+    }
+
+    const invoices: any[] = [];
+    //const os: any[] = [];
+     
+    const body = req.body
+    const itemParams = ['items', 'inventoryId', 'transactionId','discount'];
+    const orders: any[] = body.orders;
+
+    if(body==null){
+        res.statusCode = 422;
+        res.send({status: res.statusCode, error: `Missing or invalid query params`});
+        return;
+    }
+
+    const task: any[] = []
+
+    orders.forEach(o=>{
+        itemParams.forEach(key=>{
+            if(!o.hasOwnProperty(key)){
+                res.statusCode = 422;
+                res.send({status: res.statusCode, error: `Missing field ${key}`, order: o});
+                return;
+            }
+        });
+
+        const order = {
+            id: admin.firestore().collection('order').doc().id,
+            user: userId, 
+            status: 'PENDING',
+            inv: o.inventoryId,
+            totalItems: o.items.length,
+            amount: 0, // final amount after discount
+            items: <any>null, // [{items}] if transaction is not done else null
+            invoice: <any>null,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        }
+
+        if(o.transactionId===null){
+            order.items = o.items;
+            task.push(admin.firestore().doc(`order/${order.id}`).set(order));
+            //os.push(order);
+            return;
+        }
+
+        const invoice = {
+            id: admin.firestore().collection(`user/${userId}/invoice`).doc().id,
+            orderId: admin.firestore().doc(`order/${order.id}`),
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            items: o.items,
+            discount: <number>o.discount,
+            transaction: admin.firestore().doc(`user/${userId}/transaction/${o.transactionId}`),
+            base_amount: 0, // without discount
+            total_amount: 0 // after discount
+        };
+
+        (<any[]>o.items).forEach(item => {
+            invoice.base_amount += <number>item.cost*<number>item.qty;
+            task.push(
+               admin.firestore().doc(`item/${item.id}`)
+               .update('qty', admin.firestore.FieldValue.increment(-<number>item.qty))
+            );
+        });
+        invoice.total_amount = invoice.base_amount - invoice.base_amount*invoice.discount/100;
+
+        order.status = 'COMPLETED';
+        order.amount = invoice.total_amount;
+        order.invoice = admin.firestore().doc(`user/${userId}/invoice/${invoice.id}`);
+
+        invoices.push(invoice);
+        //os.push(order)
+
+        task.push(admin.firestore().doc(`user/${userId}/invoice/${invoice.id}`).set(invoice));
+        task.push(admin.firestore().doc(`order/${order.id}`).set(order));
+
+    });
+
+    const obj = {
+        invoice: invoices,
+        status: res.statusCode,
+        size: invoices.length
+    };
+    //res.send(responseToSend);
+
+    Promise.all(task)
+    .then(() => {
+        res.statusCode = 200;
+        const json = CircularJSON.stringify(obj);
+        res.send(json);
+    }).catch(err => {
+        console.log(err)
+        res.statusCode = 522;
+        res.send({
+            status: res.statusCode, 
+            error: <string>err
+        });
+    })
+})
+
+export const generateInvoice =
+functions.https.onRequest((req, res)=>{
+    res.contentType('json');
+    if(req.method != 'POST'){ 
+        res.statusCode = 405;
+        res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
+        return;
+    }
+
+    const body = req.body
+    const itemParams = ['orderId', 'transactionId','discount'];
+    if(body===null){
+        res.statusCode = 422;
+        res.send({status: res.statusCode, error: `Empty Body`});
+        return;
+    }
+    itemParams.forEach(key=>{
+        if(!body.hasOwnProperty(key)){
+            res.statusCode = 422;
+            res.send({status: res.statusCode, error: `Missing field ${key} in body`, body: body});
+            return;
+        }
+    });
+
+    const orderId = body.orderId;
+    const discount = body.discount;
+    const transactionId = body.transactionId;
+
+    admin.firestore().doc(`order/${orderId}`).get()
+    .then(orderRef=>{
+        if(!orderRef.exists){
+            res.statusCode = 200;
+            return res.send({status: res.statusCode, error: `No order with id: ${orderId}`});
+        }
+
+        const order = orderRef.data();
+
+        if(order?.items==null){
+            res.statusCode = 200
+            return res.send({
+                status: res.statusCode, 
+                message: 'Invoice Already Generated',
+                invoiceRef: order?.invoice.id
+            });
+        }
+
+        const task: any[] = [];
+        const invoices: any[]=[];
+
+        const invoice = {
+            id: admin.firestore().collection(`user/${order?.user}/invoice`).doc().id,
+            orderId: admin.firestore().doc(`order/${order?.id}`),
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            items: order?.items,
+            discount: <number>discount,
+            transaction: admin.firestore().doc(`user/${order?.user}/transaction/${transactionId}`),
+            base_amount: 0, // without discount
+            total_amount: 0 // after discount
+        };
+
+        order?.items.forEach(item => {
+            invoice.base_amount += <number>item.cost*<number>item.qty;
+            task.push(
+               admin.firestore().doc(`item/${item.id}`)
+               .update('qty', admin.firestore.FieldValue.increment(-<number>item.qty))
+            );
+        });
+        invoice.total_amount = invoice.base_amount - invoice.base_amount*invoice.discount/100;
+
+        invoices.push(invoice);
+
+        task.push(
+            orderRef.ref.update({
+                items: null,
+                status: 'COMPLETE',
+                amount: invoice.total_amount,
+                invoice: admin.firestore().doc(`user/${order?.userId}/invoice/${invoice.id}`)
+            })
+        );
+
+        const obj = {
+            invoice: invoices,
+            status: res.statusCode,
+            size: invoices.length
+        };
+
+        return Promise.all(task)
+        .then(()=>{
+            res.statusCode = 200;
+            const json = CircularJSON.stringify(obj);
+            return res.send(json);
+        })
+        .catch(err => {
+            console.log(err)
+            res.statusCode = 522;
+            res.send({
+            status: res.statusCode, 
+            error: 'Internal Server Error'
+            });
+        })
+        
+    })
+    .catch(err => {
+        console.log(err)
+        res.statusCode = 522;
+        res.send({
+            status: res.statusCode, 
+            error: 'Internal Server Error'
+        });
+    })
+})
+
+
+
+
+
+
+
+
 export const newComplain = 
 functions.firestore.document('complains/{cId}')
 .onCreate((dt, context) => {
@@ -81,7 +338,6 @@ functions.firestore.document('complains/{cId}')
 })
 export const transaction_api = 
 functions.https.onRequest((req, res)=>{
-    const default_api_key = 'qIEvxBbP8V6e1YLXICde';
     const v = req.url.split('/')
     if(v.length!==2 || (v.length==2 && v[1].substring(0,3)!=='pay')){
         res.statusCode = 400;
