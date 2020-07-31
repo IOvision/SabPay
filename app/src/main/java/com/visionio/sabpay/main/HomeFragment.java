@@ -2,11 +2,7 @@ package com.visionio.sabpay.main;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +39,6 @@ import com.paytm.pgsdk.PaytmPGService;
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helpdesk.HelpDeskActivity;
-import com.visionio.sabpay.models.AddTransaction;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 import com.visionio.sabpay.services.FeedbackActivity;
@@ -79,8 +74,7 @@ public class HomeFragment extends Fragment {
     StorageReference storageReference;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         balanceTv = view.findViewById(R.id.home_balance);
         addMoney = view.findViewById(R.id.home_add_money);
@@ -104,7 +98,6 @@ public class HomeFragment extends Fragment {
         ((MainActivity)getActivity()).setTitle("Hi, " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         return view;
     }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -129,7 +122,6 @@ public class HomeFragment extends Fragment {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -145,7 +137,6 @@ public class HomeFragment extends Fragment {
         sequence.addSequenceItem(ll, "Don't forget to use our offpay feature with internet off. To try it switch off your internet and open pay tab. A dialog will redirect you to offpay.", "Got it.");
         sequence.start();
     }
-
     public void setBalanceTv() {
         listenerRegistration = mRef.collection("user").document(mAuth.getUid())
                 .collection("wallet").document("wallet")
@@ -159,8 +150,6 @@ public class HomeFragment extends Fragment {
                 });
         Utils.registrations.add(listenerRegistration);
     }
-
-
     private Task<String> initializeTransaction() {
         // Create the arguments to the callable function.
         Map<String, String> data = new HashMap<>();
@@ -184,11 +173,6 @@ public class HomeFragment extends Fragment {
                     }
                 });
     }
-
-
-
-
-
     private void pay(PaytmPGService pgService) {
         pgService.startPaymentTransaction(getContext(), true, true,
                 new PaytmPaymentTransactionCallback() {
@@ -303,6 +287,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
     }
+
 
     private void updateWallet() {
         mAuth = FirebaseAuth.getInstance();

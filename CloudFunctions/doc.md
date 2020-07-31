@@ -37,3 +37,27 @@ return: list of invoice object as json
 
 mehtod: GET<br>
 urlDemo- https://us-central1-sabpay-ab94e.cloudfunctions.net/refund?api_key={key}&userId={id}&transactionId={id}
+
+
+# Biometric 
+
+Supported Method
+* GET
+* POST
+
+URL FOR GETTING TEMPLATE
+```
+https://asia-east2-sabpay-ab94e.cloudfunctions.net/biometric_IO?api_key={key}?mobile={10 digit}
+```
+
+URL FOR POSTING TEMPLATE
+```
+https://asia-east2-sabpay-ab94e.cloudfunctions.net/biometric_IO?api_key={key}
+```
+BODY
+```json
+{
+    template: "template stirng",
+    mobile: "10 digit mobile as string"
+}
+```

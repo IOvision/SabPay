@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Item {
 
+
     String id; // item id
     String inventory_id; // inventory id to which this items belong
     String title; // title of item like apple, mango, milk

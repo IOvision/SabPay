@@ -26,21 +26,31 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.InventoryAdapter;
+import com.visionio.sabpay.api.ApiBody;
+import com.visionio.sabpay.api.MerchantApi;
 import com.visionio.sabpay.models.Inventory;
+import com.visionio.sabpay.models.Item;
+import com.visionio.sabpay.models.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -105,6 +115,8 @@ public class InventoryFragment extends Fragment {
         getNearbyInventory(lat, lon, within);
         adapter = new InventoryAdapter(getActivity(), inventoryArrayList);
         recyclerView.setAdapter(adapter);
+
+        placeOrder();
     }
 
 //    private void loadInventory() {
@@ -217,6 +229,83 @@ public class InventoryFragment extends Fragment {
             return;
         }
         client.requestLocationUpdates(lr, callback, Looper.getMainLooper());
+
+    }
+
+    private void placeOrder(){
+        String key = MerchantApi.api_key;
+        String userId = "HeoFhe2SHNgKrmoP9N2aA4WB9Nf2";
+
+        String invId = null;//"uWcOQvpGl3nwyhWviGgE"
+        String txnId = "4YkKZwsGgqGRaxNZBdDA";
+        Float discount = 50f;
+
+        List<Item> items = new ArrayList<Item>(){{
+            add(new Item(){{
+                setId("1Spe5y6MNL4jYdV8Q7Ok");
+                setInventory_id(invId);
+                setTitle("Bislerie");
+                setDescription("Thanda pani ka botle");
+                setUnit("L");
+                setQty(2);
+                setCost(14);
+            }});
+        }};
+
+        Map<String, Object> body = ApiBody.buildPlaceOrderBody(items, key, txnId, discount);
+        String json = new Gson().toJson(body);
+        int a = 0;
+
+        /*Call<Map<String, Object>> test = MerchantApi.getApiService().test(body);
+        test.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.code() == 422 ) {
+                    String body = null;
+                    try {
+                        body = response.errorBody().string();
+                    } catch (IOException e) {
+                        body = "{}";
+                    }
+                    Map<String, Object> res = new Gson().fromJson(body, HashMap.class);
+                    return;
+                }
+                Map<String, Object> res = response.body();
+                Utils.toast(getContext(), "Status Code: " + response.code(), Toast.LENGTH_LONG);
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                int a = 0;
+            }
+        });*/
+
+
+        Call<Map<String, Object>> test = MerchantApi.getApiService().placeOrder(userId, key, body);
+        test.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (!response.isSuccessful()) {
+                    String body = null;
+                    try {
+                        body = response.errorBody().string();
+                    } catch (IOException e) {
+                        body = "{}";
+                    }
+                    Map<String, Object> res = new Gson().fromJson(body, HashMap.class);
+                    return;
+                }
+                Map<String, Object> res = response.body();
+                Utils.toast(getContext(), "Status Code: " + response.code(), Toast.LENGTH_LONG);
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                int a = 0;
+            }
+        });
+
+
 
     }
 

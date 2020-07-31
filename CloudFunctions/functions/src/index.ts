@@ -5,7 +5,7 @@ import * as CircularJSON from 'circular-json'
 admin.initializeApp()
 const default_api_key = 'qIEvxBbP8V6e1YLXICde';
 export const notify = 
-functions.https.onRequest((req, res)=>{
+functions.region('asia-east2').https.onRequest((req, res)=>{
     //url/notify?to={1234567890}?title={title}&msg={msg}
     // https://us-central1-sabpay-ab94e.cloudfunctions.net/notify
     const to = ""+req.query.to
@@ -36,7 +36,7 @@ functions.https.onRequest((req, res)=>{
     }).catch((error) => {return res.send(error)})
 })
 export const placeOrder = 
-functions.https.onRequest((req, res)=>{
+functions.region('asia-east2').https.onRequest((req, res)=>{
     res.contentType('json');
     if(req.method != 'POST'){ 
         res.statusCode = 405;
@@ -84,6 +84,11 @@ functions.https.onRequest((req, res)=>{
     if(body==null){
         res.statusCode = 422;
         res.send({status: res.statusCode, error: `Missing or invalid query params`});
+        return;
+    }
+    if(!body.hasOwnProperty('orders')){
+        res.statusCode = 422;
+        res.send({status: res.statusCode, error: `Missing field order`});
         return;
     }
 
@@ -170,9 +175,30 @@ functions.https.onRequest((req, res)=>{
         });
     })
 })
-
+export const test = 
+functions.region('asia-east2').https.onRequest((req, res)=>{
+    const json = {
+        "orders": [{
+            "inventoryId": "qIEvxBbP8V6e1YLXICde",
+            "discount": 50.0,
+            "items": [{
+                "unit": "L",
+                "cost": 14.0,
+                "qty": 2,
+                "inventoryId": "uWcOQvpGl3nwyhWviGgE",
+                "description": "Thanda pani ka botle",
+                "id": "1Spe5y6MNL4jYdV8Q7Ok",
+                "title": "Bislerie"
+            }]
+        }]
+    };
+    res.contentType('json');
+    res.statusCode = 422;
+    res.send({status: res.statusCode, error: `Missing field ${res.statusCode}`, order: json});
+    
+})
 export const generateInvoice =
-functions.https.onRequest((req, res)=>{
+functions.region('asia-east2').https.onRequest((req, res)=>{
     res.contentType('json');
     if(req.method != 'POST'){ 
         res.statusCode = 405;
@@ -289,9 +315,115 @@ functions.https.onRequest((req, res)=>{
         });
     })
 })
+export const biometric_IO = 
+functions.region('asia-east2').https.onRequest((req, res)=>{
+    /*
+    {
+        template: "",
+        id: "",
+    }
+    id => 10 digit mobile number
+    template => finger template in string format
+    */
+    res.contentType('json');
+    const api_key = req.query.api_key
+
+    if(api_key!==default_api_key){
+        res.statusCode = 402;
+        res.send({status: res.statusCode, error: `Invalid Api Key`});
+        return;
+    }
+    if(req.method == "GET"){
+        // url => base_url/biometric_IO?mobile=123456780&api_key=jhklsd
+        const mobile = <string>req.query.mobile;
+
+        if(mobile==null || mobile.length!=10){
+            res.statusCode = 402;
+            res.send({status: res.statusCode, error: `Invalid mobile number`});
+            return;
+        }
+
+        return admin.firestore().doc(`biometric/${mobile}`).get()
+        .then((bio)=>{
+            if(!bio.exists){
+                res.statusCode = 204;
+                res.send({status: res.statusCode, 
+                data: `Mobile Number ${mobile} has no biometric data`});
+            }
+            const biometric = bio.data();
+            res.statusCode = 200;
+            return res.send({status: res.statusCode, 
+                data: biometric});
+        })
+        .catch(err => {
+            console.log(err)
+            res.statusCode = 522;
+            res.send({
+            status: res.statusCode, 
+            error: 'Internal Server Error'});
+        })
+
+    }
+    else if(req.method == 'POST'){
+
+        const body = req.body;
+        const fields = ['template', 'mobile'];
+
+        if(body==null){
+            res.statusCode = 422;
+            res.send({
+                status: res.statusCode, 
+                error: `Empty body`});
+            return;
+        }
+        fields.forEach(element => {
+            if(!body.hasOwnProperty(element)){
+                res.statusCode = 422;
+                res.send({status: res.statusCode, 
+                    error: `Body doesn has ${element} property`});
+                return;
+            }
+        });
+        const mobile = <string>body.mobile;
+        const template = <string>body.template;
+        if(mobile==null || mobile.length!=10){
+            res.statusCode = 422;
+            res.send({status: res.statusCode, 
+                error: `Invalid mobile number: ${mobile}`});
+            return;
+        }
+        if(template==null){
+            res.statusCode = 422;
+            res.send({status: res.statusCode, 
+                error: `Invalid template`});
+            return;
+        }
+
+        return admin.firestore().doc(`biometric/${mobile}`).create({
+            template: template
+        })
+        .then(()=>{
+            res.statusCode = 200;
+            return res.send({status: res.statusCode, 
+                data: `Document successfully created at path: biometric/${mobile}`});
+        })
+        .catch(err => {
+            console.log(err)
+            res.statusCode = 522;
+            res.send({
+            status: res.statusCode, 
+            error: 'Internal Server Error'});
+        })
+
+    }
+    else{
+        res.statusCode = 405;
+        return res.send({status: res.statusCode, error: `${req.method} not supported`})
+    }
+})
 
 export const refund =
-functions.https.onRequest((req,res)=>{
+functions.region('asia-east2').https.onRequest((req,res)=>{
     res.contentType('json');
     if(req.method != 'GET'){ 
         res.statusCode = 405;
@@ -375,7 +507,7 @@ functions.https.onRequest((req,res)=>{
 })
 
 export const newComplain = 
-functions.firestore.document('complains/{cId}')
+functions.region('asia-east2').firestore.document('complains/{cId}')
 .onCreate((dt) => {
     const complain = dt.data()
 
@@ -421,7 +553,7 @@ functions.firestore.document('complains/{cId}')
 
 })
 export const transaction_api = 
-functions.https.onRequest((req, res)=>{
+functions.region('asia-east2').https.onRequest((req, res)=>{
     const v = req.url.split('/')
     if(v.length!==2 || (v.length==2 && v[1].substring(0,3)!=='pay')){
         res.statusCode = 400;
@@ -543,7 +675,7 @@ functions.https.onRequest((req, res)=>{
     })
 })
 export const newTransaction = 
-functions.firestore.document('user/{userId}/pending_transaction/transaction')
+functions.region('asia-east2').firestore.document('user/{userId}/pending_transaction/transaction')
 .onWrite((change) => {
     const transactionObject = change.after.data()
 
@@ -627,7 +759,7 @@ functions.firestore.document('user/{userId}/pending_transaction/transaction')
     })   
 })
 export const gPayTransaction = 
-functions.firestore
+functions.region('asia-east2').firestore
 .document('user/{userId}/pending_gPay_transactions/{tId}')
 .onUpdate((transactionData, context) => {
 
@@ -720,7 +852,8 @@ functions.firestore
     });
     
 })
-export const splitTransaction = functions.firestore
+export const splitTransaction = 
+functions.region('asia-east2').firestore
 .document('/groups/{grouId}/transactions/{id}')
 .onCreate((result, context) => {
     const transaction = result.data()
