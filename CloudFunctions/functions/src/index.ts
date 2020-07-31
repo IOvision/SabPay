@@ -157,7 +157,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     const obj = {
         invoice: invoices,
         status: res.statusCode,
-        size: invoices.length
+        
     };
     //res.send(responseToSend);
 

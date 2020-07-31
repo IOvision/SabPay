@@ -22,6 +22,11 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         return inventoryList;
     }
 
+    public void setInventoryList(List<Inventory> inventoryList) {
+        this.inventoryList = inventoryList;
+        notifyDataSetChanged();
+    }
+
     public InventoryAdapter(Context context, ArrayList<Inventory> inventoryList) {
         this.context = context;
         this.inventoryList = inventoryList;

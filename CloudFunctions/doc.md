@@ -57,7 +57,7 @@ https://asia-east2-sabpay-ab94e.cloudfunctions.net/biometric_IO?api_key={key}
 BODY
 ```json
 {
-    template: "template stirng",
-    mobile: "10 digit mobile as string"
+    "template": "template stirng",
+    "mobile": "10 digit mobile as string"
 }
 ```

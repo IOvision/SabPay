@@ -56,5 +56,13 @@ public class ApiBody {
         return body;
     }
 
+    public static Map<String, Object> buildGenerateInvoiceBody(String orderId, String transactionId, float discount){
+        Map<String, Object> body = new HashMap<>();
+        body.put("orderId", orderId);
+        body.put("transactionId", transactionId);
+        body.put("discount", discount);
+        return body;
+    }
+
 
 }
