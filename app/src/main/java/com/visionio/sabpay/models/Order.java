@@ -1,5 +1,7 @@
 package com.visionio.sabpay.models;
 
+import com.google.firebase.firestore.DocumentReference;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -10,7 +12,7 @@ public class Order {
     String fromInventory;
     String status;
     String amount;
-    Invoice invoice;
+    DocumentReference invoice;
     Transaction transaction;
 
     //todo: add arguments
@@ -65,11 +67,11 @@ public class Order {
         this.amount = amount;
     }
 
-    public Invoice getInvoice() {
+    public DocumentReference getInvoice() {
         return invoice;
     }
 
-    public void setInvoice(Invoice invoice) {
+    public void setInvoice(DocumentReference invoice) {
         this.invoice = invoice;
     }
 

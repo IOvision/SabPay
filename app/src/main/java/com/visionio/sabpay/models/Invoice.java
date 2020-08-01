@@ -1,62 +1,92 @@
 package com.visionio.sabpay.models;
 
-public class Invoice {
-    String invoiceId;
-    Order order;
-    String discount;
-    String originalAmount;
-    String finalAmount;
-    Transaction transaction;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Exclude;
 
-    //Todo: add arguments
+public class Invoice {
+
+    @Exclude
+    public final static String STR_ITEM_COUNT = "Item Count:";
+    @Exclude
+    public final static String STR_ENTITY_COUNT = "Entity Count:";
+    @Exclude
+    public final static String STR_ORDER_FROM = "Order From:";
+    @Exclude
+    public final static String STR_BASE_AMOUNT = "Base Amount:";
+    @Exclude
+    public final static String STR_DELIVERY_CHARGE = "Delivery Charge:";
+    @Exclude
+    public final static String STR_TOTAL = "Total:";
+    @Exclude
+    public final static String STR_DISCOUNT = "Discount:";
+    @Exclude
+    public final static String STR_PAYABLE_AMOUNT = "Payable Amount:";
+
+    String id;
+    float base_amount;
+    float discount;
+    float total_amount;
+    Timestamp timestamp;
+    DocumentReference transaction;
+    Promotions promo;
+
     public Invoice() {
     }
 
-    public String getInvoiceId() {
-        return invoiceId;
+    public String getId() {
+        return id;
     }
 
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public Order getOrder() {
-        return order;
+    public float getBase_amount() {
+        return base_amount;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setBase_amount(float base_amount) {
+        this.base_amount = base_amount;
     }
 
-    public String getDiscount() {
+    public float getDiscount() {
         return discount;
     }
 
-    public void setDiscount(String discount) {
+    public void setDiscount(float discount) {
         this.discount = discount;
     }
 
-    public String getOriginalAmount() {
-        return originalAmount;
+    public float getTotal_amount() {
+        return total_amount;
     }
 
-    public void setOriginalAmount(String originalAmount) {
-        this.originalAmount = originalAmount;
+    public void setTotal_amount(float total_amount) {
+        this.total_amount = total_amount;
     }
 
-    public String getFinalAmount() {
-        return finalAmount;
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
-    public void setFinalAmount(String finalAmount) {
-        this.finalAmount = finalAmount;
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public Transaction getTransaction() {
+    public DocumentReference getTransaction() {
         return transaction;
     }
 
-    public void setTransaction(Transaction transaction) {
+    public void setTransaction(DocumentReference transaction) {
         this.transaction = transaction;
+    }
+
+    public Promotions getPromo() {
+        return promo;
+    }
+
+    public void setPromo(Promotions promo) {
+        this.promo = promo;
     }
 }

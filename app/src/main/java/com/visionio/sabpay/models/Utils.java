@@ -22,6 +22,7 @@ public class Utils {
 
     public static int WELCOME_BALANCE = 500;
     public static List<Contact> deviceContacts;
+    public final static String RS = "₹";
 
     public static boolean hasPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
@@ -129,6 +130,29 @@ public class Utils {
         return result;
     }
 
+    public static String equalize(String cost, String currHead){
+        /*
+        cost => ₹XXX...
+        currHead => Total:/ Base Amount:
+
+        return Total:{space}*toCalculate
+         */
+        int spaceBuffer = 24 - (cost.length()+currHead.length());
+        String space = " ";
+        for(int i=0; i<=spaceBuffer; i++){
+            space += space;
+        }
+        String frm = currHead + space + cost;
+        return  frm;
+    }
+
+    public static float getBaseAmount(List<Item> items){
+        float baseAmount = 0;
+        for(Item i: items){
+            baseAmount += (i.getCart_qty()*i.getCost());
+        }
+        return baseAmount;
+    }
 
     public static boolean isEmpty(String s){
         if(s.equals("") || s.equals(null)){

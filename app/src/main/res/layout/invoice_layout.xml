@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_heading_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Invoice"
+        android:textSize="24sp"
+        android:textAlignment="center"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_itemCount_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Item Count: 5" />
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_entityCount_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Entity Count: 25"/>
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_orderFrom_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Order From: Apni Dukan"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="#000"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_baseAmt_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Base Amount: ₹200"/>
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_deliveryCharge_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delivery Charge: ₹20"/>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="#000"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_totalAmt_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total: ₹220"/>
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_discount_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Discount: - ₹20"/>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="#000"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_payableAmt_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payable Amount:         ₹200"/>
+
+
+    <TextView
+        style="@style/invoice_text_style"
+        android:id="@+id/invoice_promo_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center_horizontal"
+        android:text="Have A Promocode?"
+        android:textColor="@color/blue_link"
+        android:textStyle="bold"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/invoice_pay_and_confirm_bt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="16dp"
+            android:text="@string/pay_order"/>
+        <Button
+            android:id="@+id/invoice_confirm_bt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="16dp"
+            android:text="@string/place_order"/>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

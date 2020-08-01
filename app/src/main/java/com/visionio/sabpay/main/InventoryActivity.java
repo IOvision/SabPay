@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -53,6 +57,14 @@ public class InventoryActivity extends AppCompatActivity {
     Button dialog_confirm_bt;
     RecyclerView dialog_items_rv;
     CartItemAdapter dialog_cart_adapter;
+
+    // bottom sheet for invoice and its related layout
+    BottomSheetDialog invoice_dialog;
+    TextView item_count_tv, entity_count_tv, order_from_tv;
+    TextView base_amount_tv, delivery_charge_tv;
+    TextView total_tv, discount_tv, payable_amount_tv, promo_tv ;
+    Button payAndOrder_bt, confirmOrder_bt;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +172,67 @@ public class InventoryActivity extends AppCompatActivity {
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
+        dialog_confirm_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showInvoice();
+            }
+        });
+
         cart_dialog.show();
+    }
+
+    void showInvoice(){
+        if(invoice_dialog!=null){
+            invoice_dialog.show();
+            return;
+        }
+        setUpInvoice();
+    }
+    void setUpInvoice(){
+        invoice_dialog = new BottomSheetDialog(this);
+        invoice_dialog.setContentView(R.layout.invoice_layout);
+        invoice_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        invoice_dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+
+        item_count_tv = invoice_dialog.findViewById(R.id.invoice_itemCount_tv);
+        entity_count_tv = invoice_dialog.findViewById(R.id.invoice_entityCount_tv);
+        order_from_tv = invoice_dialog.findViewById(R.id.invoice_orderFrom_tv);
+        base_amount_tv = invoice_dialog.findViewById(R.id.invoice_baseAmt_tv);
+        delivery_charge_tv = invoice_dialog.findViewById(R.id.invoice_deliveryCharge_tv);
+        total_tv = invoice_dialog.findViewById(R.id.invoice_totalAmt_tv);
+        discount_tv = invoice_dialog.findViewById(R.id.invoice_discount_tv);
+        payable_amount_tv = invoice_dialog.findViewById(R.id.invoice_payableAmt_tv);
+        promo_tv = invoice_dialog.findViewById(R.id.invoice_promo_tv);
+
+        payAndOrder_bt = invoice_dialog.findViewById(R.id.invoice_pay_and_confirm_bt);
+        confirmOrder_bt = invoice_dialog.findViewById(R.id.invoice_confirm_bt);
+
+        BottomSheetBehavior<FrameLayout> behavior = invoice_dialog.getBehavior();
+
+        behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if(newState == BottomSheetBehavior.STATE_COLLAPSED){
+                    invoice_dialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+
+        //invoice_dialog.getBehavior().setFitToContents(true);
+        //invoice_dialog.getBehavior().setHalfExpandedRatio(0.5f);
+        invoice_dialog.getBehavior().setPeekHeight(0);
+        invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        invoice_dialog.setCancelable(false);
+
+        invoice_dialog.show();
+
     }
     void addToCart(Item i) {
         //adapter.addToCart(i);
