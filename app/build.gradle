@@ -75,6 +75,8 @@ dependencies {
     implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
     implementation 'com.paytm:pgplussdk:1.1.2'
+
+    implementation 'it.sephiroth.android.library:number-sliding-picker:1.1.1'
 }
 
 

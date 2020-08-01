@@ -50,6 +50,22 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
         return position;
     }
 
+    public void addToCart(Item i){
+        for(Item it: itemList){
+            if(it.equals(i)){
+                it.addToCart();
+            }
+        }
+    }
+
+    public void removeFromCart(Item i){
+        for(Item it: itemList){
+            if(it.equals(i)){
+                it.removeFromCart();
+            }
+        }
+    }
+
     @NonNull
     @Override
     public InventoryItemAdapter.InventoryItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -79,7 +79,7 @@
         app:icon="@drawable/ic_cart"
         app:layout_anchor="@id/inv_activity_collapsing_toolbar"
         app:layout_anchorGravity="bottom|end"
-        android:text="0" />
+        android:text="@string/_0" />
 
 
 

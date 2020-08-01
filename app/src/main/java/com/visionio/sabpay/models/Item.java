@@ -1,5 +1,7 @@
 package com.visionio.sabpay.models;
 
+import androidx.annotation.Nullable;
+
 import com.google.firebase.firestore.Exclude;
 
 import java.util.List;
@@ -15,6 +17,9 @@ public class Item {
     int qty; // quantity of item
     double cost; // price of item
     List<String> images;
+
+    @Exclude
+    int cart_qty = 0;
 
 
     public Item() {
@@ -95,6 +100,41 @@ public class Item {
         i.setUnit(this.getUnit());
         i.setInventory_id(this.getInventory_id());
         i.setImages(this.getImages());
+        i.setCart_qty(this.getCart_qty());
         return i;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        try{
+            Item comp = (Item)obj;
+            assert comp != null;
+            return this.getId().equals(comp.getId());
+        }catch (Exception e){
+            return super.equals(obj);
+        }
+    }
+
+    @Exclude
+    public void addToCart(){
+        if(cart_qty==qty){
+            return;
+        }
+        cart_qty++;
+    }
+    @Exclude
+    public void removeFromCart(){
+        if(cart_qty==0){
+            return;
+        }
+        cart_qty--;
+    }
+    @Exclude
+    public int getCart_qty() {
+        return cart_qty;
+    }
+    @Exclude
+    public void setCart_qty(int cart_qty) {
+        this.cart_qty = cart_qty;
     }
 }

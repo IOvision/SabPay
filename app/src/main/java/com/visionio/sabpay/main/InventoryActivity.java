@@ -1,8 +1,11 @@
 package com.visionio.sabpay.main;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.smarteist.autoimageslider.SliderView;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.adapter.CartItemAdapter;
 import com.visionio.sabpay.adapter.InventoryItemAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
@@ -43,6 +47,12 @@ public class InventoryActivity extends AppCompatActivity {
     ExtendedFloatingActionButton cart_fab;
 
     List<Item> cart;
+
+    // dialog views
+    Dialog cart_dialog;
+    Button dialog_confirm_bt;
+    RecyclerView dialog_items_rv;
+    CartItemAdapter dialog_cart_adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +94,22 @@ public class InventoryActivity extends AppCompatActivity {
             setImageUrls(mInventory.getImages());
         }});
 
+
+        cart_fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCart();
+                View.OnClickListener listener = this;
+                cart_fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        hideCart();
+                        cart_fab.setOnClickListener(listener);
+                    }
+                });
+            }
+        });
+
         loadItems(mInventory.getItems());
     }
 
@@ -107,26 +133,52 @@ public class InventoryActivity extends AppCompatActivity {
                 });
     }
 
+    void hideCart(){
+        if(cart_dialog==null){
+            return;
+        }
+        cart_dialog.hide();
+    }
+    void showCart(){
+        if(cart_dialog!=null){
+            cart_dialog.show();
+            return;
+        }
+        setUpCart();
+    }
+    void setUpCart(){
+        cart_dialog = new Dialog(this);
+        cart_dialog.setContentView(R.layout.cart_layout);
+        cart_dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+
+        dialog_confirm_bt = cart_dialog.findViewById(R.id.cart_layout_confirm_bt);
+        dialog_items_rv = cart_dialog.findViewById(R.id.cart_layout_itemList_rv);
+        dialog_items_rv.setLayoutManager(new LinearLayoutManager(this));
+        dialog_items_rv.setHasFixedSize(false);
+
+        dialog_cart_adapter = new CartItemAdapter(new ArrayList<>(cart), this);
+
+        dialog_items_rv.setAdapter(dialog_cart_adapter);
+
+        cart_dialog.show();
+    }
     void addToCart(Item i) {
+        //adapter.addToCart(i);
         Item item = i.copy();
-
-
         for (Item it : cart) {
-            if (it.getId().equals(item.getId())) {
-                if (item.getQty() - it.getQty() >= 1) {
-                    it.setQty(it.getQty() + 1);
-                }
+            if (it.equals(i)) {
+                it.addToCart();
                 Utils.toast(this, String.format("1 more unit of %s Added", it.getTitle()), Toast.LENGTH_SHORT);
                 return;
             }
         }
-
-
-        item.setQty(1);
-        cart.add(i);
+        item.addToCart();
+        cart.add(item);
         cart_fab.setText(String.format("%s", cart.size()));
         Utils.toast(this, String.format("1 unit of %s Added", i.getTitle()), Toast.LENGTH_SHORT);
     }
+
+
 
 
 }

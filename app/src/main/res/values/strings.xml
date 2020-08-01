@@ -9,6 +9,8 @@
     <string name="register_email">Enter your email</string>
 
     <string name="default_notification_channel_id">110bgd6c</string>
+    <string name="_0">0</string>
+    <string name="confirm_order">Confirm Order</string>
 
     <string-array name="category">
         <item>Select one</item>
