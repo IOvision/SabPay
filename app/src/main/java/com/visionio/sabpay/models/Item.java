@@ -1,5 +1,7 @@
 package com.visionio.sabpay.models;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.util.List;
 
 public class Item {
@@ -80,5 +82,19 @@ public class Item {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    @Exclude
+    public Item copy(){
+        Item i = new Item();
+        i.setId(this.getId());
+        i.setTitle(this.getTitle());
+        i.setQty(this.getQty());
+        i.setCost(this.getCost());
+        i.setDescription(this.getDescription());
+        i.setUnit(this.getUnit());
+        i.setInventory_id(this.getInventory_id());
+        i.setImages(this.getImages());
+        return i;
     }
 }

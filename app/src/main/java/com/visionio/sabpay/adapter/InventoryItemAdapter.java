@@ -5,42 +5,39 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.smarteist.autoimageslider.SliderView;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
-import com.visionio.sabpay.models.Inventory;
+import com.visionio.sabpay.models.Item;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.InventoryViewHolder> {
-
+public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAdapter.InventoryItemViewHolder> {
     Context context;
-    List<Inventory> inventoryList;
+    List<Item> itemList;
+    OnItemClickListener<Item> clickListener;
 
-    OnItemClickListener<Inventory> clickListener;
-
-    public List<Inventory> getInventoryList() {
-        return inventoryList;
+    public List<Item> getItemList() {
+        return itemList;
     }
 
-    public void setInventoryList(List<Inventory> inventoryList) {
-        this.inventoryList = inventoryList;
+    public void setItemList(List<Item> itemList) {
+        this.itemList = itemList;
         notifyDataSetChanged();
     }
 
-    public OnItemClickListener<Inventory> getClickListener() {
-        return clickListener;
-    }
-
-    public void setClickListener(OnItemClickListener<Inventory> clickListener) {
+    public void setClickListener(OnItemClickListener<Item> clickListener) {
         this.clickListener = clickListener;
     }
 
-    public InventoryAdapter(Context context, ArrayList<Inventory> inventoryList) {
+    public InventoryItemAdapter(Context context, ArrayList<Item> inventoryList) {
         this.context = context;
-        this.inventoryList = inventoryList;
+        this.itemList = inventoryList;
     }
 
     @Override
@@ -55,16 +52,18 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
 
     @NonNull
     @Override
-    public InventoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.inventory_list_item, parent, false);
-        return new InventoryViewHolder(v);
+    public InventoryItemAdapter.InventoryItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.inventorty_item_list_item, parent, false);
+        return new InventoryItemAdapter.InventoryItemViewHolder(v);
     }
 
-    public void onBindViewHolder(@NonNull InventoryAdapter.InventoryViewHolder holder, final int position) {
-        final Inventory current = inventoryList.get(position);
-        holder.inventoryName.setText(current.getName());
-        holder.inventoryLocation.setText(String.valueOf(current.isOpened()));
-        holder.symbol.setSliderAdapter(new SimpleImageAdapter(context){{
+    @Override
+    public void onBindViewHolder(@NonNull InventoryItemViewHolder holder, int position) {
+        final Item current = itemList.get(position);
+        holder.inventoryName.setText(current.getTitle());
+        holder.quantity.setText(String.format("Quantity: %s", current.getQty()));
+        holder.inventoryLocation.setText(String.format("Rs. %s/%s", current.getCost(), current.getUnit()));
+        holder.symbol.setSliderAdapter(new SimpleImageAdapter(context) {{
             setImageUrls(current.getImages());
         }});
         holder.v.setOnClickListener(new View.OnClickListener() {
@@ -73,24 +72,24 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
                 if(clickListener==null){
                     return;
                 }
-                clickListener.onItemClicked(current, position, holder.v);
+                clickListener.onItemClicked(current, position, v);
             }
         });
     }
 
     @Override
-    public int getItemCount () {
-        return inventoryList.size();
+    public int getItemCount() {
+        return itemList.size();
     }
 
-    public class InventoryViewHolder extends RecyclerView.ViewHolder{
+    public class InventoryItemViewHolder extends RecyclerView.ViewHolder {
 
         TextView inventoryName, inventoryLocation, quantity;
         SliderView symbol;
 
         View v;
 
-        public InventoryViewHolder(@NonNull View itemView) {
+        public InventoryItemViewHolder(@NonNull View itemView) {
             super(itemView);
             v = itemView;
             inventoryName = itemView.findViewById(R.id.item_inventoryName_tv);

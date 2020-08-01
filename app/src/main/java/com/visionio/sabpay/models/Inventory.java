@@ -2,12 +2,17 @@ package com.visionio.sabpay.models;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.gson.Gson;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class Inventory {
+public class Inventory implements Serializable {
 
     String id; // id of the inventory
     String name; // inventory name, can be name of the store
@@ -87,6 +92,31 @@ public class Inventory {
 
     public void setTotalItems(int totalItems) {
         this.totalItems = totalItems;
+    }
+
+    public String getJson(){
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("id", id);
+        map.put("name", name);
+        map.put("images", images);
+        map.put("items", items);
+        map.put("owner", owner.getId());
+        map.put("int", totalItems);
+
+        return new Gson().toJson(map);
+    }
+
+    public static Inventory formJson(String json){
+        HashMap<String, Object> map = new Gson().fromJson(json, HashMap.class);
+        Inventory i = new Inventory();
+        i.setId(map.get("id").toString());
+        i.setName(map.get("name").toString());
+        i.setImages((List<String>)map.get("images"));
+        i.setItems((List<String>)map.get("items"));
+        i.setOwner(FirebaseFirestore.getInstance().document("user/"+map.get("owner").toString()));
+        i.setTotalItems((int)((double) map.get("int")));
+        return i;
     }
 
     @Exclude

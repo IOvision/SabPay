@@ -1,6 +1,7 @@
 package com.visionio.sabpay.main;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.InventoryAdapter;
 import com.visionio.sabpay.api.ApiBody;
 import com.visionio.sabpay.api.MerchantApi;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Item;
 import com.visionio.sabpay.models.Utils;
@@ -91,8 +93,18 @@ public class InventoryFragment extends Fragment {
 
         getNearbyInventory(lat, lon, within);
         adapter = new InventoryAdapter(getActivity(), inventoryArrayList);
-        recyclerView.setAdapter(adapter);
 
+
+        adapter.setClickListener(new OnItemClickListener<Inventory>() {
+            @Override
+            public void onItemClicked(Inventory object, int position, View view) {
+                Intent intent = new Intent(getActivity(), InventoryActivity.class);
+                String json = object.getJson();
+                intent.putExtra("inventory", json);
+                startActivity(intent);
+            }
+        });
+        recyclerView.setAdapter(adapter);
         //placeOrder();
     }
 
