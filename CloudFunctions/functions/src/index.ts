@@ -376,10 +376,12 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 res.send({status: res.statusCode, 
                 data: `Mobile Number ${mobile} has no biometric data`});
             }
-            const biometric = bio.data();
+            const biometric = bio.data()?.template;
+            const uid = bio.data()?.uid;
             res.statusCode = 200;
             return res.send({status: res.statusCode, 
-                data: biometric});
+                template: biometric,
+                uid: uid});
         })
         .catch(err => {
             console.log(err)
@@ -424,30 +426,38 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 error: `Invalid template`});
             return;
         }
-
-        return admin.firestore().doc(`biometric/${mobile}`).create({
-            template: template
+        return admin.firestore().collection(`user`).where('phone', '==', `+91${mobile}`).get()
+        .then(userData => {
+            if(userData.docs.length==0){
+                res.statusCode = 422;
+                res.send({status: res.statusCode,
+                    error: `User does not exist +91${mobile}`});
+                return;
+            }
+            const uid = <string> userData.docs[0].data().uid
+            return admin.firestore().doc(`biometric/${mobile}`).create({
+                template: template,
+                uid: uid 
+            })
+            .then(()=>{
+                res.statusCode = 200;
+                return res.send({status: res.statusCode, 
+                    data: `Document successfully created at path: biometric/${mobile}`});
+            })
+            .catch(err => {
+                console.log(err)
+                res.statusCode = 522;
+                res.send({
+                status: res.statusCode, 
+                error: 'Internal Server Error'});
+            })
         })
-        .then(()=>{
-            res.statusCode = 200;
-            return res.send({status: res.statusCode, 
-                data: `Document successfully created at path: biometric/${mobile}`});
-        })
-        .catch(err => {
-            console.log(err)
-            res.statusCode = 522;
-            res.send({
-            status: res.statusCode, 
-            error: 'Internal Server Error'});
-        })
-
     }
     else{
         res.statusCode = 405;
         return res.send({status: res.statusCode, error: `${req.method} not supported`})
     }
 })
-
 export const refund =
 functions.region('asia-east2').https.onRequest((req,res)=>{
     res.contentType('json');
@@ -580,66 +590,52 @@ functions.region('asia-east2').firestore.document('complains/{cId}')
 })
 export const transaction_api = 
 functions.region('asia-east2').https.onRequest((req, res)=>{
-    const v = req.url.split('/')
-    if(v.length!==2 || (v.length==2 && v[1].substring(0,3)!=='pay')){
-        res.statusCode = 400;
-        res.send('Bad Request { end point not supported }');
-        return;
-    }
-    const from = req.query.from;// senders biometric
+    res.contentType('json');
+    const from = <string> req.query.from;// senders uid
     var to: any =  req.query.to;// receivers mobile number
     var amount: any = req.query.amount;// amount to send
     const api_key = req.query.api_key;// api key from admin
 
     if(from==undefined||to==undefined||amount==undefined||api_key==undefined){
         res.statusCode = 400;
-        res.send('Bad Request { invalid query params }');
+        res.send({status: res.statusCode, error: "undefined values"});
         return;
     }
     if(api_key!==default_api_key){
         res.statusCode = 401;
-        res.send('Bad Request { unauthorised user api key invalid }');
+        res.send({status: res.statusCode, error: "Bad API Key"});
         return;
     }
     if(to.length!=10){
         res.statusCode = 401;
-        res.send('Bad Request { \'to\' only excepts 10 digit mobile number }');
+        res.send({status: res.statusCode, error: "Wrong mobile number"});
         return;
     }else{
         to = `+91${to}`;
     }
     if(parseFloat(amount.toString())==0.0){
         res.statusCode = 401;
-        res.send('Bad Request { Payment amount must be grater than zero }');
+        res.send({status: res.statusCode, error: "Payment amount must be greater than 0"});
         return;
     }else{
         amount = parseFloat(amount.toString());
     }
 
-    admin.firestore().doc(`biometric/${from}`).get()
-    .then(from_dt=>{
-        if(!from_dt.exists){
-            res.statusCode = 200;
-            return res.send(`Invalid sender biometric: ${from}`);
-        }
-        const from_user = <admin.firestore.DocumentReference> from_dt.data()?.user;
+    const from_user = admin.firestore().collection('user').doc(from);
 
+    return from_user.get().then(from_dt => {
         return admin.firestore().collection('user').where('phone', '==', to).get()
         .then(to_dt=>{
             if(to_dt.docs.length==0){
                 res.statusCode = 200;
-                return res.send(`User not found with mobile ${to}`);
+                res.send({status: res.statusCode, error: "User not found"});
             }
-
             return from_user.collection('wallet').doc('wallet').get()
             .then(wallet_dt=>{
                 if(<number>wallet_dt.data()?.balance < amount){
                     res.statusCode = 200;
-                    return res.send(`Insufficient balance.
-                    Current Balance: ${wallet_dt.data()?.balance}
-                    Payment Amount: ${amount}`)
+                    res.send({status: res.statusCode, error: "Insufficient Balance"});
                 }
-
                 const to_user = to_dt.docs[0];
                 const txnId = to_user.ref.collection('transaction').doc().id;
                 const txnObj = {
@@ -676,28 +672,29 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 );
                 return Promise.all(transaction_movment)
                 .then(()=>{
-                    const receiver_name = to_user.data()?.firstName;
                     res.statusCode = 200;
-                    return res.send(`₹ ${amount} transfered to ${receiver_name}\'s account`);
+                    return res.send({status: res.statusCode, from: from_dt.data()?.name, amount: amount});
                 })
                 .catch(error=>{
                     res.statusCode = 500;
-                    return res.send(error);
+                    console.error(error);
+                    return res.send({status: res.statusCode, error: error});
                 })
             })
             .catch(error=>{
                 res.statusCode = 500;
-                return res.send(error);
+                console.error(error);
+                return res.send({status: res.statusCode, error: error});
             })
         })
         .catch(error=>{
             res.statusCode = 500;
-            return res.send(error);
+            console.error(error);
+            return res.send({status: res.statusCode, error: error});
         })
-    })
-    .catch(error=>{
-        res.statusCode = 500;
-        return res.send(error);
+    }).catch(error => {
+        res.statusCode=500;
+        return res.send({status: res.statusCode, error: error});
     })
 })
 export const newTransaction = 
