@@ -1,19 +1,33 @@
 package com.visionio.sabpay.models;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Exclude;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class Order {
+
+    @Exclude
+    public final static String STATUS_ORDER_PLACED = "ORDER PLACED";
+    @Exclude
+    public final static String STATUS_PAYMENT_PENDING = "PAYMENT PENDING";
+    @Exclude
+    public final static String STATUS_ORDER_CANCELLED = "ORDER CANCELLED";
+    @Exclude
+    public final static String STATUS_ORDER_COMPLETED = "ORDER COMPLETED";
+
+
     String orderId;
     ArrayList<Item> items = new ArrayList<>();
     Timestamp timestamp;
     String fromInventory;
     String status;
-    String amount;
+    double amount;
+    String userId;
+    String transactionId;
     DocumentReference invoice;
-    Transaction transaction;
+    String transaction;
 
     //todo: add arguments
     public Order() {
@@ -59,11 +73,27 @@ public class Order {
         this.status = status;
     }
 
-    public String getAmount() {
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
     }
 
@@ -75,11 +105,11 @@ public class Order {
         this.invoice = invoice;
     }
 
-    public Transaction getTransaction() {
+    public String getTransaction() {
         return transaction;
     }
 
-    public void setTransaction(Transaction transaction) {
+    public void setTransaction(String transaction) {
         this.transaction = transaction;
     }
 

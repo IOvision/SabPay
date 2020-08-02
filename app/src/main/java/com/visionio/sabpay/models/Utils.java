@@ -130,29 +130,40 @@ public class Utils {
         return result;
     }
 
-    public static String equalize(String cost, String currHead){
+    public static String equalize(double cost, String head){
         /*
         cost => ₹XXX...
         currHead => Total:/ Base Amount:
 
         return Total:{space}*toCalculate
          */
-        int spaceBuffer = 24 - (cost.length()+currHead.length());
-        String space = " ";
-        for(int i=0; i<=spaceBuffer; i++){
-            space += space;
-        }
-        String frm = currHead + space + cost;
+        int max = 30;
+        String frm_string = "%"+(max - head.length())+"s";
+
+        String frm = head+String.format(frm_string, getStringFromAmt(cost));
         return  frm;
     }
 
-    public static float getBaseAmount(List<Item> items){
-        float baseAmount = 0;
+    public static String getStringFromAmt(double amount){
+        return RS+amount;
+    }
+
+    public static int getEntityCount(List<Item> items){
+        int i = 0;
+        for(Item item: items){
+            i += item.cart_qty;
+        }
+        return i;
+    }
+
+    public static double getBaseAmount(List<Item> items){
+        double baseAmount = 0;
         for(Item i: items){
             baseAmount += (i.getCart_qty()*i.getCost());
         }
         return baseAmount;
     }
+
 
     public static boolean isEmpty(String s){
         if(s.equals("") || s.equals(null)){

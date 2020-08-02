@@ -48,16 +48,42 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     body: {
         orders: [
             {
-                items: [{firestoreItemObject}],
-                inventoryId: 'inventory-id', 
-                transactionId: 'transaction-id',
-                discount = 85(int%), 
+                base_amount: 0,
+                discount: 0 // in percent,
+                total_amount: 0,
+                transactionId: "",
+                items:[{
+                    id: "doc id",
+                    inventory_id: "string",
+                    title: "",
+                    description: "",
+                    unit: "L/KG/M..",
+                    qty: 0,
+                    cost: 0
+                }..],
+                promo:{
+                    code: FIRST50,
+                    data: "Description of code",
+                    tAndC: "Contraints where this is applicable",
+                    type: 100/101 // flat or percentage,
+                    value: 0
+                }
             },
             {},
             {}
         ]
     }
     */
+   /*
+   return: {
+       orders:[
+           {
+                orderId: "",
+                
+           }
+       ]
+   }
+   */
 
     const userId = req.query.id;
     const api_key = req.query.api_key

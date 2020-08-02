@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -31,7 +32,9 @@ import com.visionio.sabpay.adapter.InventoryItemAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
+import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
+import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Utils;
 
 import java.util.ArrayList;
@@ -64,6 +67,7 @@ public class InventoryActivity extends AppCompatActivity {
     TextView base_amount_tv, delivery_charge_tv;
     TextView total_tv, discount_tv, payable_amount_tv, promo_tv ;
     Button payAndOrder_bt, confirmOrder_bt;
+    Invoice mInvoice;
 
 
     @Override
@@ -183,13 +187,16 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     void showInvoice(){
+        mInvoice = Invoice.fromItems(cart);
         if(invoice_dialog!=null){
+            updateInvoice();
             invoice_dialog.show();
             return;
         }
         setUpInvoice();
     }
     void setUpInvoice(){
+
         invoice_dialog = new BottomSheetDialog(this);
         invoice_dialog.setContentView(R.layout.invoice_layout);
         invoice_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -224,6 +231,19 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
+        payAndOrder_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        confirmOrder_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         //invoice_dialog.getBehavior().setFitToContents(true);
         //invoice_dialog.getBehavior().setHalfExpandedRatio(0.5f);
         invoice_dialog.getBehavior().setPeekHeight(0);
@@ -231,9 +251,42 @@ public class InventoryActivity extends AppCompatActivity {
 
         invoice_dialog.setCancelable(false);
 
+        updateInvoice();
         invoice_dialog.show();
 
     }
+    void updateInvoice(){
+        String item_count = Invoice.STR_ITEM_COUNT+" "+cart.size();
+        String entity_count = Invoice.STR_ENTITY_COUNT+" "+Utils.getEntityCount(cart);
+        String order_from = Invoice.STR_ORDER_FROM+" "+mInventory.getName();
+
+        String base_amt = Utils.equalize(mInvoice.getBase_amount(), Invoice.STR_BASE_AMOUNT);
+        String delivery_charge = Utils.equalize(0, Invoice.STR_DELIVERY_CHARGE);
+
+        String total = Utils.equalize(mInvoice.getTotal_amount(), Invoice.STR_TOTAL);
+        String discount = Utils.equalize(mInvoice.getDiscount(), Invoice.STR_DISCOUNT);
+
+        String payable_amt = Utils.equalize(mInvoice.getTotal_amount(), Invoice.STR_PAYABLE_AMOUNT);
+
+
+        item_count_tv.setText(item_count);
+        entity_count_tv.setText(entity_count);
+        order_from_tv.setText(order_from);
+        base_amount_tv.setText(base_amt);
+        delivery_charge_tv.setText(delivery_charge);
+        total_tv.setText(total);
+        discount_tv.setText(discount);
+        payable_amount_tv.setText(payable_amt);
+
+    }
+
+    void placeOrder(){
+        Order order = new Order();
+        order.setOrderId(mRef.collection("order").document().getId());
+        order.setUserId(FirebaseAuth.getInstance().getUid());
+        order.setAmount();
+    }
+
     void addToCart(Item i) {
         //adapter.addToCart(i);
         Item item = i.copy();
@@ -249,8 +302,5 @@ public class InventoryActivity extends AppCompatActivity {
         cart_fab.setText(String.format("%s", cart.size()));
         Utils.toast(this, String.format("1 unit of %s Added", i.getTitle()), Toast.LENGTH_SHORT);
     }
-
-
-
 
 }
