@@ -458,6 +458,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         return res.send({status: res.statusCode, error: `${req.method} not supported`})
     }
 })
+
 export const refund =
 functions.region('asia-east2').https.onRequest((req,res)=>{
     res.contentType('json');
@@ -673,7 +674,10 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 return Promise.all(transaction_movment)
                 .then(()=>{
                     res.statusCode = 200;
-                    return res.send({status: res.statusCode, from: from_dt.data()?.name, amount: amount});
+                    return res.send({status: res.statusCode, 
+                        transactionId: txnId,
+                        from: from_dt.data()?.name, 
+                        amount: amount});
                 })
                 .catch(error=>{
                     res.statusCode = 500;
