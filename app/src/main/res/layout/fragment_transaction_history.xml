@@ -10,11 +10,45 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleButtonHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_centerHorizontal="true">
+
+            <Button
+                android:id="@+id/btn_transaction_history"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/purple"
+                android:text="Transactions" />
+
+            <Button
+                android:textColor="@color/purple"
+                android:id="@+id/btn_order_history"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:outlineAmbientShadowColor="@color/purple"
+                android:text="Orders history" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/transaction_fragment_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/transaction_list_item"/>
+            tools:listitem="@layout/transaction_list_item"
+            android:layout_below="@id/toggleButtonHistory"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/order_fragment_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/transaction_list_item"
+            android:layout_below="@id/toggleButtonHistory"/>
 
         <com.github.ybq.android.spinkit.SpinKitView
             android:id="@+id/transaction_fragment_pb"

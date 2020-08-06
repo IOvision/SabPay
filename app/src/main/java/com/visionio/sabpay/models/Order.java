@@ -3,7 +3,9 @@ package com.visionio.sabpay.models;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
-import java.sql.Timestamp;
+import com.google.firebase.Timestamp;
+
+import java.sql.Time;
 import java.util.ArrayList;
 
 public class Order {
@@ -22,6 +24,7 @@ public class Order {
     ArrayList<Item> items = new ArrayList<>();
     Timestamp timestamp;
     String fromInventory;
+    String fromInventoryName;
     String status;
     double amount;
     String userId;
@@ -39,6 +42,14 @@ public class Order {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getFromInventoryName() {
+        return fromInventoryName;
+    }
+
+    public void setFromInventoryName(String fromInventoryName) {
+        this.fromInventoryName = fromInventoryName;
     }
 
     public ArrayList<Item> getItems() {

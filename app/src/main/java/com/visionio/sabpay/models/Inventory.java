@@ -18,7 +18,9 @@ public class Inventory implements Serializable {
     String name; // inventory name, can be name of the store
     List<String> images; // urls of image of store between 0 - 5
     List<String> items;
-    DocumentReference owner; // user/id ref of owner of this inventory
+    DocumentReference owner;// user/id ref of owner of this inventory
+    //TODO: add phone number for payment
+    //String ownerPhone;
     boolean opened; // tells whether the shop/inventory is open or close
     int totalItems; // tells total number of unique items... for example it shop has 2 bananas and 3 apples so totalItems = 2.
     //String location;
