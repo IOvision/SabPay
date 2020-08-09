@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.interfaces.RecyclerItemTouchListener;
 import com.visionio.sabpay.models.Order;
 
 import java.util.List;
@@ -16,10 +17,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     List<Order> orders;
     int position = 0;
+    RecyclerItemTouchListener recyclerItemTouchListener;
 
-    public OrderAdapter(List<Order> orders) {
+    public OrderAdapter(List<Order> orders, RecyclerItemTouchListener recyclerItemTouchListener) {
         this.orders = orders;
         setHasStableIds(true);
+        this.recyclerItemTouchListener = recyclerItemTouchListener;
     }
 
 
@@ -42,6 +45,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @Override
     public void onBindViewHolder(@NonNull OrderAdapter.OrderViewHolder holder, int position) {
         final Order current = orders.get(position);
+        holder.itemView.setOnClickListener(v -> {
+            recyclerItemTouchListener.onItemTouched(current);
+        });
         holder.inventoryFrom.setText(current.getFromInventoryName());
         holder.status.setText(current.getStatus());
         if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS_ORDER_CANCELLED)){

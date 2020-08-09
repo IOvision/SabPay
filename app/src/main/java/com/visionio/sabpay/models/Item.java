@@ -23,8 +23,8 @@ public class Item {
     @Exclude
     int cart_qty = 0;
 
-
     public Item() {
+
     }
 
     public String getId() {

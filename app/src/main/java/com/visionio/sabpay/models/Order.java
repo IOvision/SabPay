@@ -31,10 +31,15 @@ public class Order {
     String transactionId;
     DocumentReference invoice;
     String transaction;
+    String invoiceId;
 
     //todo: add arguments
     public Order() {
     }
+
+    public String getInvoiceId() { return  invoiceId; }
+
+    public void setInvoiceId(String invoiceId) { this.invoiceId = invoiceId; }
 
     public String getOrderId() {
         return orderId;

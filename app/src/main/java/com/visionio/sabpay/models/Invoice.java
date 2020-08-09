@@ -30,7 +30,7 @@ public class Invoice {
     double discount;
     double total_amount;
     Timestamp timestamp;
-    DocumentReference transaction;
+    String transactionId;
     Promotions promo;
     List<Item> items;
 
@@ -77,10 +77,6 @@ public class Invoice {
         this.total_amount = total_amount;
     }
 
-    public void setTotal_amount(float total_amount) {
-        this.total_amount = total_amount;
-    }
-
     public Timestamp getTimestamp() {
         return timestamp;
     }
@@ -89,12 +85,12 @@ public class Invoice {
         this.timestamp = timestamp;
     }
 
-    public DocumentReference getTransaction() {
-        return transaction;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setTransaction(DocumentReference transaction) {
-        this.transaction = transaction;
+    public void setTransaction(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public Promotions getPromo() {

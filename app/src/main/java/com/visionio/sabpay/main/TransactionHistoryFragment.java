@@ -1,5 +1,6 @@
 package com.visionio.sabpay.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,16 +25,18 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.OrderAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
+import com.visionio.sabpay.interfaces.RecyclerItemTouchListener;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionHistoryFragment extends Fragment {
+public class TransactionHistoryFragment extends Fragment implements RecyclerItemTouchListener {
 
     public TransactionHistoryFragment() {
         // Required empty public constructor
@@ -80,16 +83,16 @@ public class TransactionHistoryFragment extends Fragment {
     }
 
     public void loadOrderHistory() {
-        //TODO: load order history
         transactionRecyclerView.setVisibility(View.GONE);
         orderRecyclerView.setVisibility(View.VISIBLE);
-        orderAdapter = new OrderAdapter(new ArrayList<>());
+        orderAdapter = new OrderAdapter(new ArrayList<>(), this);
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderRecyclerView.setHasFixedSize(false);
         orderRecyclerView.setAdapter(orderAdapter);
-        loadOrder();
 
+        loadOrder();
     }
+
 
     void loadOrder() {
         FirebaseFirestore.getInstance().collection("order").whereEqualTo("userId", FirebaseAuth.getInstance().getUid()).get()
@@ -125,12 +128,14 @@ public class TransactionHistoryFragment extends Fragment {
         transactionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         transactionRecyclerView.setHasFixedSize(false);
         transactionRecyclerView.setAdapter(transactionAdapter);
+
         loadTransactions();
     }
 
     public void loadTransactions(){
         FirebaseFirestore.getInstance().collection("user")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("transaction")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .collection("transaction")
                 // TODO: check the filter thing
                 //.whereEqualTo("type", 0)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -155,4 +160,12 @@ public class TransactionHistoryFragment extends Fragment {
         }).addOnFailureListener(e -> Log.i("Testing", e.getLocalizedMessage()));
     }
 
+    @Override
+    public void onItemTouched(Order order) {
+        Log.d("Testing", "invoiceid" + order.getInvoiceId());
+        Intent i = new Intent(getActivity(), InvoiceActivity.class);
+        i.putExtra("invoiceId", order.getInvoiceId());
+        i.putExtra("orderId", order.getOrderId());
+        startActivity(i);
+    }
 }

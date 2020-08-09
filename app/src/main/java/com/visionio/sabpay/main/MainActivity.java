@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity{
             if (item.getItemId() == R.id.bottom_app_bar_main_group){
                 groupPay();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
-                offers();
-                //home();
+                //offers();
+                home();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
                 if(Utils.deviceContacts==null){
                   Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();
