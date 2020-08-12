@@ -71,6 +71,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     ExtendedFloatingActionButton cart_fab;
 
+    //TODO: Create separate static class for cart
     List<Item> cart;
 
     // dialog views
@@ -135,13 +136,6 @@ public class InventoryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 showCart();
                 View.OnClickListener listener = this;
-                cart_fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        hideCart();
-                        cart_fab.setOnClickListener(listener);
-                    }
-                });
             }
         });
 
@@ -407,15 +401,16 @@ public class InventoryActivity extends AppCompatActivity {
         });
 
 
+        //order.setAmount();
     }
-
+    //TODO: Increase quantity when clicked multiple times
     void addToCart(Item i) {
         //adapter.addToCart(i);
         Item item = i.copy();
         for (Item it : cart) {
             if (it.equals(i)) {
                 it.addToCart();
-                Utils.toast(this, String.format("1 more unit of %s Added", it.getTitle()), Toast.LENGTH_SHORT);
+                Utils.toast(this, String.format("Item already in cart", it.getTitle()), Toast.LENGTH_SHORT);
                 return;
             }
         }

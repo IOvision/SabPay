@@ -29,7 +29,7 @@ public class Invoice {
     double discount;
     double total_amount;
     Timestamp timestamp;
-    String transaction;
+    String transactionId;
     Promotions promo;
     List<Item> items;
 
@@ -84,12 +84,13 @@ public class Invoice {
         this.timestamp = timestamp;
     }
 
-    public String getTransaction() {
-        return transaction;
+
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setTransaction(String transaction) {
-        this.transaction = transaction;
+    public void setTransaction(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public Promotions getPromo() {

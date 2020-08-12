@@ -2,8 +2,67 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
 import * as CircularJSON from 'circular-json'
+import { totp } from 'otplib'
 admin.initializeApp()
 const default_api_key = 'qIEvxBbP8V6e1YLXICde';
+export const generateOTP = 
+functions.region('asia-east2').https.onRequest((req, res) => {
+    res.contentType('json');
+    const a = Date.now()
+    totp.options = {
+        epoch: a, 
+        step: 300,
+        digits: 6
+    }
+    const secret = <string> req.query.number;
+    const token = totp.generate(secret)
+    admin.firestore().collection(`user`).where('phone', '==', `+91${secret}`).get()
+    .then(user => {
+        if(user.docs.length == 0) {
+            res.statusCode = 404
+            return res.send({
+                status: res.statusCode,
+            })
+        }
+        const push_token = user.docs[0].data()?.instanceId
+        if(push_token == null){
+            res.send("No token/instanceID found")
+        }
+        const payload = {
+            token : push_token,
+            notification : {
+                title: "OTP for Biometric Enrollment",
+                body: `Your OTP for biometric enrollment ${token} is valid for the next 5 minutes.`
+            }
+        }
+        return admin.messaging().send(payload)
+        .then(() => {
+            res.statusCode = 200;
+            return res.send({
+                statusCode: res.statusCode,
+                otp: token,
+                secretnumber: a
+            })
+        }).catch((error) => {return res.send(error)})
+    }).catch((error) => {return res.send(error)})
+})
+export const verifyOTP = 
+functions.region('asia-east2').https.onRequest((req, res) => {
+    const secret = <string> req.query.number;
+    const otp = <string> req.query.otp;
+    const time = parseInt(<string>req.query.time)
+    totp.options = {
+        epoch: time, 
+        step: 300,
+        digits: 6
+    }
+    const isValid = totp.check(otp, secret);
+    res.statusCode = 200;
+    return res.send({
+        statusCode: res.statusCode,
+        bool: isValid
+    });
+})
 export const notify = 
 functions.region('asia-east2').https.onRequest((req, res)=>{
     //url/notify?to={1234567890}?title={title}&msg={msg}

@@ -22,6 +22,7 @@ public class Order {
     List<Item> items = new ArrayList<>();
     Timestamp timestamp;
     String fromInventory;
+    String fromInventoryName;
     String status;
     double amount;
     String userId;
@@ -38,6 +39,15 @@ public class Order {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+
+    public String getFromInventoryName() {
+        return fromInventoryName;
+    }
+
+    public void setFromInventoryName(String fromInventoryName) {
+        this.fromInventoryName = fromInventoryName;
     }
 
     public List<Item> getItems() {
