@@ -1,10 +1,10 @@
 package com.visionio.sabpay.models;
 
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Order {
 
@@ -19,15 +19,14 @@ public class Order {
 
 
     String orderId;
-    ArrayList<Item> items = new ArrayList<>();
+    List<Item> items = new ArrayList<>();
     Timestamp timestamp;
     String fromInventory;
     String status;
     double amount;
     String userId;
     String transactionId;
-    DocumentReference invoice;
-    String transaction;
+    String invoiceId;
 
     //todo: add arguments
     public Order() {
@@ -41,11 +40,11 @@ public class Order {
         this.orderId = orderId;
     }
 
-    public ArrayList<Item> getItems() {
+    public List<Item> getItems() {
         return items;
     }
 
-    public void setItems(ArrayList<Item> items) {
+    public void setItems(List<Item> items) {
         this.items = items;
     }
 
@@ -97,20 +96,11 @@ public class Order {
         this.amount = amount;
     }
 
-    public DocumentReference getInvoice() {
-        return invoice;
+    public String getInvoiceId() {
+        return invoiceId;
     }
 
-    public void setInvoice(DocumentReference invoice) {
-        this.invoice = invoice;
+    public void setInvoiceId(String invoiceId) {
+        this.invoiceId = invoiceId;
     }
-
-    public String getTransaction() {
-        return transaction;
-    }
-
-    public void setTransaction(String transaction) {
-        this.transaction = transaction;
-    }
-
 }

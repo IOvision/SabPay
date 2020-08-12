@@ -1,7 +1,6 @@
 package com.visionio.sabpay.models;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class Invoice {
     double discount;
     double total_amount;
     Timestamp timestamp;
-    DocumentReference transaction;
+    String transaction;
     Promotions promo;
     List<Item> items;
 
@@ -77,10 +76,6 @@ public class Invoice {
         this.total_amount = total_amount;
     }
 
-    public void setTotal_amount(float total_amount) {
-        this.total_amount = total_amount;
-    }
-
     public Timestamp getTimestamp() {
         return timestamp;
     }
@@ -89,11 +84,11 @@ public class Invoice {
         this.timestamp = timestamp;
     }
 
-    public DocumentReference getTransaction() {
+    public String getTransaction() {
         return transaction;
     }
 
-    public void setTransaction(DocumentReference transaction) {
+    public void setTransaction(String transaction) {
         this.transaction = transaction;
     }
 
@@ -110,7 +105,7 @@ public class Invoice {
     public void setAmounts(double base_amount, double discountPercent){
         this.base_amount = base_amount;
         this.discount = discountPercent;
-        this.total_amount = base_amount - (base_amount*discountPercent/100.0);
+        this.total_amount= base_amount - (base_amount*discountPercent/100.0);
     }
 
     @Exclude

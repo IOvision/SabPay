@@ -130,6 +130,7 @@ public class Utils {
         return result;
     }
 
+
     public static String equalize(double cost, String head){
         /*
         cost => ₹XXX...

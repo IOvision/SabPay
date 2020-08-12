@@ -2,7 +2,6 @@ package com.visionio.sabpay.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.visionio.sabpay.interfaces.ApiInterface;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;

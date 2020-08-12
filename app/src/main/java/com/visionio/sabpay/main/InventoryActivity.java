@@ -3,6 +3,7 @@ package com.visionio.sabpay.main;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,15 +23,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
+import com.google.gson.Gson;
 import com.smarteist.autoimageslider.SliderView;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.CartItemAdapter;
 import com.visionio.sabpay.adapter.InventoryItemAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
+import com.visionio.sabpay.api.MerchantApi;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
@@ -37,8 +45,17 @@ import com.visionio.sabpay.models.Item;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class InventoryActivity extends AppCompatActivity {
 
@@ -50,6 +67,7 @@ public class InventoryActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
     FirebaseFirestore mRef;
+    FirebaseAuth mAuth;
 
     ExtendedFloatingActionButton cart_fab;
 
@@ -78,6 +96,7 @@ public class InventoryActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.inv_activity_toolbar);
         setSupportActionBar(toolbar);
         mRef = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         setup();
     }
@@ -157,6 +176,7 @@ public class InventoryActivity extends AppCompatActivity {
     }
     void showCart(){
         if(cart_dialog!=null){
+            dialog_cart_adapter.setItemList(new ArrayList<>(cart));
             cart_dialog.show();
             return;
         }
@@ -190,6 +210,7 @@ public class InventoryActivity extends AppCompatActivity {
         mInvoice = Invoice.fromItems(cart);
         if(invoice_dialog!=null){
             updateInvoice();
+            invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
             invoice_dialog.show();
             return;
         }
@@ -231,16 +252,17 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
+
         payAndOrder_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                pay();
             }
         });
         confirmOrder_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                placeOrder(null);
             }
         });
 
@@ -280,11 +302,111 @@ public class InventoryActivity extends AppCompatActivity {
 
     }
 
-    void placeOrder(){
+    void pay(){
+        Call<Map<String, Object>> pay = MerchantApi.getApiService().pay(mAuth.getUid(),
+               "7084552191", mInvoice.getTotal_amount(), MerchantApi.api_key);
+        pay.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                Map<String, Object> result;
+                if(!response.isSuccessful()){
+                    String body = null;
+                    try {
+                        body = response.errorBody().string();
+                    } catch (IOException e) {
+                        body = "{}";
+                    }
+                    result = new Gson().fromJson(body, HashMap.class);
+                    Utils.toast(InventoryActivity.this,
+                            Objects.requireNonNull(result.get("error")).toString(), Toast.LENGTH_LONG);
+                    return;
+                }
+                result = response.body();
+                if(result.containsKey("error")){
+                    Utils.toast(InventoryActivity.this,
+                            Objects.requireNonNull(result.get("error")).toString(), Toast.LENGTH_LONG);
+                }else{
+                    String s = String.format("Status: %s\nFrom: %s\nAmount: %s\nTransaction Id: %s",
+                            result.get("status"), result.get("from"), result.get("amount"), result.get("transactionId"));
+                    Utils.toast(InventoryActivity.this, s, Toast.LENGTH_LONG);
+                    String transactionId =  result.get("transactionId").toString();
+                    placeOrder(transactionId);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Log.i("test", "onFailure: "+t.getLocalizedMessage());
+                int a = 0;
+            }
+        });
+    }
+
+    void placeOrder(String transactionId){
         Order order = new Order();
         order.setOrderId(mRef.collection("order").document().getId());
         order.setUserId(FirebaseAuth.getInstance().getUid());
-        order.setAmount();
+        order.setAmount(mInvoice.getTotal_amount());
+        order.setFromInventory(mInventory.getId());
+        order.setUserId(mAuth.getUid());
+        order.setTimestamp(new Timestamp(new Date()));
+        if(transactionId==null){
+            order.setStatus(Order.STATUS_PAYMENT_PENDING);
+            List<Item> it = new ArrayList<>(mInvoice.getItems());
+            for(Item i:it){
+                i.setQty(i.getCart_qty());
+                if(i.getQty()==0){
+                    it.remove(i);
+                }
+            }
+            order.setItems(it);
+            order.setTransactionId(null);
+            order.setInvoiceId(null);
+        }else{
+            order.setStatus(Order.STATUS_ORDER_PLACED);
+            String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
+            order.setItems(null);
+            order.setTransactionId(transactionId);
+            order.setInvoiceId(invoiceId);
+            mInvoice.setId(invoiceId);
+            mInvoice.setPromo(null);
+            mInvoice.setTimestamp(new Timestamp(new Date()));
+            mInvoice.setTransaction(transactionId);
+        }
+
+        mRef.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentReference orderRef = mRef.document("order/"+order.getOrderId());
+                if(order.getInvoiceId()!=null){
+                    String path = String.format("user/%s/invoice/%s", order.getUserId(), order.getInvoiceId());
+                    DocumentReference invoiceRef = mRef.document(path);
+
+                    transaction.set(orderRef, order);
+                    transaction.set(invoiceRef, mInvoice);
+                }else{
+                    transaction.set(orderRef, order);
+                }
+                return null;
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Utils.toast(InventoryActivity.this, "Order Placed Successfully", Toast.LENGTH_LONG);
+                    String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
+                    Log.i("test", "onComplete: "+s);
+                }else{
+                    Log.i("test", "onComplete: "+task.getException().getLocalizedMessage());
+                }
+                cart_dialog.dismiss();
+                invoice_dialog.dismiss();
+                finish();
+            }
+        });
+
+
     }
 
     void addToCart(Item i) {
