@@ -2,7 +2,11 @@ package com.visionio.sabpay.main;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
@@ -17,11 +21,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -40,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.paperdb.Paper;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -50,7 +57,24 @@ public class MainActivity extends AppCompatActivity{
     BottomNavigationView bottomNavigationView;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseFirestore mRef = FirebaseFirestore.getInstance();
-    ListenerRegistration listenerRegistration;
+    private BroadcastReceiver mMessageReciever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Alert", "Creating Alert");
+            showAlert(intent);
+        }
+    };
+
+    private void showAlert(Intent intent) {
+        MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(this);
+        alert.setTitle(intent.getStringExtra("value1"));
+        alert.setMessage(intent.getStringExtra("value2"));
+        alert.setPositiveButton("Ok", (dialog, which) -> {
+            dialog.dismiss();
+        });
+        alert.show();
+    }
+
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
     @Override
@@ -69,6 +93,14 @@ public class MainActivity extends AppCompatActivity{
     protected void onResume() {
         super.onResume();
         bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mMessageReciever,
+                new IntentFilter("myFunction"));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mMessageReciever);
     }
 
     void setUp() {
@@ -87,8 +119,8 @@ public class MainActivity extends AppCompatActivity{
             if (item.getItemId() == R.id.bottom_app_bar_main_group){
                 groupPay();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
-                offers();
-                //home();
+                //offers();
+                home();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
                 if(Utils.deviceContacts==null){
                   Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();

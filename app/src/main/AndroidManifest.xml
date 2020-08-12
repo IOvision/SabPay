@@ -29,7 +29,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".main.InventoryActivity"></activity>
+        <activity android:name=".InvoiceActivity"></activity>
+        <activity android:name=".main.InventoryActivity" />
         <activity android:name=".GpayProcedureActivity" />
         <activity android:name=".helpdesk.HelpDeskActivity" />
         <activity android:name=".payment.PaymentActivity" />
@@ -45,7 +46,6 @@
 
         <activity android:name=".services.FeedbackActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".TransactionHistory" />
         <activity android:name=".offpay.OffpayActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>

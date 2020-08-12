@@ -1,5 +1,7 @@
 package com.visionio.sabpay.models;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
@@ -21,8 +23,8 @@ public class Item {
     @Exclude
     int cart_qty = 0;
 
-
     public Item() {
+
     }
 
     public String getId() {
@@ -120,6 +122,7 @@ public class Item {
         if(cart_qty==qty){
             return;
         }
+        Log.d("item", "addToCart: " + qty);
         cart_qty++;
     }
     @Exclude
