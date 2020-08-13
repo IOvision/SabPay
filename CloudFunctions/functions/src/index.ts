@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
 import * as CircularJSON from 'circular-json'
+//import * as totp from 'otplib'
 import { totp } from 'otplib'
 admin.initializeApp()
 const default_api_key = 'qIEvxBbP8V6e1YLXICde';
@@ -653,6 +654,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     res.contentType('json');
     const from = <string> req.query.from;// senders uid
     var to: any =  req.query.to;// receivers mobile number
+    var isMob = true; // determines whether to has mob or id
     var amount: any = req.query.amount;// amount to send
     const api_key = req.query.api_key;// api key from admin
 
@@ -666,12 +668,14 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         res.send({status: res.statusCode, error: "Bad API Key"});
         return;
     }
-    if(to.length!=10){
+    if(to.length<=0){
         res.statusCode = 401;
         res.send({status: res.statusCode, error: "Wrong mobile number"});
         return;
-    }else{
+    }else if(to.length==10){
         to = `+91${to}`;
+    }else{
+        isMob = false;
     }
     if(parseFloat(amount.toString())==0.0){
         res.statusCode = 401;
@@ -684,7 +688,14 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     const from_user = admin.firestore().collection('user').doc(from);
 
     return from_user.get().then(from_dt => {
-        return admin.firestore().collection('user').where('phone', '==', to).get()
+        let pr;
+        if(isMob){
+            pr = admin.firestore().collection('user').where('phone', '==', to);
+        }else{
+            pr = admin.firestore().collection('user').where('uid', '==', to);
+        }
+
+        return pr.get()
         .then(to_dt=>{
             if(to_dt.docs.length==0){
                 res.statusCode = 200;

@@ -298,7 +298,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     void pay(){
         Call<Map<String, Object>> pay = MerchantApi.getApiService().pay(mAuth.getUid(),
-               "7084552191", mInvoice.getTotal_amount(), MerchantApi.api_key);
+               mInventory.getOwner().getId(), mInvoice.getTotal_amount(), MerchantApi.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
