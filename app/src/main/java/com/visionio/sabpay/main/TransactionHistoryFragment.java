@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,14 +28,14 @@ import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.OrderAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
-import com.visionio.sabpay.interfaces.RecyclerItemTouchListener;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionHistoryFragment extends Fragment implements RecyclerItemTouchListener {
+public class TransactionHistoryFragment extends Fragment {
 
     public TransactionHistoryFragment() {
         // Required empty public constructor
@@ -85,7 +84,17 @@ public class TransactionHistoryFragment extends Fragment implements RecyclerItem
     public void loadOrderHistory() {
         transactionRecyclerView.setVisibility(View.GONE);
         orderRecyclerView.setVisibility(View.VISIBLE);
-        orderAdapter = new OrderAdapter(new ArrayList<>(), this);
+        orderAdapter = new OrderAdapter(new ArrayList<>(), new OnItemClickListener<Order>() {
+            @Override
+            public void onItemClicked(Order order, int position, View view) {
+                Log.d("Testing", "invoiceid" + order.getInvoiceId());
+                Intent i = new Intent(getActivity(), InvoiceActivity.class);
+                i.putExtra("invoiceId", order.getInvoiceId());
+                i.putExtra("orderId", order.getOrderId());
+                i.putExtra("orderStatus", order.getStatus());
+                startActivity(i);
+            }
+        });
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderRecyclerView.setHasFixedSize(false);
         orderRecyclerView.setAdapter(orderAdapter);
@@ -105,15 +114,6 @@ public class TransactionHistoryFragment extends Fragment implements RecyclerItem
                                 for (DocumentSnapshot current : docs){
                                     Order order = current.toObject(Order.class);
                                     orderAdapter.add(order);
-                                    Order order1 = current.toObject(Order.class);
-                                    order1.setStatus(Order.STATUS_PAYMENT_PENDING);
-                                    orderAdapter.add(order1);
-                                    Order order2 = current.toObject(Order.class);
-                                    order2.setStatus(Order.STATUS_ORDER_COMPLETED);
-                                    orderAdapter.add(order2);
-                                    Order order3 = current.toObject(Order.class);
-                                    order3.setStatus(Order.STATUS_ORDER_PLACED);
-                                    orderAdapter.add(order3);
                                 }
                             }
                         }
@@ -160,12 +160,5 @@ public class TransactionHistoryFragment extends Fragment implements RecyclerItem
         }).addOnFailureListener(e -> Log.i("Testing", e.getLocalizedMessage()));
     }
 
-    @Override
-    public void onItemTouched(Order order) {
-        Log.d("Testing", "invoiceid" + order.getInvoiceId());
-        Intent i = new Intent(getActivity(), InvoiceActivity.class);
-        i.putExtra("invoiceId", order.getInvoiceId());
-        i.putExtra("orderId", order.getOrderId());
-        startActivity(i);
-    }
+
 }

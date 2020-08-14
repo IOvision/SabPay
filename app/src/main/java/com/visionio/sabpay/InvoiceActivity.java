@@ -1,32 +1,29 @@
 package com.visionio.sabpay;
 
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.text.Html;
-import android.util.Log;
-import android.widget.TextView;
-
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.adapter.InvoiceAdapter;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
+import com.visionio.sabpay.models.Order;
 
 import java.util.ArrayList;
 
 public class InvoiceActivity extends AppCompatActivity {
 
-    String invoiceId, orderIdString;
+    String invoiceId, orderIdString, orderStatus;
     TextView orderTime, orderId, orderAmount, paymentStatus, baseAmount, discount, promoCode, totalAmount;
     Invoice invoice;
     RecyclerView itemListRecycler;
@@ -40,6 +37,7 @@ public class InvoiceActivity extends AppCompatActivity {
         if (extras != null) {
             invoiceId = extras.getString("invoiceId");
             orderIdString = extras.getString("orderId");
+            orderStatus = extras.getString("orderStatus");
         }
 
         orderTime = findViewById(R.id.order_time);
@@ -52,7 +50,11 @@ public class InvoiceActivity extends AppCompatActivity {
         totalAmount = findViewById(R.id.total_amount);
         itemListRecycler = findViewById(R.id.items_recycler_view);
 
-        loadInvoice();
+        if(orderStatus.equals(Order.STATUS_ORDER_COMPLETED)){
+            loadInvoice();
+        }
+
+        //loadInvoice();
     }
 
     private void loadInvoice() {
@@ -74,7 +76,7 @@ public class InvoiceActivity extends AppCompatActivity {
                     }
                 });
     }
-
+// todo: update method to work for both if invoice is generated and if it isnt
     private void setTextViews() {
 
         orderTime.setText(String.valueOf(invoice.getTimestamp().toDate()));

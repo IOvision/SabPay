@@ -5,10 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.interfaces.RecyclerItemTouchListener;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Order;
 
 import java.util.List;
@@ -17,12 +19,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     List<Order> orders;
     int position = 0;
-    RecyclerItemTouchListener recyclerItemTouchListener;
+    OnItemClickListener<Order> itemTouchListener;
 
-    public OrderAdapter(List<Order> orders, RecyclerItemTouchListener recyclerItemTouchListener) {
+    public OrderAdapter(List<Order> orders, OnItemClickListener<Order> recyclerItemTouchListener) {
         this.orders = orders;
         setHasStableIds(true);
-        this.recyclerItemTouchListener = recyclerItemTouchListener;
+        itemTouchListener = recyclerItemTouchListener;
     }
 
 
@@ -46,7 +48,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     public void onBindViewHolder(@NonNull OrderAdapter.OrderViewHolder holder, int position) {
         final Order current = orders.get(position);
         holder.itemView.setOnClickListener(v -> {
-            recyclerItemTouchListener.onItemTouched(current);
+            itemTouchListener.onItemClicked(current, position, v);
         });
         holder.inventoryFrom.setText(current.getFromInventoryName());
         holder.status.setText(current.getStatus());
