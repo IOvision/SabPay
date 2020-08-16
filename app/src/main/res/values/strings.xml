@@ -12,7 +12,7 @@
     <string name="_0">0</string>
     <string name="confirm_order">Confirm Order</string>
     <string name="pay_order"><![CDATA[Pay & Order]]></string>
-    <string name="place_order">Place Order</string>
+    <string name="place_order">COD and order</string>
     <string name="view_order_details">View Order Details</string>
 
     <string-array name="category">

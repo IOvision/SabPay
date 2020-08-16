@@ -10,7 +10,7 @@ public class Invoice {
     @Exclude
     public final static String STR_ITEM_COUNT = "Item Count:";
     @Exclude
-    public final static String STR_ENTITY_COUNT = "Entity Count:";
+    public final static String STR_ENTITY_COUNT = "Total item Count:";
     @Exclude
     public final static String STR_ORDER_FROM = "Order From:";
     @Exclude

@@ -8,13 +8,15 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/inv_activity_app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/grey"
+        android:backgroundTint="@color/grey">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/inv_activity_collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="?attr/colorPrimary"
+            app:contentScrim="#A9A9A9"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <com.smarteist.autoimageslider.SliderView
@@ -76,6 +78,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:textStyle="bold"
+        app:backgroundTint="#9932CC"
         app:icon="@drawable/ic_cart"
         app:layout_anchor="@id/inv_activity_collapsing_toolbar"
         app:layout_anchorGravity="bottom|end"

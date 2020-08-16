@@ -23,7 +23,7 @@
 
     <item
         android:id="@+id/bottom_app_bar_main_offers"
-        android:title="Offers"
-        android:icon="@drawable/icon_discount"/>
+        android:title="Store"
+        android:icon="@drawable/ic_store"/>
 
 </menu>

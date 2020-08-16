@@ -1,6 +1,7 @@
 package com.visionio.sabpay.main;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -210,6 +212,7 @@ public class InventoryActivity extends AppCompatActivity {
         }
         setUpInvoice();
     }
+
     void setUpInvoice(){
 
         invoice_dialog = new BottomSheetDialog(this);
@@ -256,7 +259,19 @@ public class InventoryActivity extends AppCompatActivity {
         confirmOrder_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                placeOrder(null);
+                new AlertDialog.Builder(InventoryActivity.this)
+                        .setTitle("Proceed Further")
+                        .setMessage("Are you sure? Amount will be deducted from SabPay balance.")
+
+                        .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                placeOrder(null);
+                            }
+                        })
+
+                        .setNegativeButton("Cancel", null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
 

@@ -51,6 +51,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             itemTouchListener.onItemClicked(current, position, v);
         });
         holder.inventoryFrom.setText(current.getFromInventoryName());
+        holder.date.setText(String.valueOf(current.getTimestamp()));
+        holder.date.setText(String.valueOf(current.getTimestamp().toDate()).substring(0, 20));
         holder.status.setText(current.getStatus());
         if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS_ORDER_CANCELLED)){
             holder.status.setTextColor(Color.RED);
@@ -82,7 +84,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     public class OrderViewHolder extends RecyclerView.ViewHolder{
 
-        TextView inventoryFrom, status, amount;
+        TextView inventoryFrom, status, amount, date;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -90,6 +92,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             inventoryFrom = itemView.findViewById(R.id.order_list_item_inventory_from);
             status = itemView.findViewById(R.id.order_list_item_status);
             amount = itemView.findViewById(R.id.order_list_item_amount);
+            date = itemView.findViewById(R.id.order_list_item_date);
         }
     }
 }

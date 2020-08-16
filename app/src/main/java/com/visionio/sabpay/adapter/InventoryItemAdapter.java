@@ -77,7 +77,7 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
     public void onBindViewHolder(@NonNull InventoryItemViewHolder holder, int position) {
         final Item current = itemList.get(position);
         holder.inventoryName.setText(current.getTitle());
-        holder.quantity.setText(String.format("Quantity: %s", current.getQty()));
+        holder.quantity.setText(String.format("Stock: %s", current.getQty()));
         holder.inventoryLocation.setText(String.format("Rs. %s/%s", current.getCost(), current.getUnit()));
         holder.symbol.setSliderAdapter(new SimpleImageAdapter(context) {{
             setImageUrls(current.getImages());
