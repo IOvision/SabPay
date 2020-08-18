@@ -24,6 +24,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.OrderAdapter;
@@ -89,6 +90,8 @@ public class TransactionHistoryFragment extends Fragment {
             public void onItemClicked(Order order, int position, View view) {
                 Log.d("Testing", "invoiceid" + order.getInvoiceId());
                 Intent i = new Intent(getActivity(), InvoiceActivity.class);
+                String orderJson = new Gson().toJson(order);
+                i.putExtra("order", orderJson);
                 i.putExtra("invoiceId", order.getInvoiceId());
                 i.putExtra("orderId", order.getOrderId());
                 i.putExtra("orderStatus", order.getStatus());

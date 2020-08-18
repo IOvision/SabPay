@@ -354,7 +354,6 @@ public class InventoryActivity extends AppCompatActivity {
     void placeOrder(String transactionId){
         Order order = new Order();
         order.setOrderId(mRef.collection("order").document().getId());
-        order.setUserId(FirebaseAuth.getInstance().getUid());
         order.setAmount(mInvoice.getTotal_amount());
         order.setFromInventory(mInventory.getId());
         order.setUserId(mAuth.getUid());

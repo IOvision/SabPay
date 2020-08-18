@@ -14,6 +14,7 @@
     <string name="pay_order"><![CDATA[Pay & Order]]></string>
     <string name="place_order">COD and order</string>
     <string name="view_order_details">View Order Details</string>
+    <string name="pay">Pay</string>
 
     <string-array name="category">
         <item>Select one</item>

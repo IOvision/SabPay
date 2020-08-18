@@ -278,6 +278,24 @@
 
         </RelativeLayout>
 
+        <Button
+            android:id="@+id/invoice_activity_pay_bt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="@string/pay"
+            android:layout_below="@id/rl_main_4"
+            android:visibility="gone"/>
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/invoice_activity_progressBar_pb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/SpinKitView.Large.Circle"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            app:SpinKit_Color="@color/purple"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 
