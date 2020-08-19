@@ -98,7 +98,7 @@ public class InvoiceActivity extends AppCompatActivity {
         totalAmount = findViewById(R.id.total_amount);
         itemListRecycler = findViewById(R.id.items_recycler_view);
 
-        if (orderStatus.equals(Order.STATUS_ORDER_COMPLETED)) {
+        if (order.isPaymentDone()) {
             loadInvoice();
         } else {
             items = order.getItems();
@@ -326,7 +326,7 @@ public class InvoiceActivity extends AppCompatActivity {
         orderUpdate.put("items", null);
         orderUpdate.put("transactionId", transactionId);
         orderUpdate.put("invoiceId", invoiceId);
-        orderUpdate.put("status", Order.STATUS_ORDER_COMPLETED);
+        orderUpdate.put("status", Order.STATUS.ORDER_RECEIVED);
 
         invoice.setId(invoiceId);
         invoice.setPromo(null);

@@ -10,11 +10,11 @@ public class Order {
 
     public static class STATUS{
         @Exclude
-        public final static String STATUS_ORDER_RECEIVED = "ORDER RECEIVED";
+        public final static String ORDER_RECEIVED = "ORDER RECEIVED";
         @Exclude
-        public final static String STATUS_ORDER_PLACED = "ORDER PLACED";
+        public final static String ORDER_PLACED = "ORDER PLACED";
         @Exclude
-        public final static String STATUS_ORDER_DELIVERED = "ORDER DELIVERED";
+        public final static String ORDER_DELIVERED = "ORDER DELIVERED";
     }
 
     /*

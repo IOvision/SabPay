@@ -358,8 +358,8 @@ public class InventoryActivity extends AppCompatActivity {
         order.setFromInventory(mInventory.getId());
         order.setUserId(mAuth.getUid());
         order.setTimestamp(new Timestamp(new Date()));
+        order.setStatus(Order.STATUS.ORDER_PLACED);
         if(transactionId==null){
-            order.setStatus(Order.STATUS_PAYMENT_PENDING);
             List<Item> it = new ArrayList<>(mInvoice.getItems());
             for(Item i:it){
                 i.setQty(i.getCart_qty());
@@ -371,7 +371,6 @@ public class InventoryActivity extends AppCompatActivity {
             order.setTransactionId(null);
             order.setInvoiceId(null);
         }else{
-            order.setStatus(Order.STATUS_ORDER_PLACED);
             String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
             order.setItems(null);
             order.setTransactionId(transactionId);
