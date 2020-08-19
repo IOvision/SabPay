@@ -8,14 +8,22 @@ import java.util.List;
 
 public class Order {
 
+    public static class STATUS{
+        @Exclude
+        public final static String STATUS_ORDER_RECEIVED = "ORDER RECEIVED";
+        @Exclude
+        public final static String STATUS_ORDER_PLACED = "ORDER PLACED";
+        @Exclude
+        public final static String STATUS_ORDER_DELIVERED = "ORDER DELIVERED";
+    }
+
+    /*
+    To check if payment is done:
+    */
     @Exclude
-    public final static String STATUS_ORDER_PLACED = "ORDER PLACED";
-    @Exclude
-    public final static String STATUS_PAYMENT_PENDING = "PAYMENT PENDING";
-    @Exclude
-    public final static String STATUS_ORDER_CANCELLED = "ORDER CANCELLED";
-    @Exclude
-    public final static String STATUS_ORDER_COMPLETED = "ORDER COMPLETED";
+    public Boolean isPaymentDone(){
+        return invoiceId != null;
+    }
 
 
     String orderId;
