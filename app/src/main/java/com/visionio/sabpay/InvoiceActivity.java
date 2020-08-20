@@ -340,7 +340,7 @@ public class InvoiceActivity extends AppCompatActivity {
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentReference orderRef = mRef.document("order/" + order.getOrderId());
 
-                String path = String.format("user/%s/invoice/%s", order.getUserId(), invoiceId);
+                String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), invoiceId);
                 DocumentReference invoiceRef = mRef.document(path);
 
                 transaction.update(orderRef, orderUpdate);

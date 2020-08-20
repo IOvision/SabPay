@@ -1,7 +1,5 @@
 package com.visionio.sabpay.models;
 
-import android.util.Log;
-
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -91,4 +89,5 @@ public class User implements Serializable {
     public void receive(int amount) {
         this.offPayBalance += amount;
     }
+
 }

@@ -71,6 +71,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     const to = ""+req.query.to
     const title= ""+req.query.title
     let message = ""+req.query.msg
+    res.statusCode = 200;
     admin.firestore().collection(`user`).where('phone', '==', `+91${to}`).get()
     .then(udSnap => {
         if(udSnap.docs.length==0){
@@ -90,10 +91,14 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             }
         return admin.messaging().send(payload)
         .then(()=>{
-            return res.send('Send')
+            return res.send('Notified');
         })
-        .catch((error) => {return res.send(error)})
-    }).catch((error) => {return res.send(error)})
+        .catch((error) => {
+            res.statusCode = 500;
+            return res.send('Server Error')});
+    }).catch((error) => {
+        res.statusCode = 500;
+        return res.send('Server Error')});
 })
 export const placeOrder = 
 functions.region('asia-east2').https.onRequest((req, res)=>{

@@ -45,6 +45,7 @@ import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
 import com.visionio.sabpay.models.Order;
+import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 
 import java.io.IOException;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import io.paperdb.Paper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -356,7 +358,13 @@ public class InventoryActivity extends AppCompatActivity {
         order.setOrderId(mRef.collection("order").document().getId());
         order.setAmount(mInvoice.getTotal_amount());
         order.setFromInventory(mInventory.getId());
-        order.setUserId(mAuth.getUid());
+        User user = Paper.book("user").read("user");
+        order.setUser(new HashMap<String, String>(){{
+            put("userId", user.getUid());
+            put("firstName", user.getFirstName());
+            put("lastName", user.getLastName());
+            put("phone", user.getPhone());
+        }});
         order.setTimestamp(new Timestamp(new Date()));
         order.setStatus(Order.STATUS.ORDER_PLACED);
         if(transactionId==null){
@@ -387,7 +395,7 @@ public class InventoryActivity extends AppCompatActivity {
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentReference orderRef = mRef.document("order/"+order.getOrderId());
                 if(order.getInvoiceId()!=null){
-                    String path = String.format("user/%s/invoice/%s", order.getUserId(), order.getInvoiceId());
+                    String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), order.getInvoiceId());
                     DocumentReference invoiceRef = mRef.document(path);
 
                     transaction.set(orderRef, order);

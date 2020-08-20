@@ -5,6 +5,7 @@ import com.google.firebase.firestore.Exclude;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Order {
 
@@ -15,6 +16,8 @@ public class Order {
         public final static String ORDER_PLACED = "ORDER PLACED";
         @Exclude
         public final static String ORDER_DELIVERED = "ORDER DELIVERED";
+        @Exclude
+        public final static String ORDER_CANCELLED = "ORDER CANCELLED";
     }
 
     /*
@@ -33,9 +36,9 @@ public class Order {
     String fromInventoryName;
     String status;
     double amount;
-    String userId;
     String transactionId;
     String invoiceId;
+    Map<String, String> user;
 
     //todo: add arguments
     public Order() {
@@ -56,6 +59,14 @@ public class Order {
 
     public void setFromInventoryName(String fromInventoryName) {
         this.fromInventoryName = fromInventoryName;
+    }
+
+    public Map<String, String> getUser() {
+        return user;
+    }
+
+    public void setUser(Map<String, String> user) {
+        this.user = user;
     }
 
     public List<Item> getItems() {
@@ -88,14 +99,6 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getTransactionId() {

@@ -54,11 +54,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.date.setText(String.valueOf(current.getTimestamp()));
         holder.date.setText(String.valueOf(current.getTimestamp().toDate()).substring(0, 20));
         holder.status.setText(current.getStatus());
-        if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS_ORDER_CANCELLED)){
+        if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS.ORDER_CANCELLED)){
             holder.status.setTextColor(Color.RED);
-        } else if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS_ORDER_COMPLETED)) {
+        } else if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS.ORDER_DELIVERED)) {
             holder.status.setTextColor(Color.GREEN);
-        } else if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS_PAYMENT_PENDING)) {
+        } else if(holder.status.getText().toString().equalsIgnoreCase(Order.STATUS.ORDER_PLACED)) {
             holder.status.setTextColor(Color.argb(255, 255, 165, 0));
         } else {
             holder.status.setTextColor(Color.argb(255, 64,224,208));
