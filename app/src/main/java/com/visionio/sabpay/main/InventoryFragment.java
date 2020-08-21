@@ -35,7 +35,7 @@ import com.google.gson.Gson;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.InventoryAdapter;
 import com.visionio.sabpay.api.ApiBody;
-import com.visionio.sabpay.api.MerchantApi;
+import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Item;
@@ -223,7 +223,7 @@ public class InventoryFragment extends Fragment {
     }
 
     private void placeOrder(){
-        String key = MerchantApi.api_key;
+        String key = API.api_key;
         String userId = "HeoFhe2SHNgKrmoP9N2aA4WB9Nf2";
 
         String invId = null;//"uWcOQvpGl3nwyhWviGgE"
@@ -271,7 +271,7 @@ public class InventoryFragment extends Fragment {
         });*/
 
 
-        Call<Map<String, Object>> test = MerchantApi.getApiService().placeOrder(userId, key, body);
+        Call<Map<String, Object>> test = API.getApiService().placeOrder(userId, key, body);
         test.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {

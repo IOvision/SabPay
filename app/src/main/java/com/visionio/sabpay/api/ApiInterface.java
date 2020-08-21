@@ -10,6 +10,11 @@ import retrofit2.http.Query;
 
 public interface ApiInterface {
 
+    @GET("notify")
+    Call<Map<String, Object>> ping(@Query("to") String to,
+                                   @Query("title") String title,
+                                   @Query("msg") String msg);
+
     @GET("transaction_api")
     Call<Map<String, Object>> pay(@Query("from") String senderUid, @Query("to") String receiverMobNo,
                                   @Query("amount") double amount, @Query("api_key") String api_key);

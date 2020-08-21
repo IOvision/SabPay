@@ -39,7 +39,7 @@ import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.CartItemAdapter;
 import com.visionio.sabpay.adapter.InventoryItemAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
-import com.visionio.sabpay.api.MerchantApi;
+import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
@@ -314,8 +314,8 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     void pay(){
-        Call<Map<String, Object>> pay = MerchantApi.getApiService().pay(mAuth.getUid(),
-               mInventory.getOwner().getId(), mInvoice.getTotal_amount(), MerchantApi.api_key);
+        Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
+               mInventory.getOwner().getId(), mInvoice.getTotal_amount(), API.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {

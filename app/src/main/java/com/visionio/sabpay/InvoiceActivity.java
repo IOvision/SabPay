@@ -31,7 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.visionio.sabpay.adapter.InvoiceAdapter;
-import com.visionio.sabpay.api.MerchantApi;
+import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
@@ -279,8 +279,8 @@ public class InvoiceActivity extends AppCompatActivity {
                 });
     }
     void pay(String receiverId) {
-        Call<Map<String, Object>> pay = MerchantApi.getApiService().pay(mAuth.getUid(),
-                receiverId, invoice.getTotal_amount(), MerchantApi.api_key);
+        Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
+                receiverId, invoice.getTotal_amount(), API.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {

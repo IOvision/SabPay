@@ -4,7 +4,6 @@ package com.visionio.sabpay.main;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -34,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.api.SabPayNotify;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
 import com.visionio.sabpay.helper.TokenManager;
@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.paperdb.Paper;
-import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -105,6 +104,10 @@ public class MainActivity extends AppCompatActivity{
 
     void setUp() {
         TokenManager.handle(this);
+        new SabPayNotify.Builder()
+                .setTitle("Success")
+                .setMessage("Congratulations")
+                .send(getApplicationContext(), "9956102484");
         frameLayout = findViewById(R.id.main_frame);
         bottomNavigationView = findViewById(R.id.main_bottom_navigation);
         materialToolbar = findViewById(R.id.main_top_bar);

@@ -4,7 +4,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.media.RingtoneManager;
 import android.os.Build;
 import android.util.Log;
 
@@ -16,8 +15,6 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.main.MainActivity;
-
-import timber.log.Timber;
 
 public class FirebaseService extends FirebaseMessagingService {
 
@@ -47,12 +44,13 @@ public class FirebaseService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         String channelId = getString(R.string.default_notification_channel_id);
         NotificationCompat.Builder builder = new  NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setPriority(NotificationManager.IMPORTANCE_HIGH)
-                .setStyle(new NotificationCompat.BigTextStyle())
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setContentTitle(remoteMessage.getNotification().getTitle())
-                .setContentText(remoteMessage.getNotification().getBody()).setAutoCancel(true).setContentIntent(pendingIntent);
+                .setContentText(remoteMessage.getNotification().getBody())
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
         Log.d("Alert", "Creating Intent");
         Intent intent1 = new Intent("myFunction");
         intent1.putExtra("value1", remoteMessage.getNotification().getTitle());
