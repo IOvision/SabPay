@@ -12,8 +12,17 @@ public class User implements Serializable {
     Boolean login;
     String instanceId;
     Integer offPayBalance;
+    Boolean isMerchant;
 
     public User() {
+    }
+
+    public Boolean getMerchant() {
+        return isMerchant;
+    }
+
+    public void setMerchant(Boolean merchant) {
+        isMerchant = merchant;
     }
 
     public String getUid() {
