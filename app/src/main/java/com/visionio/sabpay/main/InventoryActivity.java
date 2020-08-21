@@ -40,6 +40,7 @@ import com.visionio.sabpay.adapter.CartItemAdapter;
 import com.visionio.sabpay.adapter.InventoryItemAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.api.API;
+import com.visionio.sabpay.api.SabPayNotify;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
@@ -412,6 +413,15 @@ public class InventoryActivity extends AppCompatActivity {
                     Utils.toast(InventoryActivity.this, "Order Placed Successfully", Toast.LENGTH_LONG);
                     String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
                     Log.i("test", "onComplete: "+s);
+                    String msg = String.format("Order Id: %s\nAmount: Rs. %s\nFrom: %s",
+                            order.getOrderId(),
+                            order.getAmount(),
+                            order.getUser().get("firstName"));
+                    new SabPayNotify.Builder()
+                            .setTitle("New Order")
+                            .setMessage(msg)
+                            .send(getApplicationContext(), mInventory.getOwner().getId(), true);
+
                 }else{
                     Log.i("test", "onComplete: "+task.getException().getLocalizedMessage());
                 }
