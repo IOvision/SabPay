@@ -38,6 +38,8 @@ import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.paperdb.Paper;
 
@@ -157,9 +159,13 @@ public class RegisterFragment extends Fragment {
         }
         else if (state==2){
             mEmail = til1.getEditText().getText().toString();
+            Matcher matcher = Pattern.compile("^(.+)@(.+)$").matcher(mEmail);
             if(Utils.isEmpty(mEmail)){
                 til1.setError("Can't be empty");
-            } else {
+            } else if (!matcher.matches()) {
+                til1.setError("Enter a Proper Email");
+            }
+            else {
                 nextState();
             }
         }
@@ -293,6 +299,8 @@ public class RegisterFragment extends Fragment {
     }
 
     public void nextState(){
+        til1.setErrorEnabled(false);
+        til1.setErrorEnabled(false);
         ++state;
         stateManager();
     }
