@@ -66,10 +66,11 @@ functions.region('asia-east2').https.onRequest((req, res) => {
 })
 export const notify = 
 functions.region('asia-east2').https.onRequest((req, res)=>{
-    //url/notify?to={1234567890}?title={title}&msg={msg}
+    //url/notify?to={1234567890}?title={title}&msg={msg}&merch=0/1
     // https://us-central1-sabpay-ab94e.cloudfunctions.net/notify
     let to = ""+req.query.to
     const title= ""+req.query.title
+    let merch = ""+req.query.merch
     let message = ""+req.query.msg
     res.statusCode = 200;
 
@@ -102,7 +103,12 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             return res.send(template("User Not Found"))
         }
         const ud = udSnap.docs[0]
-        const push_token = ud.data().instanceId
+        let push_token;
+        if(merch==="0" || merch===null){
+            push_token = ud.data().instanceId;
+        }else{
+            push_token = ud.data().merchantInstanceId;
+        }
         if(push_token===null){
             return res.send(template("No token/ instanceID found"));
         }

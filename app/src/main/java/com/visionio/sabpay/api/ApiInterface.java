@@ -13,7 +13,8 @@ public interface ApiInterface {
     @GET("notify")
     Call<Map<String, Object>> ping(@Query("to") String to,
                                    @Query("title") String title,
-                                   @Query("msg") String msg);
+                                   @Query("msg") String msg,
+                                   @Query("merch") String i);
 
     @GET("transaction_api")
     Call<Map<String, Object>> pay(@Query("from") String senderUid, @Query("to") String receiverMobNo,

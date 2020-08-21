@@ -21,7 +21,7 @@ public class SabPayNotify {
     public static class Builder{
         SabPayNotify instance = new SabPayNotify();
 
-        public void send(Context context, String to){
+        public void send(Context context, String to, Boolean toMerchant){
             // to can be 10 digit mobile or uid
             if(instance.title==null || instance.title.equals("")){
                 Utils.toast(context, "TITLE IS NULL", Toast.LENGTH_SHORT);
@@ -31,7 +31,7 @@ public class SabPayNotify {
                 Utils.toast(context, "MESSAGE IS NULL", Toast.LENGTH_SHORT);
                 return;
             }
-            Call<Map<String, Object>> call = API.getApiService().ping(to, instance.title, instance.message);
+            Call<Map<String, Object>> call = API.getApiService().ping(to, instance.title, instance.message, toMerchant?"1":"0");
             call.enqueue(new Callback<Map<String, Object>>() {
                 @Override
                 public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
