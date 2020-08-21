@@ -1,0 +1,85 @@
+{
+  "project_info": {
+    "project_number": "632633632091",
+    "firebase_url": "https://sabpay-test.firebaseio.com",
+    "project_id": "sabpay-test",
+    "storage_bucket": "sabpay-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632633632091:android:0c034b8f4b8c672d96a67e",
+        "android_client_info": {
+          "package_name": "com.visionio.sabpay.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632633632091-98n5f6p2ot64sdi7gpv51csviks7op8o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.visionio.sabpay.debug",
+            "certificate_hash": "d797888f388cfc266e920ae17edab94fcc0ab8b0"
+          }
+        },
+        {
+          "client_id": "632633632091-f0pi1j8d47gn7fcarserss1sblg4mggr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKd74ql_WS31jnOQFaRsqH_EVLq_92sB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "632633632091-f0pi1j8d47gn7fcarserss1sblg4mggr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632633632091:android:a1257e15db3d1d8296a67e",
+        "android_client_info": {
+          "package_name": "com.visionio.sabpaymerchant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632633632091-abbqg2069ku9uurt11tqd8ufi8n51uus.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.visionio.sabpaymerchant",
+            "certificate_hash": "d797888f388cfc266e920ae17edab94fcc0ab8b0"
+          }
+        },
+        {
+          "client_id": "632633632091-f0pi1j8d47gn7fcarserss1sblg4mggr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKd74ql_WS31jnOQFaRsqH_EVLq_92sB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "632633632091-f0pi1j8d47gn7fcarserss1sblg4mggr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
