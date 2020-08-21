@@ -209,6 +209,7 @@ public class RegisterFragment extends Fragment {
         user.setEmail(mEmail);
         user.setPhone(mPhoneNumber);
         user.setOffPayBalance(200);
+        user.setMerchant(false);
 
         user.setLogin(true);
         Paper.book("user").write("user",user);
