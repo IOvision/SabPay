@@ -59,7 +59,9 @@ public class TokenManager {
             // first launch
             refreshToken(context, latest);
             updatePushToken(context);
-        }else if(curr!=null && latest!=null && !curr.equals(latest)){
+
+        }
+        else if(curr!=null && latest!=null && !curr.equals(latest)){
             // updated token
             refreshToken(context, latest);
             updatePushToken(context);

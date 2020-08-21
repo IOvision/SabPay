@@ -1,10 +1,7 @@
 package com.visionio.sabpay.authentication;
 
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,35 +9,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.github.ybq.android.spinkit.SpinKitView;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.CubeGrid;
-import com.github.ybq.android.spinkit.style.DoubleBounce;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.main.MainActivity;
-import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.User;
-import com.visionio.sabpay.models.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import io.paperdb.Paper;
 
@@ -110,7 +93,7 @@ public class LoginFragment extends Fragment {
                 if(!user1.getLogin()){
                     mRef.collection("user").document(user1.getUid()).update("login", true);
                     storeData(user1);
-                    TokenManager.handle(getContext());
+                    TokenManager.handleOnLoginSignUp(getActivity().getApplicationContext());
                     startActivity(new Intent(getContext(), MainActivity.class));
                     getActivity().finish();
                 }else{

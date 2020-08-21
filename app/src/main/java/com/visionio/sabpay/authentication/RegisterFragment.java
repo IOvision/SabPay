@@ -261,7 +261,7 @@ public class RegisterFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            TokenManager.handleOnLoginSignUp(getContext());
+                            TokenManager.handleOnLoginSignUp(getActivity().getApplicationContext());
                             startActivity(new Intent(getActivity(), MainActivity.class));
                             getActivity().finish();
                         }else{
