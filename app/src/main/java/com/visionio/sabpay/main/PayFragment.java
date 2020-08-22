@@ -461,6 +461,10 @@ public class PayFragment extends Fragment {
     }
 
     void splitIntoGroup(final GroupPay groupPay){
+        if(!groupPay.getActive()){
+            Utils.toast(getContext(), "Already Splited in group", Toast.LENGTH_LONG);
+            return;
+        }
         DialogInterface.OnClickListener negativeListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

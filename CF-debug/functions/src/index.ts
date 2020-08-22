@@ -298,32 +298,10 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
 })
 export const test = 
 functions.region('asia-east2').https.onRequest((req, res)=>{
-    if(req.method==='POST'){
-        admin.firestore().doc("user/101").get()
-        .then(re => {
-            res.send(re.data());
-            return admin.firestore().doc("user/101").get()
-                .then((rere)=>{
-                    res.send(rere.data());
-            })
-        })
-        .catch(err =>{
-            res.send(err);
-        })
-    }else{
-        admin.firestore().doc("user/101").get()
-        .then(re => {
-            res.send(re.data());
-            return admin.firestore().doc("user/101").get()
-                .then((rere)=>{
-            return res.send(rere.data());
-            })
-        })
-        .catch(err =>{
-            res.send(err);
-        })
-    }
+    const arr = ""+req.query.m;
+    const animals = arr.split(',');
     
+    res.send(animals);
 })
 export const generateInvoice =
 functions.region('asia-east2').https.onRequest((req, res)=>{
@@ -995,6 +973,72 @@ functions.region('asia-east2').firestore
     }).catch(error => {
         console.log(error)
     });
+    
+})
+export const splitGpay = 
+functions.region('asia-east2').https.onRequest((req, res)=>{
+    // base/splitGpay?to={}&gPayId={}&m={m1,m2,m3....mn}&gId={}
+    const mUids = (""+req.query.m).split('_');
+    const toId = ""+req.query.to;
+    const gPayId = ""+req.query.gPayId;
+    const groupId = ""+req.query.gId;
+
+    
+    const to = admin.firestore().doc(`user/${toId}`)
+
+    const temp = (msg)=>{
+        return {
+            status: res.statusCode,
+            msg: msg
+        }
+    }
+
+    if(mUids===undefined||to===undefined||gPayId===undefined||groupId===undefined){
+        res.statusCode = 400;
+        res.send(temp(`Invalid Query Parameters`));
+    }
+
+    let members: Array<admin.firestore.DocumentReference> = [];
+
+    for(const mUid of mUids){
+        members.push(
+            admin.firestore().doc(`user/${mUid}`)
+        )
+    }
+
+    const splitPromises: any = [];
+
+    for (const member of members) {
+        const id = member.collection('pending_gPay_transactions').doc().id
+        const data = {
+            id: id,
+            amount: null,
+            from: member,
+            to: to,
+            gPayId: gPayId,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            type: 1
+        }
+
+        splitPromises.push(member.collection('pending_gPay_transactions').doc(id).set(data))
+    }
+
+
+    res.statusCode = 200;
+    Promise.all(splitPromises).then(() => {
+        return to.collection('group_pay/meta-data/transaction').doc(gPayId).update({
+            from: admin.firestore().doc(`groups/${groupId}`),
+            parts: members.length
+        }).then(()=>{
+            res.send(temp("splitted"));
+        }).catch(()=>{
+            res.statusCode = 500;
+            res.send(temp("server Error"));
+        })
+    }).catch(error => {
+        res.statusCode = 500;
+        res.send(temp("server Error"));
+    })
     
 })
 export const splitTransaction = 
