@@ -196,7 +196,7 @@ public class InvoiceActivity extends AppCompatActivity {
         total_tv = invoice_dialog.findViewById(R.id.invoice_totalAmt_tv);
         discount_tv = invoice_dialog.findViewById(R.id.invoice_discount_tv);
         payable_amount_tv = invoice_dialog.findViewById(R.id.invoice_payableAmt_tv);
-        promo_tv = invoice_dialog.findViewById(R.id.invoice_promo_tv);
+        //promo_tv = invoice_dialog.findViewById(R.id.invoice_promo_tv);
 
         payAndOrder_bt = invoice_dialog.findViewById(R.id.invoice_pay_and_confirm_bt);
         confirmOrder_bt = invoice_dialog.findViewById(R.id.invoice_confirm_bt);

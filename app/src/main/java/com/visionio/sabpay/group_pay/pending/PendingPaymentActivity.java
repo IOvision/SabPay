@@ -24,13 +24,17 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.TransactionAdapter;
+import com.visionio.sabpay.api.SabPayNotify;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.GroupPay;
 import com.visionio.sabpay.models.Transaction;
+import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Wallet;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.paperdb.Paper;
 
 public class PendingPaymentActivity extends AppCompatActivity {
 
@@ -201,6 +205,7 @@ public class PendingPaymentActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
+                    notifyMerchantAboutPayment(amount, transaction.getId(), transaction.getTo().getId());
                     Toast.makeText(PendingPaymentActivity.this, "Done", Toast.LENGTH_SHORT).show();
                     inputHandler.destroy();
                 }else{
@@ -211,6 +216,7 @@ public class PendingPaymentActivity extends AppCompatActivity {
     }
 
     void initiatePay(final Integer amount){
+
         inputHandler.getTransaction().getFrom().collection("wallet").document("wallet").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -231,6 +237,17 @@ public class PendingPaymentActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    void notifyMerchantAboutPayment(double amount, String id, String to){
+        User user = Paper.book("user").read("user");
+        String title = "Gpay Received";
+        String msg = String.format("Amount: Rs.%s\nTransaction Id: %s\nFrom: %s", amount, id, user.getFirstName());
+
+        new SabPayNotify.Builder()
+                .setTitle(title)
+                .setMessage(msg)
+                .send(getApplicationContext(), to, false);
     }
 
 }

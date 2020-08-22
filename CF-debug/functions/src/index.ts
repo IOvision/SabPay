@@ -732,6 +732,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 if(<number>wallet_dt.data()?.balance < amount){
                     res.statusCode = 200;
                     res.send({status: res.statusCode, error: "Insufficient Balance"});
+                    return;
                 }
                 const to_user = to_dt.docs[0];
                 const txnId = to_user.ref.collection('transaction').doc().id;
