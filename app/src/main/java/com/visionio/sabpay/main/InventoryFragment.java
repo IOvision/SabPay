@@ -1,11 +1,16 @@
 package com.visionio.sabpay.main;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +31,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -86,12 +92,12 @@ public class InventoryFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // todo: fix access location and use it instead of hard coded lat and long
-        //accessLocation();
-        double lat = 25.283307;
-        double lon = 83.003229;
+          accessLocation();
+//        double lat = 25.283307;
+//        double lon = 83.003229;
 
 
-        getNearbyInventory(lat, lon, within);
+        //getNearbyInventory(lat, lon, within);
         adapter = new InventoryAdapter(getActivity(), inventoryArrayList);
 
 
@@ -195,6 +201,9 @@ public class InventoryFragment extends Fragment {
                 if (client != null) {
                     client.removeLocationUpdates(this);
                 }
+                if(locationResult == null) {
+                    Log.d("test", "no latitude and longitude");
+                }
                 if (locationResult != null && locationResult.getLocations().size() > 0) {
                     try{
                         int latestIdx = locationResult.getLocations().size() - 1;
@@ -218,84 +227,22 @@ public class InventoryFragment extends Fragment {
                     locationRequestCode);
             return;
         }
-        client.requestLocationUpdates(lr, callback, Looper.getMainLooper());
-
-    }
-
-    private void placeOrder(){
-        String key = API.api_key;
-        String userId = "HeoFhe2SHNgKrmoP9N2aA4WB9Nf2";
-
-        String invId = null;//"uWcOQvpGl3nwyhWviGgE"
-        String txnId = "4YkKZwsGgqGRaxNZBdDA";
-        Float discount = 50f;
-
-        List<Item> items = new ArrayList<Item>(){{
-            add(new Item(){{
-                setId("1Spe5y6MNL4jYdV8Q7Ok");
-                setInventory_id(invId);
-                setTitle("Bislerie");
-                setDescription("Thanda pani ka botle");
-                setUnit("L");
-                setQty(2);
-                setCost(14);
-            }});
-        }};
-
-        Map<String, Object> body = ApiBody.buildPlaceOrderBody(items, key, txnId, discount);
-        String json = new Gson().toJson(body);
-        int a = 0;
-
-        /*Call<Map<String, Object>> test = MerchantApi.getApiService().test(body);
-        test.enqueue(new Callback<Map<String, Object>>() {
-            @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                if (response.code() == 422 ) {
-                    String body = null;
-                    try {
-                        body = response.errorBody().string();
-                    } catch (IOException e) {
-                        body = "{}";
-                    }
-                    Map<String, Object> res = new Gson().fromJson(body, HashMap.class);
-                    return;
-                }
-                Map<String, Object> res = response.body();
-                Utils.toast(getContext(), "Status Code: " + response.code(), Toast.LENGTH_LONG);
-            }
-
-            @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                int a = 0;
-            }
-        });*/
-
-
-        Call<Map<String, Object>> test = API.getApiService().placeOrder(userId, key, body);
-        test.enqueue(new Callback<Map<String, Object>>() {
-            @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                if (!response.isSuccessful()) {
-                    String body = null;
-                    try {
-                        body = response.errorBody().string();
-                    } catch (IOException e) {
-                        body = "{}";
-                    }
-                    Map<String, Object> res = new Gson().fromJson(body, HashMap.class);
-                    return;
-                }
-                Map<String, Object> res = response.body();
-                Utils.toast(getContext(), "Status Code: " + response.code(), Toast.LENGTH_LONG);
-            }
-
-            @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                int a = 0;
-            }
-        });
-
-
+        LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
+            alert.setTitle("Location Access Request");
+            alert.setMessage("Press Ok to turn on location. ");
+            alert.setPositiveButton("Ok", (dialog, which) -> {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            });
+            alert.setNegativeButton("No", (dialog, which) -> {
+                Toast.makeText(getActivity(), "Please turn on location to proceed.", Toast.LENGTH_SHORT).show();
+            });
+            alert.show();
+        } else {
+            client.requestLocationUpdates(lr, callback, Looper.getMainLooper());
+        }
 
     }
 
@@ -315,4 +262,5 @@ public class InventoryFragment extends Fragment {
             }
         }
     }
+
 }

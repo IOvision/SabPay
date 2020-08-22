@@ -104,10 +104,10 @@ public class MainActivity extends AppCompatActivity{
 
     void setUp() {
         TokenManager.handle(this);
-        new SabPayNotify.Builder()
-                .setTitle("Success")
-                .setMessage("Congratulations")
-                .send(getApplicationContext(), "9956102484", true);
+//        new SabPayNotify.Builder()
+//                .setTitle("Success")
+//                .setMessage("Congratulations")
+//                .send(getApplicationContext(), "9956102484", true);
         frameLayout = findViewById(R.id.main_frame);
         bottomNavigationView = findViewById(R.id.main_bottom_navigation);
         materialToolbar = findViewById(R.id.main_top_bar);
