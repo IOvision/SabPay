@@ -87,18 +87,6 @@
         android:layout_height="wrap_content"
         android:text="Payable Amount:         ₹200"/>
 
-
-    <TextView
-        style="@style/invoice_text_style"
-        android:id="@+id/invoice_promo_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_gravity="center_horizontal"
-        android:text="Have A Promocode?"
-        android:textColor="@color/blue_link"
-        android:textStyle="bold"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

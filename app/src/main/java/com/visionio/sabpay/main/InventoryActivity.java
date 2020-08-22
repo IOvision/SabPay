@@ -256,25 +256,45 @@ public class InventoryActivity extends AppCompatActivity {
         payAndOrder_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pay();
+                if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
+                    Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
+                } else {
+                    new AlertDialog.Builder(InventoryActivity.this)
+                            .setTitle("Proceed Further")
+                            .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
+
+                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    pay();
+                                }
+                            })
+
+                            .setNegativeButton("Cancel", null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
             }
         });
         confirmOrder_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(InventoryActivity.this)
-                        .setTitle("Proceed Further")
-                        .setMessage("Are you sure? Amount will be deducted from SabPay balance.")
+                if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
+                    Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
+                } else {
+                    new AlertDialog.Builder(InventoryActivity.this)
+                            .setTitle("Proceed Further")
+                            .setMessage("Are you sure?")
 
-                        .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                placeOrder(null);
-                            }
-                        })
+                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    placeOrder(null);
+                                }
+                            })
 
-                        .setNegativeButton("Cancel", null)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                            .setNegativeButton("Cancel", null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
             }
         });
 
