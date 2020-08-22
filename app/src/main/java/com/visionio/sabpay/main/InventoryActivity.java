@@ -422,6 +422,8 @@ public class InventoryActivity extends AppCompatActivity {
                             .setMessage(msg)
                             .send(getApplicationContext(), mInventory.getOwner().getId(), true);
 
+
+
                 }else{
                     Log.i("test", "onComplete: "+task.getException().getLocalizedMessage());
                 }
