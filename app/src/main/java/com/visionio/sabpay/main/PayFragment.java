@@ -205,9 +205,12 @@ public class PayFragment extends Fragment {
 
         pay.setOnClickListener(v -> {
             List<Contact> contacts = selectedContactsAdapter.getContacts();
+            if(selectedContactsAdapter.getContacts().size()==0){
+                Utils.toast(getContext(), "No Payee Selected", Toast.LENGTH_LONG);
+                return;
+            }
             Payment.getInstance().setAdapter(selectedContactsAdapter);
             checkContactsAndPay();
-
         });
 
         til_listener_show_keyboard = new View.OnClickListener() {

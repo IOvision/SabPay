@@ -82,6 +82,17 @@ public class PaymentActivity extends AppCompatActivity {
         send = findViewById(R.id.payment_activity_pay);
         materialToolbar = findViewById(R.id.payment_top_bar);
 
+        setSupportActionBar(materialToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        materialToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
         payeeList = findViewById(R.id.payment_receiver_list_rv);
         balance_tv = findViewById(R.id.payment_activity_balance_tv);
         balanceHeader = findViewById(R.id.payment_activity_wallet_header_ll);
@@ -124,7 +135,6 @@ public class PaymentActivity extends AppCompatActivity {
         senderDocRef = mRef.collection("user").document(mAuth.getUid());
 
         name_tv.setText("Paying to "+selectedContactsAdapter.getContacts().size());
-
 
         fetchWallet();
 
