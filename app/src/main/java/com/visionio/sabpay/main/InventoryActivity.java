@@ -139,6 +139,10 @@ public class InventoryActivity extends AppCompatActivity {
         cart_fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(cart.size()==0){
+                    Utils.toast(InventoryActivity.this, "No items in cart", Toast.LENGTH_SHORT);
+                    return;
+                }
                 showCart();
                 View.OnClickListener listener = this;
             }

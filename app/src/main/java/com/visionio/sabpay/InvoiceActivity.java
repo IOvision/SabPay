@@ -322,7 +322,9 @@ public class InvoiceActivity extends AppCompatActivity {
     void placeOrder(String transactionId) {
         String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
         order.setInvoiceId(invoiceId);
-        order.setStatus(Order.STATUS.ORDER_COMPLETE);
+        if(order.getStatus().equalsIgnoreCase(Order.STATUS.ORDER_DELIVERED)){
+            order.setStatus(Order.STATUS.ORDER_COMPLETE);
+        }
 
         Map<String, Object> orderUpdate = new HashMap<>();
         orderUpdate.put("items", null);
