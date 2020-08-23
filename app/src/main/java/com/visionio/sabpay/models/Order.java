@@ -1,5 +1,6 @@
 package com.visionio.sabpay.models;
 
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 
@@ -18,6 +19,8 @@ public class Order {
         public final static String ORDER_DELIVERED = "ORDER DELIVERED";
         @Exclude
         public final static String ORDER_CANCELLED = "ORDER CANCELLED";
+        @Exclude
+        public final static String ORDER_COMPLETE = "ORDER COMPLETE";
     }
 
     /*
@@ -28,7 +31,6 @@ public class Order {
         return invoiceId != null;
     }
 
-
     String orderId;
     List<Item> items = new ArrayList<>();
     Timestamp timestamp;
@@ -38,10 +40,12 @@ public class Order {
     double amount;
     String transactionId;
     String invoiceId;
+    Boolean active; // True: invoiceId is null/ payment is not done and status is delivered
     Map<String, String> user;
 
     //todo: add arguments
     public Order() {
+
     }
 
     public String getOrderId() {
@@ -52,6 +56,25 @@ public class Order {
         this.orderId = orderId;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public void updateActiveState(){
+        if(status.equalsIgnoreCase(STATUS.ORDER_COMPLETE)){
+            active = false;
+            return;
+        }
+        if(!status.equalsIgnoreCase(STATUS.ORDER_DELIVERED)){
+            active = true;
+        }else{
+            active = !isPaymentDone();
+        }
+    }
 
     public String getFromInventoryName() {
         return fromInventoryName;
@@ -99,6 +122,7 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
+        updateActiveState();
     }
 
     public String getTransactionId() {
@@ -124,5 +148,5 @@ public class Order {
     public void setInvoiceId(String invoiceId) {
         this.invoiceId = invoiceId;
     }
-
 }
+

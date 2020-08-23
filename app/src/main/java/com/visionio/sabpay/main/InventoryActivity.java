@@ -377,6 +377,7 @@ public class InventoryActivity extends AppCompatActivity {
         Order order = new Order();
         order.setOrderId(mRef.collection("order").document().getId());
         order.setAmount(mInvoice.getTotal_amount());
+        order.setActive(false);
         order.setFromInventory(mInventory.getId());
         order.setFromInventoryName(mInventory.getName());
         User user = Paper.book("user").read("user");
@@ -408,7 +409,7 @@ public class InventoryActivity extends AppCompatActivity {
             mInvoice.setTimestamp(new Timestamp(new Date()));
             mInvoice.setTransaction(transactionId);
         }
-
+        order.updateActiveState();
         mRef.runTransaction(new Transaction.Function<Void>() {
             @Nullable
             @Override

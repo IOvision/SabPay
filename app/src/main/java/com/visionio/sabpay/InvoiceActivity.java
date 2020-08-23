@@ -321,12 +321,15 @@ public class InvoiceActivity extends AppCompatActivity {
     }
     void placeOrder(String transactionId) {
         String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
+        order.setInvoiceId(invoiceId);
+        order.setStatus(Order.STATUS.ORDER_COMPLETE);
 
         Map<String, Object> orderUpdate = new HashMap<>();
         orderUpdate.put("items", null);
         orderUpdate.put("transactionId", transactionId);
         orderUpdate.put("invoiceId", invoiceId);
-        orderUpdate.put("status", Order.STATUS.ORDER_RECEIVED);
+        orderUpdate.put("status", order.getStatus());
+        orderUpdate.put("active", order.getActive());
 
         invoice.setId(invoiceId);
         invoice.setPromo(null);
