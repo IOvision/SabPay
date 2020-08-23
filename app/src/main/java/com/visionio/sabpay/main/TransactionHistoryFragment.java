@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,12 +35,10 @@ import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Transaction;
-import com.visionio.sabpay.models.User;
+import com.visionio.sabpay.models.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TransactionHistoryFragment extends Fragment {
 
@@ -48,12 +47,13 @@ public class TransactionHistoryFragment extends Fragment {
     }
 
     Button transactions, orders;
+    TextView bg_txt_tv;
     RecyclerView transactionRecyclerView, orderRecyclerView;
     ProgressBar progressBar;
     TransactionAdapter transactionAdapter;
     OrderAdapter orderAdapter;
     MaterialButtonToggleGroup toggleButton;
-     FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,6 +62,7 @@ public class TransactionHistoryFragment extends Fragment {
 
         transactionRecyclerView = view.findViewById(R.id.transaction_fragment_recycler);
         orderRecyclerView = view.findViewById(R.id.order_fragment_recycler);
+        bg_txt_tv = view.findViewById(R.id.frag_txn_bg_txt_tv);
         progressBar = view.findViewById(R.id.transaction_fragment_pb);
         toggleButton = view.findViewById(R.id.toggleButtonHistory);
         transactions = view.findViewById(R.id.btn_transaction_history);
@@ -113,11 +114,13 @@ public class TransactionHistoryFragment extends Fragment {
 
 
     void loadOrder() {
-
+        progressBar.setVisibility(View.VISIBLE);
+        bg_txt_tv.setVisibility(View.GONE);
         FirebaseFirestore.getInstance().collection("order").whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid()).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        progressBar.setVisibility(View.GONE);
                         if (task.isSuccessful()){
                             if (task.getResult().getDocuments().size() != 0){
                                 List<DocumentSnapshot> docs = task.getResult().getDocuments();
@@ -125,7 +128,14 @@ public class TransactionHistoryFragment extends Fragment {
                                     Order order = current.toObject(Order.class);
                                     orderAdapter.add(order);
                                 }
+                            }else{
+                                if(orderRecyclerView.getVisibility()==View.VISIBLE){
+                                    bg_txt_tv.setText("No orders yet!");
+                                    bg_txt_tv.setVisibility(View.VISIBLE);
+                                }
                             }
+                        }else{
+                            Utils.toast(getContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
                         }
                     }
                 });
@@ -143,6 +153,8 @@ public class TransactionHistoryFragment extends Fragment {
     }
 
     public void loadTransactions(){
+        progressBar.setVisibility(View.VISIBLE);
+        bg_txt_tv.setVisibility(View.GONE);
         FirebaseFirestore.getInstance().collection("user")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .collection("transaction")
@@ -152,6 +164,8 @@ public class TransactionHistoryFragment extends Fragment {
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                progressBar.setVisibility(View.GONE);
+                int i = 0;
                 for (DocumentSnapshot snapshot: queryDocumentSnapshots){
                     Transaction currentTransaction = snapshot.toObject(Transaction.class);
 
@@ -164,10 +178,17 @@ public class TransactionHistoryFragment extends Fragment {
                     currentTransaction.loadUserDataFromReference(transactionAdapter);
                     transactionAdapter.add(currentTransaction);
                     progressBar.setVisibility(View.GONE);
+                    i++;
                 }
-
+                if(i==0 && transactionRecyclerView.getVisibility()==View.VISIBLE){
+                    bg_txt_tv.setVisibility(View.VISIBLE);
+                    bg_txt_tv.setText("No transaction");
+                }
             }
-        }).addOnFailureListener(e -> Log.i("Testing", e.getLocalizedMessage()));
+        }).addOnFailureListener(e -> {
+            Log.i("Testing", e.getLocalizedMessage());
+            progressBar.setVisibility(View.GONE);
+        });
     }
 
 
