@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +30,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 import com.visionio.sabpay.adapter.TransactionStatusAdapter;
+import com.visionio.sabpay.api.SabPayNotify;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.interfaces.Payment;
 import com.visionio.sabpay.models.Contact;
@@ -219,14 +219,23 @@ public class PaymentActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
+                    String title = "Money Received";
+                    String msg = "Transaction Id: %s\nAmount: Rs. %s\nFrom: %s";
                     int i=0;
                     for(Contact c: payee){
                         int finalI = i;
+                        String txId = Utils.getTransactionId(transactionMap.get("id").toString(), finalI);
+                        String userName = c.getUser().getName();
                         adapter.add(new HashMap<String, String>(){{
-                            put("id", Utils.getTransactionId(transactionMap.get("id").toString(), finalI));
-                            put("to", c.getUser().getName());
+                            put("id", txId);
+                            put("to", userName);
                         }});
                         i++;
+                        new SabPayNotify.Builder()
+                                .setTitle(title)
+                                .setMessage(String.format(msg, txId, amount, userName))
+                                .send(getApplicationContext(), c.getUser().getUid(), false);
+
                     }
                     (new Handler()).postDelayed(new Runnable() {
                         @Override
