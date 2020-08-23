@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +21,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -32,9 +34,12 @@ import com.visionio.sabpay.adapter.TransactionAdapter;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Transaction;
+import com.visionio.sabpay.models.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionHistoryFragment extends Fragment {
 
@@ -48,6 +53,7 @@ public class TransactionHistoryFragment extends Fragment {
     TransactionAdapter transactionAdapter;
     OrderAdapter orderAdapter;
     MaterialButtonToggleGroup toggleButton;
+     FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -107,7 +113,8 @@ public class TransactionHistoryFragment extends Fragment {
 
 
     void loadOrder() {
-        FirebaseFirestore.getInstance().collection("order").whereEqualTo("userId", FirebaseAuth.getInstance().getUid()).get()
+
+        FirebaseFirestore.getInstance().collection("order").whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid()).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
