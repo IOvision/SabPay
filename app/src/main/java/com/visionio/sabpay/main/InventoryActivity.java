@@ -262,7 +262,6 @@ public class InventoryActivity extends AppCompatActivity {
                     new AlertDialog.Builder(InventoryActivity.this)
                             .setTitle("Proceed Further")
                             .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
-
                             .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     pay();
@@ -379,6 +378,7 @@ public class InventoryActivity extends AppCompatActivity {
         order.setOrderId(mRef.collection("order").document().getId());
         order.setAmount(mInvoice.getTotal_amount());
         order.setFromInventory(mInventory.getId());
+        order.setFromInventoryName(mInventory.getName());
         User user = Paper.book("user").read("user");
         order.setUser(new HashMap<String, String>(){{
             put("userId", user.getUid());
@@ -387,21 +387,20 @@ public class InventoryActivity extends AppCompatActivity {
             put("phone", user.getPhone());
         }});
         order.setTimestamp(new Timestamp(new Date()));
-        order.setStatus(Order.STATUS.ORDER_PLACED);
-        if(transactionId==null){
-            List<Item> it = new ArrayList<>(mInvoice.getItems());
-            for(Item i:it){
-                i.setQty(i.getCart_qty());
-                if(i.getQty()==0){
-                    it.remove(i);
-                }
+        order.setStatus(Order.STATUS.ORDER_RECEIVED);
+        List<Item> it = new ArrayList<>(mInvoice.getItems());
+        for(Item i:it){
+            i.setQty(i.getCart_qty());
+            if(i.getQty()==0){
+                it.remove(i);
             }
-            order.setItems(it);
+        }
+        order.setItems(it);
+        if(transactionId==null){
             order.setTransactionId(null);
             order.setInvoiceId(null);
         }else{
             String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
-            order.setItems(null);
             order.setTransactionId(transactionId);
             order.setInvoiceId(invoiceId);
             mInvoice.setId(invoiceId);
@@ -441,9 +440,6 @@ public class InventoryActivity extends AppCompatActivity {
                             .setTitle("New Order")
                             .setMessage(msg)
                             .send(getApplicationContext(), mInventory.getOwner().getId(), true);
-
-
-
                 }else{
                     Log.i("test", "onComplete: "+task.getException().getLocalizedMessage());
                 }
@@ -452,10 +448,8 @@ public class InventoryActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
-        //order.setAmount();
     }
+
     //TODO: Increase quantity when clicked multiple times
     void addToCart(Item i) {
         //adapter.addToCart(i);
