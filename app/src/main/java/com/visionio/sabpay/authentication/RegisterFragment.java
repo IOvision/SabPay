@@ -3,6 +3,7 @@ package com.visionio.sabpay.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,10 +44,6 @@ import java.util.regex.Pattern;
 
 import io.paperdb.Paper;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class RegisterFragment extends Fragment {
 
     TextInputLayout til1, til2;
@@ -89,17 +86,14 @@ public class RegisterFragment extends Fragment {
 
             if (e instanceof FirebaseAuthInvalidCredentialsException) {
                 // Invalid request
-                // ...
 
             } else if (e instanceof FirebaseTooManyRequestsException) {
                 // The SMS quota for the project has been exceeded
-                // ...
 
             }
             Log.i("test", e.getLocalizedMessage());
 
             // Show a message and update the UI
-            // ...
         }
 
         @Override
@@ -322,11 +316,13 @@ public class RegisterFragment extends Fragment {
     }
 
     private void code() {
+        til2.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
         secondTV.setVisibility(View.VISIBLE);
         til2.setVisibility(View.VISIBLE);
     }
 
     private void name() {
+        til1.getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
         til1.getEditText().setText("");
         til2.setVisibility(View.GONE);
         firstTV.setText("What's your name?");
@@ -334,6 +330,8 @@ public class RegisterFragment extends Fragment {
     }
 
     private void password() {
+        til1.getEditText().setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        til2.getEditText().setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         til1.getEditText().setText("");
         til2.getEditText().setText("");
         firstTV.setText("Security comes First");
@@ -343,6 +341,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void email() {
+        til1.getEditText().setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         til1.getEditText().setText("");
         secondTV.setVisibility(View.GONE);
         til2.setVisibility(View.GONE);
@@ -352,6 +351,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void phone() {
+        til1.getEditText().setInputType(InputType.TYPE_CLASS_PHONE);
         secondTV.setVisibility(View.GONE);
         til2.setVisibility(View.GONE);
     }

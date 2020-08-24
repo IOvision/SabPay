@@ -2,7 +2,6 @@ package com.visionio.sabpay.main;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,7 +94,6 @@ public class TransactionHistoryFragment extends Fragment {
         orderAdapter = new OrderAdapter(new ArrayList<>(), new OnItemClickListener<Order>() {
             @Override
             public void onItemClicked(Order order, int position, View view) {
-                Log.d("Testing", "invoiceid" + order.getInvoiceId());
                 Intent i = new Intent(getActivity(), InvoiceActivity.class);
                 String orderJson = new Gson().toJson(order);
                 i.putExtra("order", orderJson);
@@ -186,7 +184,6 @@ public class TransactionHistoryFragment extends Fragment {
                 }
             }
         }).addOnFailureListener(e -> {
-            Log.i("Testing", e.getLocalizedMessage());
             progressBar.setVisibility(View.GONE);
         });
     }

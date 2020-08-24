@@ -60,5 +60,4 @@
         <activity android:name=".authentication.AuthenticationActivity" />
         <activity android:name=".main.MainActivity" />
     </application>
-
 </manifest>

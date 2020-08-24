@@ -57,9 +57,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class InventoryFragment extends Fragment {
 
     private int locationRequestCode = 1000;
@@ -72,7 +69,6 @@ public class InventoryFragment extends Fragment {
     public InventoryFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
