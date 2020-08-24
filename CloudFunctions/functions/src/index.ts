@@ -4,6 +4,7 @@ import * as nodemailer from 'nodemailer';
 import * as CircularJSON from 'circular-json'
 //import * as totp from 'otplib'
 import { totp } from 'otplib'
+//comment
 admin.initializeApp()
 const default_api_key = 'qIEvxBbP8V6e1YLXICde';
 export const generateOTP = 
@@ -59,28 +60,58 @@ functions.region('asia-east2').https.onRequest((req, res) => {
     }
     const isValid = totp.check(otp, secret);
     res.statusCode = 200;
-    return res.send({
+    res.send({
         statusCode: res.statusCode,
         bool: isValid
     });
 })
 export const notify = 
 functions.region('asia-east2').https.onRequest((req, res)=>{
-    //url/notify?to={1234567890}?title={title}&msg={msg}
+    //url/notify?to={1234567890}?title={title}&msg={msg}&merch=0/1
     // https://us-central1-sabpay-ab94e.cloudfunctions.net/notify
-    const to = ""+req.query.to
+    let to = ""+req.query.to
     const title= ""+req.query.title
+    let merch = ""+req.query.merch
     let message = ""+req.query.msg
     res.statusCode = 200;
-    admin.firestore().collection(`user`).where('phone', '==', `+91${to}`).get()
+
+    const template = (msg)=>{
+        return {
+            status: res.statusCode,
+            msg: msg
+        }
+    }
+
+    let isMob = true;
+    if(to.length<=0){
+        res.statusCode = 401;
+        res.send(template("Wrong mobile number"));
+        return;
+    }else if(to.length==10){
+        to = `+91${to}`;
+    }else{
+        isMob = false;
+    }
+    let pr;
+    if(isMob){
+        pr = admin.firestore().collection('user').where('phone', '==', to);
+    }else{
+        pr = admin.firestore().collection('user').where('uid', '==', to);
+    }
+    pr.get()
     .then(udSnap => {
         if(udSnap.docs.length==0){
-            return res.send("User Not Found")
+            return res.send(template("User Not Found"))
         }
         const ud = udSnap.docs[0]
-        const push_token = ud.data().instanceId
+        let push_token;
+        if(merch==="0" || merch===null){
+            push_token = ud.data().instanceId;
+        }else{
+            push_token = ud.data().merchantInstanceId;
+        }
         if(push_token===null){
-            return res.send("No token/ instanceID found");
+            return res.send(template("No token/ instanceID found"));
         }
         const payload = {
             token: push_token,
@@ -91,180 +122,14 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             }
         return admin.messaging().send(payload)
         .then(()=>{
-            return res.send('Notified');
+            return res.send(template('Notified'));
         })
         .catch((error) => {
             res.statusCode = 500;
-            return res.send('Server Error')});
+            return res.send(template('Server Error'))});
     }).catch((error) => {
         res.statusCode = 500;
-        return res.send('Server Error')});
-})
-export const placeOrder = 
-functions.region('asia-east2').https.onRequest((req, res)=>{
-    res.contentType('json');
-    if(req.method != 'POST'){ 
-        res.statusCode = 405;
-        res.setHeader('Content-Type', 'application/json');
-        res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
-        return;
-    }
-    /*
-    body: {
-        orders: [
-            {
-                base_amount: 0,
-                discount: 0 // in percent,
-                total_amount: 0,
-                transactionId: "",
-                items:[{
-                    id: "doc id",
-                    inventory_id: "string",
-                    title: "",
-                    description: "",
-                    unit: "L/KG/M..",
-                    qty: 0,
-                    cost: 0
-                }..],
-                promo:{
-                    code: FIRST50,
-                    data: "Description of code",
-                    tAndC: "Contraints where this is applicable",
-                    type: 100/101 // flat or percentage,
-                    value: 0
-                }
-            },
-            {},
-            {}
-        ]
-    }
-    */
-   /*
-   return: {
-       orders:[
-           {
-                orderId: "",
-                
-           }
-       ]
-   }
-   */
-
-    const userId = req.query.id;
-    const api_key = req.query.api_key
-
-    if(api_key!==default_api_key){
-        res.statusCode = 402;
-        res.send({status: res.statusCode, error: `Invalid Api Key`});
-        return;
-    }
-
-    if(userId==null || userId.length==0){
-        res.statusCode = 400;
-        res.send({status: res.statusCode, error: `Missing or invalid query params`});
-        return;
-    }
-
-    const invoices: any[] = [];
-    //const os: any[] = [];
-     
-    const body = req.body
-    const itemParams = ['items', 'inventoryId', 'transactionId','discount'];
-    const orders: any[] = body.orders;
-
-    if(body==null){
-        res.statusCode = 422;
-        res.send({status: res.statusCode, error: `Missing or invalid query params`});
-        return;
-    }
-    if(!body.hasOwnProperty('orders')){
-        res.statusCode = 422;
-        res.send({status: res.statusCode, error: `Missing field order`});
-        return;
-    }
-
-    const task: any[] = []
-
-    orders.forEach(o=>{
-        itemParams.forEach(key=>{
-            if(!o.hasOwnProperty(key)){
-                res.statusCode = 422;
-                res.send({status: res.statusCode, error: `Missing field ${key}`, order: o});
-                return;
-            }
-        });
-
-        const order = {
-            id: admin.firestore().collection('order').doc().id,
-            user: userId, 
-            status: 'PENDING',
-            inv: o.inventoryId,
-            totalItems: o.items.length,
-            amount: 0, // final amount after discount
-            items: <any>null, // [{items}] if transaction is not done else null
-            invoice: <any>null,
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
-        }
-
-        if(o.transactionId===null){
-            order.items = o.items;
-            task.push(admin.firestore().doc(`order/${order.id}`).set(order));
-            //os.push(order);
-            return;
-        }
-
-        const invoice = {
-            id: admin.firestore().collection(`user/${userId}/invoice`).doc().id,
-            orderId: admin.firestore().doc(`order/${order.id}`),
-            timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            items: o.items,
-            discount: <number>o.discount,
-            transaction: admin.firestore().doc(`user/${userId}/transaction/${o.transactionId}`),
-            base_amount: 0, // without discount
-            total_amount: 0 // after discount
-        };
-
-        (<any[]>o.items).forEach(item => {
-            invoice.base_amount += <number>item.cost*<number>item.qty;
-            task.push(
-               admin.firestore().doc(`item/${item.id}`)
-               .update('qty', admin.firestore.FieldValue.increment(-<number>item.qty))
-            );
-        });
-        invoice.total_amount = invoice.base_amount - invoice.base_amount*invoice.discount/100;
-
-        order.status = 'COMPLETED';
-        order.amount = invoice.total_amount;
-        order.invoice = admin.firestore().doc(`user/${userId}/invoice/${invoice.id}`);
-
-        invoices.push(invoice);
-        //os.push(order)
-
-        task.push(admin.firestore().doc(`user/${userId}/invoice/${invoice.id}`).set(invoice));
-        task.push(admin.firestore().doc(`order/${order.id}`).set(order));
-
-    });
-
-    const obj = {
-        invoice: invoices,
-        status: res.statusCode,
-        
-    };
-    //res.send(responseToSend);
-
-    Promise.all(task)
-    .then(() => {
-        res.statusCode = 200;
-        const json = CircularJSON.stringify(obj);
-        res.send(json);
-    }).catch(err => {
-        console.log(err)
-        res.statusCode = 522;
-        res.send({
-            status: res.statusCode, 
-            error: <string>err
-        });
-    })
+        return res.send(template('Server Error'))});
 })
 export const test = 
 functions.region('asia-east2').https.onRequest((req, res)=>{
@@ -434,11 +299,11 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             return;
         }
 
-        return admin.firestore().doc(`biometric/${mobile}`).get()
+        admin.firestore().doc(`biometric/${mobile}`).get()
         .then((bio)=>{
             if(!bio.exists){
                 res.statusCode = 204;
-                res.send({status: res.statusCode, 
+                return res.send({status: res.statusCode, 
                 data: `Mobile Number ${mobile} has no biometric data`});
             }
             const biometric = bio.data()?.template;
@@ -491,7 +356,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 error: `Invalid template`});
             return;
         }
-        return admin.firestore().collection(`user`).where('phone', '==', `+91${mobile}`).get()
+        admin.firestore().collection(`user`).where('phone', '==', `+91${mobile}`).get()
         .then(userData => {
             if(userData.docs.length==0){
                 res.statusCode = 422;
@@ -506,7 +371,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             })
             .then(()=>{
                 res.statusCode = 200;
-                return res.send({status: res.statusCode, 
+                res.send({status: res.statusCode, 
                     data: `Document successfully created at path: biometric/${mobile}`});
             })
             .catch(err => {
@@ -516,98 +381,19 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 status: res.statusCode, 
                 error: 'Internal Server Error'});
             })
-        })
-    }
-    else{
-        res.statusCode = 405;
-        return res.send({status: res.statusCode, error: `${req.method} not supported`})
-    }
-})
-
-export const refund =
-functions.region('asia-east2').https.onRequest((req,res)=>{
-    res.contentType('json');
-    if(req.method != 'GET'){ 
-        res.statusCode = 405;
-        res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
-        return;
-    }
-    const userId = req.query.userId;
-    const txnId = req.query.transactionId;
-    const api_key = req.query.api_key
-
-    if(api_key!==default_api_key){
-        res.statusCode = 402;
-        res.send({status: res.statusCode, error: `Invalid query params: Api Key`});
-        return;
-    }
-    if(userId==null||userId.length==0){
-        res.statusCode = 402;
-        res.send({status: res.statusCode, error: `Invalid query params: UserId`});
-        return;
-    }
-    if(txnId==null||txnId.length==0){
-        res.statusCode = 402;
-        res.send({status: res.statusCode, error: `Invalid query params: TransactionId`});
-        return;
-    }
-    admin.firestore().doc(`user/${userId}/transaction/${txnId}`).get()
-    .then(txnData=>{
-        if(!txnData.exists){
-            res.statusCode = 200;
-            return res.send({status: res.statusCode, error: `User with id: ${userId} has no transaction with id: ${txnId}`});
-        }
-        const transaction = txnData.data();
-        const task: any[] = [];
-
-        const fromRef = <admin.firestore.DocumentReference>transaction?.from;
-        const toRef = <admin.firestore.DocumentReference>transaction?.to;
-        const amount = <number>transaction?.amount;
-
-        const updateTime = admin.firestore.FieldValue.serverTimestamp();
-
-        task.push(
-            fromRef.collection('wallet').doc('wallet').update('balance', admin.firestore.FieldValue.increment(amount))
-        );
-        task.push(
-            toRef.collection('wallet').doc('wallet').update('balance', admin.firestore.FieldValue.increment(-amount))
-        );
-        task.push(
-            admin.firestore().doc(`user/${userId}/transaction/${txnId}`).update({
-                'type': -1,
-                'timestamp': updateTime
-            })
-        );
-        task.push(
-            toRef.collection('transaction').doc(`${txnId}`).update({
-                'type': -1,
-                'timestamp': updateTime
-            })
-        );
-
-        return Promise.all(task)
-        .then(()=>{
-            res.statusCode = 200;
-            return res.send({status: res.statusCode, error: `Amount Refund Successfully`, amount: amount});
-        })
-        .catch(err => {
+        }).catch(err => {
             console.log(err)
             res.statusCode = 522;
             res.send({
             status: res.statusCode, 
             error: 'Internal Server Error'});
         })
-    })
-    .catch(err => {
-        console.log(err)
-        res.statusCode = 522;
-        res.send({
-        status: res.statusCode, 
-        error: 'Internal Server Error'
-        });
-    })
+    }
+    else{
+        res.statusCode = 405;
+        res.send({status: res.statusCode, error: `${req.method} not supported`})
+    }
 })
-
 export const newComplain = 
 functions.region('asia-east2').firestore.document('complains/{cId}')
 .onCreate((dt) => {
@@ -711,6 +497,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 if(<number>wallet_dt.data()?.balance < amount){
                     res.statusCode = 200;
                     res.send({status: res.statusCode, error: "Insufficient Balance"});
+                    return;
                 }
                 const to_user = to_dt.docs[0];
                 const txnId = to_user.ref.collection('transaction').doc().id;
@@ -954,49 +741,364 @@ functions.region('asia-east2').firestore
     });
     
 })
-export const splitTransaction = 
-functions.region('asia-east2').firestore
-.document('/groups/{grouId}/transactions/{id}')
-.onCreate((result, context) => {
-    const transaction = result.data()
+export const splitGpay = 
+functions.region('asia-east2').https.onRequest((req, res)=>{
+    // base/splitGpay?to={}&gPayId={}&m={m1,m2,m3....mn}&gId={}
+    const mUids = (""+req.query.m).split('_');
+    const toId = ""+req.query.to;
+    const gPayId = ""+req.query.gPayId;
+    const groupId = ""+req.query.gId;
 
-    const groupId = context.params.grouId
+    
+    const to = admin.firestore().doc(`user/${toId}`)
 
-    return admin.firestore().doc(`groups/${groupId}`).get().then(groupResult => {
-        const group = groupResult.data()
+    const temp = (msg)=>{
+        return {
+            status: res.statusCode,
+            msg: msg
+        }
+    }
 
-        const splitPromises: any = []
+    if(mUids===undefined||to===undefined||gPayId===undefined||groupId===undefined){
+        res.statusCode = 400;
+        res.send(temp(`Invalid Query Parameters`));
+    }
 
-        const members: Array<admin.firestore.DocumentReference> = group?.members
-        
-        for (const member of members) {
-            const id = member.collection('pending_gPay_transactions').doc().id
-            const data = {
-                id: id,
-                amount: null,
-                from: member,
-                to: transaction?.to,
-                gPayId: transaction?.id,
-                timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                type: 1
-            }
+    let members: Array<admin.firestore.DocumentReference> = [];
 
-            splitPromises.push(member.collection('pending_gPay_transactions').doc(id).set(data))
+    for(const mUid of mUids){
+        members.push(
+            admin.firestore().doc(`user/${mUid}`)
+        )
+    }
+
+    const splitPromises: any = [];
+
+    for (const member of members) {
+        const id = member.collection('pending_gPay_transactions').doc().id
+        const data = {
+            id: id,
+            amount: null,
+            from: member,
+            to: to,
+            gPayId: gPayId,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            type: 1
         }
 
+        splitPromises.push(member.collection('pending_gPay_transactions').doc(id).set(data))
+    }
 
-        return Promise.all(splitPromises).then(() => {
-            return (<admin.firestore.DocumentReference> transaction?.to)
-            .collection('group_pay/meta-data/transaction').doc(transaction?.id).update({
-                from: admin.firestore().doc(`groups/${groupId}`),
-                parts: members.length
-            })
-        }).catch(error => {
-            console.log(error)
+
+    res.statusCode = 200;
+    Promise.all(splitPromises).then(() => {
+        return to.collection('group_pay/meta-data/transaction').doc(gPayId).update({
+            from: admin.firestore().doc(`groups/${groupId}`),
+            parts: members.length
+        }).then(()=>{
+            res.send(temp("splitted"));
+        }).catch(()=>{
+            res.statusCode = 500;
+            res.send(temp("server Error"));
         })
-
+    }).catch(error => {
+        res.statusCode = 500;
+        res.send(temp("server Error"));
     })
-
+    
 })
+// export const splitTransaction = 
+// functions.region('asia-east2').firestore
+// .document('/groups/{grouId}/transactions/{id}')
+// .onCreate((result, context) => {
+//     const transaction = result.data()
+
+//     const groupId = context.params.grouId
+
+//     return admin.firestore().doc(`groups/${groupId}`).get().then(groupResult => {
+//         const group = groupResult.data()
+
+//         const splitPromises: any = []
+
+//         const members: Array<admin.firestore.DocumentReference> = group?.members
+        
+//         for (const member of members) {
+//             const id = member.collection('pending_gPay_transactions').doc().id
+//             const data = {
+//                 id: id,
+//                 amount: null,
+//                 from: member,
+//                 to: transaction?.to,
+//                 gPayId: transaction?.id,
+//                 timestamp: admin.firestore.FieldValue.serverTimestamp(),
+//                 type: 1
+//             }
+
+//             splitPromises.push(member.collection('pending_gPay_transactions').doc(id).set(data))
+//         }
 
 
+//         return Promise.all(splitPromises).then(() => {
+//             return (<admin.firestore.DocumentReference> transaction?.to)
+//             .collection('group_pay/meta-data/transaction').doc(transaction?.id).update({
+//                 from: admin.firestore().doc(`groups/${groupId}`),
+//                 parts: members.length
+//             })
+//         }).catch(error => {
+//             console.log(error)
+//         })
+
+//     })
+
+// })
+
+// export const refund =
+// functions.region('asia-east2').https.onRequest((req,res)=>{
+//     res.contentType('json');
+//     if(req.method != 'GET'){ 
+//         res.statusCode = 405;
+//         res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
+//         return;
+//     }
+//     const userId = req.query.userId;
+//     const txnId = req.query.transactionId;
+//     const api_key = req.query.api_key
+
+//     if(api_key!==default_api_key){
+//         res.statusCode = 402;
+//         res.send({status: res.statusCode, error: `Invalid query params: Api Key`});
+//         return;
+//     }
+//     if(userId==null||userId.length==0){
+//         res.statusCode = 402;
+//         res.send({status: res.statusCode, error: `Invalid query params: UserId`});
+//         return;
+//     }
+//     if(txnId==null||txnId.length==0){
+//         res.statusCode = 402;
+//         res.send({status: res.statusCode, error: `Invalid query params: TransactionId`});
+//         return;
+//     }
+//     admin.firestore().doc(`user/${userId}/transaction/${txnId}`).get()
+//     .then(txnData=>{
+//         if(!txnData.exists){
+//             res.statusCode = 200;
+//             return res.send({status: res.statusCode, error: `User with id: ${userId} has no transaction with id: ${txnId}`});
+//         }
+//         const transaction = txnData.data();
+//         const task: any[] = [];
+
+//         const fromRef = <admin.firestore.DocumentReference>transaction?.from;
+//         const toRef = <admin.firestore.DocumentReference>transaction?.to;
+//         const amount = <number>transaction?.amount;
+
+//         const updateTime = admin.firestore.FieldValue.serverTimestamp();
+
+//         task.push(
+//             fromRef.collection('wallet').doc('wallet').update('balance', admin.firestore.FieldValue.increment(amount))
+//         );
+//         task.push(
+//             toRef.collection('wallet').doc('wallet').update('balance', admin.firestore.FieldValue.increment(-amount))
+//         );
+//         task.push(
+//             admin.firestore().doc(`user/${userId}/transaction/${txnId}`).update({
+//                 'type': -1,
+//                 'timestamp': updateTime
+//             })
+//         );
+//         task.push(
+//             toRef.collection('transaction').doc(`${txnId}`).update({
+//                 'type': -1,
+//                 'timestamp': updateTime
+//             })
+//         );
+
+//         return Promise.all(task)
+//         .then(()=>{
+//             res.statusCode = 200;
+//             return res.send({status: res.statusCode, error: `Amount Refund Successfully`, amount: amount});
+//         })
+//         .catch(err => {
+//             console.log(err)
+//             res.statusCode = 522;
+//             res.send({
+//             status: res.statusCode, 
+//             error: 'Internal Server Error'});
+//         })
+//     })
+//     .catch(err => {
+//         console.log(err)
+//         res.statusCode = 522;
+//         res.send({
+//         status: res.statusCode, 
+//         error: 'Internal Server Error'
+//         });
+//     })
+// })
+
+// export const placeOrder = 
+// functions.region('asia-east2').https.onRequest((req, res)=>{
+//     res.contentType('json');
+//     if(req.method != 'POST'){ 
+//         res.statusCode = 405;
+//         res.setHeader('Content-Type', 'application/json');
+//         res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
+//         return;
+//     }
+//     /*
+//     body: {
+//         orders: [
+//             {
+//                 base_amount: 0,
+//                 discount: 0 // in percent,
+//                 total_amount: 0,
+//                 transactionId: "",
+//                 items:[{
+//                     id: "doc id",
+//                     inventory_id: "string",
+//                     title: "",
+//                     description: "",
+//                     unit: "L/KG/M..",
+//                     qty: 0,
+//                     cost: 0
+//                 }..],
+//                 promo:{
+//                     code: FIRST50,
+//                     data: "Description of code",
+//                     tAndC: "Contraints where this is applicable",
+//                     type: 100/101 // flat or percentage,
+//                     value: 0
+//                 }
+//             },
+//             {},
+//             {}
+//         ]
+//     }
+//     */
+//    /*
+//    return: {
+//        orders:[
+//            {
+//                 orderId: "",
+                
+//            }
+//        ]
+//    }
+//    */
+
+//     const userId = req.query.id;
+//     const api_key = req.query.api_key
+
+//     if(api_key!==default_api_key){
+//         res.statusCode = 402;
+//         res.send({status: res.statusCode, error: `Invalid Api Key`});
+//         return;
+//     }
+
+//     if(userId==null || userId.length==0){
+//         res.statusCode = 400;
+//         res.send({status: res.statusCode, error: `Missing or invalid query params`});
+//         return;
+//     }
+
+//     const invoices: any[] = [];
+//     //const os: any[] = [];
+     
+//     const body = req.body
+//     const itemParams = ['items', 'inventoryId', 'transactionId','discount'];
+//     const orders: any[] = body.orders;
+
+//     if(body==null){
+//         res.statusCode = 422;
+//         res.send({status: res.statusCode, error: `Missing or invalid query params`});
+//         return;
+//     }
+//     if(!body.hasOwnProperty('orders')){
+//         res.statusCode = 422;
+//         res.send({status: res.statusCode, error: `Missing field order`});
+//         return;
+//     }
+
+//     const task: any[] = []
+
+//     orders.forEach(o=>{
+//         itemParams.forEach(key=>{
+//             if(!o.hasOwnProperty(key)){
+//                 res.statusCode = 422;
+//                 res.send({status: res.statusCode, error: `Missing field ${key}`, order: o});
+//                 return;
+//             }
+//         });
+
+//         const order = {
+//             id: admin.firestore().collection('order').doc().id,
+//             user: userId, 
+//             status: 'PENDING',
+//             inv: o.inventoryId,
+//             totalItems: o.items.length,
+//             amount: 0, // final amount after discount
+//             items: <any>null, // [{items}] if transaction is not done else null
+//             invoice: <any>null,
+//             timestamp: admin.firestore.FieldValue.serverTimestamp()
+//         }
+
+//         if(o.transactionId===null){
+//             order.items = o.items;
+//             task.push(admin.firestore().doc(`order/${order.id}`).set(order));
+//             //os.push(order);
+//             return;
+//         }
+
+//         const invoice = {
+//             id: admin.firestore().collection(`user/${userId}/invoice`).doc().id,
+//             orderId: admin.firestore().doc(`order/${order.id}`),
+//             timestamp: admin.firestore.FieldValue.serverTimestamp(),
+//             items: o.items,
+//             discount: <number>o.discount,
+//             transaction: admin.firestore().doc(`user/${userId}/transaction/${o.transactionId}`),
+//             base_amount: 0, // without discount
+//             total_amount: 0 // after discount
+//         };
+
+//         (<any[]>o.items).forEach(item => {
+//             invoice.base_amount += <number>item.cost*<number>item.qty;
+//             task.push(
+//                admin.firestore().doc(`item/${item.id}`)
+//                .update('qty', admin.firestore.FieldValue.increment(-<number>item.qty))
+//             );
+//         });
+//         invoice.total_amount = invoice.base_amount - invoice.base_amount*invoice.discount/100;
+
+//         order.status = 'COMPLETED';
+//         order.amount = invoice.total_amount;
+//         order.invoice = admin.firestore().doc(`user/${userId}/invoice/${invoice.id}`);
+
+//         invoices.push(invoice);
+//         //os.push(order)
+
+//         task.push(admin.firestore().doc(`user/${userId}/invoice/${invoice.id}`).set(invoice));
+//         task.push(admin.firestore().doc(`order/${order.id}`).set(order));
+
+//     });
+
+//     const obj = {
+//         invoice: invoices,
+//         status: res.statusCode,
+        
+//     };
+//     //res.send(responseToSend);
+
+//     Promise.all(task)
+//     .then(() => {
+//         res.statusCode = 200;
+//         const json = CircularJSON.stringify(obj);
+//         res.send(json);
+//     }).catch(err => {
+//         console.log(err)
+//         res.statusCode = 522;
+//         res.send({
+//             status: res.statusCode, 
+//             error: <string>err
+//         });
+//     })
+// })

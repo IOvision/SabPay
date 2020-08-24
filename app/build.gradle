@@ -5,9 +5,9 @@ apply plugin: 'com.google.firebase.crashlytics'
 android {
     signingConfigs {
         release {
-            storeFile file('/Users/danishjamal/Documents/Android/Sabpay-confidential/key.jks')
-            storePassword '123123123'
-            keyPassword '123123123'
+            storeFile file('/Users/danishjamal/Documents/Android/Sabpay-confidential/sabpay_keystore_file.jks')
+            storePassword 'Beta.vision'
+            keyPassword 'Visionio@9654'
             keyAlias 'key0'
         }
     }

@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -81,6 +82,8 @@ public class InventoryActivity extends AppCompatActivity {
 
     // dialog views
     Dialog cart_dialog;
+    TextInputLayout delivery_address_til;
+    String delivery_address;
     Button dialog_confirm_bt;
     RecyclerView dialog_items_rv;
     CartItemAdapter dialog_cart_adapter;
@@ -191,6 +194,7 @@ public class InventoryActivity extends AppCompatActivity {
         cart_dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
         dialog_confirm_bt = cart_dialog.findViewById(R.id.cart_layout_confirm_bt);
+        delivery_address_til = cart_dialog.findViewById(R.id.cart_layout_deliveryAddress_til);
         dialog_items_rv = cart_dialog.findViewById(R.id.cart_layout_itemList_rv);
         dialog_items_rv.setLayoutManager(new LinearLayoutManager(this));
         dialog_items_rv.setHasFixedSize(false);
@@ -202,7 +206,14 @@ public class InventoryActivity extends AppCompatActivity {
         dialog_confirm_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showInvoice();
+                String address = delivery_address_til.getEditText().getText().toString().trim();
+                if(address.equals("")){
+                    delivery_address_til.setError("Address Can't be empty");
+                } else{
+                    delivery_address_til.setErrorEnabled(false);
+                    delivery_address = address;
+                    showInvoice();
+                }
             }
         });
 
@@ -390,6 +401,7 @@ public class InventoryActivity extends AppCompatActivity {
             put("firstName", user.getFirstName());
             put("lastName", user.getLastName());
             put("phone", user.getPhone());
+            put("address", delivery_address);
         }});
         order.setTimestamp(new Timestamp(new Date()));
         order.setStatus(Order.STATUS.ORDER_RECEIVED);
@@ -437,7 +449,8 @@ public class InventoryActivity extends AppCompatActivity {
                     Utils.toast(InventoryActivity.this, "Order Placed Successfully", Toast.LENGTH_LONG);
                     String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
                     Log.i("test", "onComplete: "+s);
-                    String msg = String.format("Order Id: %s\nAmount: Rs. %s\nFrom: %s",
+                    String msg = String.format("Address: %s\nOrder Id: %s\nAmount: Rs. %s\nFrom: %s",
+                            delivery_address,
                             order.getOrderId(),
                             order.getAmount(),
                             order.getUser().get("firstName"));
