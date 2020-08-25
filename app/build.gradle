@@ -8,7 +8,7 @@ android {
             storeFile file('/Users/danishjamal/Documents/Android/Sabpay-confidential/sabpay_keystore_file.jks')
             storePassword 'Beta.vision'
             keyPassword 'Visionio@9654'
-            keyAlias 'key0'
+            keyAlias 'sabpay_key'
         }
     }
     compileSdkVersion 29
