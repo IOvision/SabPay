@@ -3,6 +3,7 @@ package com.visionio.sabpay.main;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,26 +35,38 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.paytm.pgsdk.PaytmOrder;
 import com.paytm.pgsdk.PaytmPGService;
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback;
 import com.paytm.pgsdk.TransactionManager;
 import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.api.API;
+import com.visionio.sabpay.api.PaytmAPI;
 import com.visionio.sabpay.helpdesk.HelpDeskActivity;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 import com.visionio.sabpay.services.FeedbackActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
@@ -72,6 +85,8 @@ public class HomeFragment extends Fragment {
     EditText et_amount;
     Map<String, String> paramMap;
     LinearLayout ll;
+    final int PaytmActivityCode = 160;
+    String orderid, mid, txnToken, callbackurl;
     //AddTransaction transaction = new AddTransaction(amount.getText().toString(), user.getCustomerID());
 
     public HomeFragment() {
@@ -80,8 +95,8 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == ActivityRequestCode && data != null) {
-            Toast.makeText(this, data.getStringExtra("nativeSdkForMerchantMessage") + data.getStringExtra("response"), Toast.LENGTH_SHORT).show();
+        if (requestCode == PaytmActivityCode) {
+            Toast.makeText(getActivity(), data.getStringExtra("nativeSdkForMerchantMessage") + data.getStringExtra("response"), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -126,7 +141,7 @@ public class HomeFragment extends Fragment {
         btn_add.setOnClickListener(v -> {
             add_money_pg.setVisibility(View.VISIBLE);
             amount = et_amount.getText().toString();
-            initializeTransaction();
+            getChecksum(amount);
         });
         btn_cancel.setOnClickListener(v -> {
             wallet_text.setVisibility(View.VISIBLE);
@@ -166,36 +181,75 @@ public class HomeFragment extends Fragment {
         Utils.registrations.add(listenerRegistration);
     }
 
-
-    private void initializeTransaction() {
-    try {
-        URL url = new URL("https://securegw-stage.paytm.in/theia/api/v1/initiateTransaction?mid=YOUR_MID_HERE&orderId=ORDERID_98765");
-        /* for Production */
-        // URL url = new URL("https://securegw.paytm.in/theia/api/v1/initiateTransaction?mid=YOUR_MID_HERE&orderId=ORDERID_98765");
-        try {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setDoOutput(true);
-
-            DataOutputStream requestWriter = new DataOutputStream(connection.getOutputStream());
-            requestWriter.writeBytes(post_data);
-            requestWriter.close();
-            String responseData = "";
-            InputStream is = connection.getInputStream();
-            BufferedReader responseReader = new BufferedReader(new InputStreamReader(is));
-            if ((responseData = responseReader.readLine()) != null) {
-                System.out.append("Response: " + responseData);
+    private void getChecksum(String amount) {
+        Call<Map<String, Object>> getChecksum = API.getApiService().genrateChecksum(amount, FirebaseAuth.getInstance().getUid());
+        getChecksum.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                Map<String, Object> result;
+                if(!response.isSuccessful()){
+                    String body = null;
+                    try {
+                        body = response.errorBody().string();
+                    } catch (IOException e) {
+                        body = "{}";
+                    }
+                    result = new Gson().fromJson(body, HashMap.class);
+                    return;
+                }
+                result = response.body();
+                Log.d("testing", "onResponse: " + result.get("body"));
+                if(result.containsKey("body")){
+                    Log.d("testing", "onResponse: intializeTransaction");
+                    initializeTransaction(result);
+                }
             }
-            responseReader.close();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    } catch (Exception e) {
 
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+
+            }
+        });
     }
 
 
+    private void initializeTransaction(Map<String, Object> data) {
+        Map<String, Object> body = (Map<String, Object>) data.get("body");
+        orderid = (String) body.get("orderId");
+        mid = (String) body.get("mid");
+        callbackurl = (String) body.get("callbackUrl");
+        Log.d("testing", "PAYTM: ");
+        Call<Map<String, Object>> getTransaction = PaytmAPI.getApiService().getTransactionID(body.get("mid").toString(), body.get("orderId").toString(), data);
+        getTransaction.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                Map<String, Object> result;
+                if(!response.isSuccessful()){
+                    Log.d("testing", "failedPAYTM: " + response);
+                    String body = null;
+                    try {
+                        body = response.errorBody().string();
+                    } catch (IOException e) {
+                        body = "{}";
+                    }
+                    result = new Gson().fromJson(body, HashMap.class);
+                    return;
+                }
+                result = response.body();
+                Log.d("testing", "onResponse: "+result);
+                LinkedTreeMap<String, Object> body = (LinkedTreeMap<String, Object>) result.get("body");
+                txnToken = body.get("txnToken").toString();
+                startTransaction();
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void startTransaction() {
         PaytmOrder paytmOrder = new PaytmOrder(orderid, mid, txnToken, amount, callbackurl);
         TransactionManager transactionManager = new TransactionManager(paytmOrder, new PaytmPaymentTransactionCallback() {
             @Override
@@ -239,12 +293,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        transactionManager.startTransaction(this, requestCode);
-
-    }
-
-    private void startTransaction() {
-
+        transactionManager.startTransaction(getActivity(), PaytmActivityCode);
     }
 
 //    private Task<String> initializeTransaction() {
