@@ -3,6 +3,7 @@ package com.visionio.sabpay.main;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,19 +35,38 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.paytm.pgsdk.PaytmOrder;
 import com.paytm.pgsdk.PaytmPGService;
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback;
+import com.paytm.pgsdk.TransactionManager;
 import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.api.API;
+import com.visionio.sabpay.api.PaytmAPI;
 import com.visionio.sabpay.helpdesk.HelpDeskActivity;
 import com.visionio.sabpay.models.Utils;
 import com.visionio.sabpay.models.Wallet;
 import com.visionio.sabpay.services.FeedbackActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
@@ -65,10 +85,19 @@ public class HomeFragment extends Fragment {
     EditText et_amount;
     Map<String, String> paramMap;
     LinearLayout ll;
+    final int PaytmActivityCode = 160;
+    String orderid, mid, txnToken, callbackurl;
     //AddTransaction transaction = new AddTransaction(amount.getText().toString(), user.getCustomerID());
 
     public HomeFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == PaytmActivityCode) {
+            Toast.makeText(getActivity(), data.getStringExtra("nativeSdkForMerchantMessage") + data.getStringExtra("response"), Toast.LENGTH_SHORT).show();
+        }
     }
 
     FirebaseStorage firebaseStorage;
@@ -112,7 +141,7 @@ public class HomeFragment extends Fragment {
         btn_add.setOnClickListener(v -> {
             add_money_pg.setVisibility(View.VISIBLE);
             amount = et_amount.getText().toString();
-            initializeTransaction();
+            getChecksum(amount);
         });
         btn_cancel.setOnClickListener(v -> {
             wallet_text.setVisibility(View.VISIBLE);
@@ -151,143 +180,259 @@ public class HomeFragment extends Fragment {
                 });
         Utils.registrations.add(listenerRegistration);
     }
-    private Task<String> initializeTransaction() {
-        // Create the arguments to the callable function.
-        Map<String, String> data = new HashMap<>();
-        data.put("amount", amount);
 
-        return FirebaseFunctions.getInstance()
-                .getHttpsCallable("getChecksum")
-                .call(data)
-                .continueWith(new Continuation<HttpsCallableResult, String>() {
-                    @Override
-                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        // This continuation runs on either success or failure, but if the task
-                        // has failed then getResult() will throw an Exception which will be
-                        // propagated down.
-                        paramMap = (HashMap<String, String>) task.getResult().getData();
-                        PaytmOrder order = new PaytmOrder(paramMap);
-                        PaytmPGService pgService = PaytmPGService.getStagingService();
-                        pgService.initialize(order, null);
-                        pay(pgService);
-                        return "done";
+    private void getChecksum(String amount) {
+        Call<Map<String, Object>> getChecksum = API.getApiService().genrateChecksum(amount, FirebaseAuth.getInstance().getUid());
+        getChecksum.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                Map<String, Object> result;
+                if(!response.isSuccessful()){
+                    String body = null;
+                    try {
+                        body = response.errorBody().string();
+                    } catch (IOException e) {
+                        body = "{}";
                     }
-                });
+                    result = new Gson().fromJson(body, HashMap.class);
+                    return;
+                }
+                result = response.body();
+                Log.d("testing", "onResponse: " + result.get("body"));
+                if(result.containsKey("body")){
+                    Log.d("testing", "onResponse: intializeTransaction");
+                    initializeTransaction(result);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+
+            }
+        });
     }
-    private void pay(PaytmPGService pgService) {
-        pgService.startPaymentTransaction(getContext(), true, true,
-                new PaytmPaymentTransactionCallback() {
 
-                    //on successful payment
-                    @Override
-                    public void onTransactionResponse(Bundle inResponse) {
-                        updateWallet();
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        final AlertDialog show = alert.show();
-                        alert.setTitle("Successful!!!");
-                        alert.setMessage("Wallet balance updated");
-                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                show.dismiss();
-                            }
-                        });
-                        alert.show();
+
+    private void initializeTransaction(Map<String, Object> data) {
+        Map<String, Object> body = (Map<String, Object>) data.get("body");
+        orderid = (String) body.get("orderId");
+        mid = (String) body.get("mid");
+        callbackurl = (String) body.get("callbackUrl");
+        Log.d("testing", "PAYTM: ");
+        Call<Map<String, Object>> getTransaction = PaytmAPI.getApiService().getTransactionID(body.get("mid").toString(), body.get("orderId").toString(), data);
+        getTransaction.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                Map<String, Object> result;
+                if(!response.isSuccessful()){
+                    Log.d("testing", "failedPAYTM: " + response);
+                    String body = null;
+                    try {
+                        body = response.errorBody().string();
+                    } catch (IOException e) {
+                        body = "{}";
                     }
+                    result = new Gson().fromJson(body, HashMap.class);
+                    return;
+                }
+                result = response.body();
+                Log.d("testing", "onResponse: "+result);
+                LinkedTreeMap<String, Object> body = (LinkedTreeMap<String, Object>) result.get("body");
+                txnToken = body.get("txnToken").toString();
+                startTransaction();
+            }
 
-                    @Override
-                    public void networkNotAvailable() {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        final AlertDialog show = alert.show();
-                        alert.setTitle("Unsuccessful!!!");
-                        alert.setMessage("Network error occured. Check your network connectivity and try again later.");
-                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                show.dismiss();
-                            }
-                        });
-                        alert.show();
-                    }
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
 
-                    @Override
-                    public void clientAuthenticationFailed(String inErrorMessage) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        final AlertDialog show = alert.show();
-                        alert.setTitle("Unsuccessful!!!");
-                        alert.setMessage("Error occurred. Please try again later.");
-                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                show.dismiss();
-                            }
-                        });
-                        alert.show();
-                    }
-
-                    @Override
-                    public void someUIErrorOccurred(String inErrorMessage) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        final AlertDialog show = alert.show();
-                        alert.setTitle("Unsuccessful!!!");
-                        alert.setMessage("Error occurred. Please try again later.");
-                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                show.dismiss();
-                            }
-                        });
-                        alert.show();
-                    }
-
-                    @Override
-                    public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        final AlertDialog show = alert.show();
-                        alert.setTitle("Unsuccessful!!!");
-                        alert.setMessage("Error loading webpage. Please try again later.");
-                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                show.dismiss();
-                            }
-                        });
-                        alert.show();
-                    }
-
-                    @Override
-                    public void onBackPressedCancelTransaction() {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        final AlertDialog show = alert.show();
-                        alert.setTitle("Unsuccessful!!!");
-                        alert.setMessage("Oops transaction was cancelled");
-                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                show.dismiss();
-                            }
-                        });
-                        alert.show();
-                    }
-
-                    @Override
-                    public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
-                        Toast.makeText(getContext(), "You canceled the transaction :(", Toast.LENGTH_SHORT).show();
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                        final AlertDialog show = alert.show();
-                        alert.setTitle("Unsuccessful!!!");
-                        alert.setMessage("Transaction was canceled");
-                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                show.dismiss();
-                            }
-                        });
-                        alert.show();
-
-                    }
-                });
+            }
+        });
     }
+
+    private void startTransaction() {
+        PaytmOrder paytmOrder = new PaytmOrder(orderid, mid, txnToken, amount, callbackurl);
+        TransactionManager transactionManager = new TransactionManager(paytmOrder, new PaytmPaymentTransactionCallback() {
+            @Override
+            public void onTransactionResponse(Bundle bundle) {
+                Toast.makeText(getContext(), "Payment Transaction response " + bundle.toString(), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void networkNotAvailable() {
+
+            }
+
+            @Override
+            public void onErrorProceed(String s) {
+
+            }
+
+            @Override
+            public void clientAuthenticationFailed(String s) {
+
+            }
+
+            @Override
+            public void someUIErrorOccurred(String s) {
+
+            }
+
+            @Override
+            public void onErrorLoadingWebPage(int i, String s, String s1) {
+
+            }
+
+            @Override
+            public void onBackPressedCancelTransaction() {
+
+            }
+
+            @Override
+            public void onTransactionCancel(String s, Bundle bundle) {
+
+            }
+        });
+
+        transactionManager.startTransaction(getActivity(), PaytmActivityCode);
+    }
+
+//    private Task<String> initializeTransaction() {
+//        // Create the arguments to the callable function.
+//        Map<String, String> data = new HashMap<>();
+//        data.put("amount", amount);
+//
+//        return FirebaseFunctions.getInstance()
+//                .getHttpsCallable("getChecksum")
+//                .call(data)
+//                .continueWith(new Continuation<HttpsCallableResult, String>() {
+//                    @Override
+//                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+//                        // This continuation runs on either success or failure, but if the task
+//                        // has failed then getResult() will throw an Exception which will be
+//                        // propagated down.
+//                        paramMap = (HashMap<String, String>) task.getResult().getData();
+//                        PaytmOrder order = new PaytmOrder(paramMap);
+//                        PaytmPGService pgService = PaytmPGService.getStagingService();
+//                        pgService.initialize(order, null);
+//                        pay(pgService);
+//                        return "done";
+//                    }
+//                });
+//    }
+//    private void pay(PaytmPGService pgService) {
+//        pgService.startPaymentTransaction(getContext(), true, true,
+//                new PaytmPaymentTransactionCallback() {
+//
+//                    //on successful payment
+//                    @Override
+//                    public void onTransactionResponse(Bundle inResponse) {
+//                        updateWallet();
+//                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+//                        final AlertDialog show = alert.show();
+//                        alert.setTitle("Successful!!!");
+//                        alert.setMessage("Wallet balance updated");
+//                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                show.dismiss();
+//                            }
+//                        });
+//                        alert.show();
+//                    }
+//
+//                    @Override
+//                    public void networkNotAvailable() {
+//                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+//                        final AlertDialog show = alert.show();
+//                        alert.setTitle("Unsuccessful!!!");
+//                        alert.setMessage("Network error occured. Check your network connectivity and try again later.");
+//                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                show.dismiss();
+//                            }
+//                        });
+//                        alert.show();
+//                    }
+//
+//                    @Override
+//                    public void clientAuthenticationFailed(String inErrorMessage) {
+//                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+//                        final AlertDialog show = alert.show();
+//                        alert.setTitle("Unsuccessful!!!");
+//                        alert.setMessage("Error occurred. Please try again later.");
+//                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                show.dismiss();
+//                            }
+//                        });
+//                        alert.show();
+//                    }
+//
+//                    @Override
+//                    public void someUIErrorOccurred(String inErrorMessage) {
+//                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+//                        final AlertDialog show = alert.show();
+//                        alert.setTitle("Unsuccessful!!!");
+//                        alert.setMessage("Error occurred. Please try again later.");
+//                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                show.dismiss();
+//                            }
+//                        });
+//                        alert.show();
+//                    }
+//
+//                    @Override
+//                    public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
+//                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+//                        final AlertDialog show = alert.show();
+//                        alert.setTitle("Unsuccessful!!!");
+//                        alert.setMessage("Error loading webpage. Please try again later.");
+//                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                show.dismiss();
+//                            }
+//                        });
+//                        alert.show();
+//                    }
+//
+//                    @Override
+//                    public void onBackPressedCancelTransaction() {
+//                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+//                        final AlertDialog show = alert.show();
+//                        alert.setTitle("Unsuccessful!!!");
+//                        alert.setMessage("Oops transaction was cancelled");
+//                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                show.dismiss();
+//                            }
+//                        });
+//                        alert.show();
+//                    }
+//
+//                    @Override
+//                    public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
+//                        Toast.makeText(getContext(), "You canceled the transaction :(", Toast.LENGTH_SHORT).show();
+//                        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+//                        final AlertDialog show = alert.show();
+//                        alert.setTitle("Unsuccessful!!!");
+//                        alert.setMessage("Transaction was canceled");
+//                        alert.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                show.dismiss();
+//                            }
+//                        });
+//                        alert.show();
+//
+//                    }
+//                });
+//    }
 
 
     private void updateWallet() {

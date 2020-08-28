@@ -44,4 +44,8 @@ public interface ApiInterface {
     Call<Map<String, Object>> refundTransaction(@Query("userId") String userId,
                                                 @Query("transactionId") String transactionId,
                                                 @Query("api_key") String api_key);
+
+    @POST("generateChecksum")
+    Call<Map<String, Object>> genrateChecksum(@Query("amount") String amount,
+                                              @Query("uid") String uid);
 }

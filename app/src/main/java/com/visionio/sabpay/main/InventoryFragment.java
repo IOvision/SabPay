@@ -60,7 +60,7 @@ import retrofit2.Response;
 public class InventoryFragment extends Fragment {
 
     private int locationRequestCode = 1000;
-    double within = 3;
+    double within = 10;
     private RecyclerView recyclerView;
     InventoryAdapter adapter;
     FirebaseFirestore mRef;
