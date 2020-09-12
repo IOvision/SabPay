@@ -151,11 +151,12 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
-        loadItems(mInventory.getItems());
+        loadItems(mInventory.getId());
     }
 
-    void loadItems(List<String> items) {
-        mRef.collection("item").whereIn("id", items).get()
+    void loadItems(String inv_id) {
+        mRef.collection("item")
+                .whereArrayContains("inventories", inv_id).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {

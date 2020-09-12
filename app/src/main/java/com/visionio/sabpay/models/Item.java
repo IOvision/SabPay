@@ -12,6 +12,7 @@ public class Item {
 
 
     String id; // item id
+    List<String> inventories;
     String inventory_id; // inventory id to which this items belong
     String title; // title of item like apple, mango, milk
     String description; // item related text like company name
@@ -33,6 +34,14 @@ public class Item {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public List<String> getInventories() {
+        return inventories;
+    }
+
+    public void setInventories(List<String> inventories) {
+        this.inventories = inventories;
     }
 
     public String getTitle() {
