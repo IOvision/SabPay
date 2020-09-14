@@ -3,15 +3,16 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    signingConfigs {
-        release {
-            storeFile file('/Users/danishjamal/Documents/Android/Sabpay-confidential/keystore_encrpted')
-            storePassword 'Vision.io@9654'
-            keyAlias 'sab_pay_0'
-            keyPassword 'Vision.io@9654'
-        }
-    }
-   compileSdkVersion 29
+   signingConfigs {
+       release {
+           //storeFile file('/Users/danishjamal/Documents/Android/Sabpay-confidential/keystore_encrpted')
+           storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
+           storePassword 'Vision.io@9654'
+           keyAlias 'upload'
+           keyPassword 'Vision.io@9654'
+       }
+   }
+    compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.visionio.sabpay"
@@ -23,7 +24,7 @@ android {
     }
     buildTypes {
         release {
-            signingConfig signingConfigs .release
+            signingConfig signingConfigs.release
             minifyEnabled false
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

@@ -94,7 +94,6 @@ public class TransactionHistoryFragment extends Fragment {
         orderAdapter = new OrderAdapter(new ArrayList<>(), new OnItemClickListener<Order>() {
             @Override
             public void onItemClicked(Order order, int position, View view) {
-                if(order.getInvoiceId() != null) {
                     Intent i = new Intent(getActivity(), InvoiceActivity.class);
                     String orderJson = new Gson().toJson(order);
                     i.putExtra("order", orderJson);
@@ -102,9 +101,7 @@ public class TransactionHistoryFragment extends Fragment {
                     i.putExtra("orderId", order.getOrderId());
                     i.putExtra("orderStatus", order.getStatus());
                     startActivity(i);
-                } else {
-                    Toast.makeText(getContext(), "Some error occurred", Toast.LENGTH_SHORT).show();
-                }
+
             }
         });
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -191,6 +188,4 @@ public class TransactionHistoryFragment extends Fragment {
             progressBar.setVisibility(View.GONE);
         });
     }
-
-
 }
