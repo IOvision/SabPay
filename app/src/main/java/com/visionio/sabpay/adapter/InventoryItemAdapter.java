@@ -22,10 +22,6 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
     List<Item> itemList;
     OnItemClickListener<Item> clickListener;
 
-    public List<Item> getItemList() {
-        return itemList;
-    }
-
     public void setItemList(List<Item> itemList) {
         this.itemList = itemList;
         notifyDataSetChanged();
@@ -114,5 +110,4 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
             symbol = itemView.findViewById(R.id.items_image_sv);
         }
     }
-
 }
