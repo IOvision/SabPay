@@ -88,7 +88,8 @@ public class InventoryFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // todo: fix access location and use it instead of hard coded lat and long
-          accessLocation();
+        getNearbyInventory(0,0,0);
+         // accessLocation();
 //        double lat = 25.283307;
 //        double lon = 83.003229;
 
@@ -144,26 +145,26 @@ public class InventoryFragment extends Fragment {
     private void getNearbyInventory(double latitude, double longitude, double distance){
         //gets inventory within distance km
         // ~1 mile of lat and lon in degrees
-        distance = distance/1.609; // converting km to miles equivalent
-        double lat = 0.0144927536231884;
-        double lon = 0.0181818181818182;
-
-        double lowerLat = latitude - (lat * distance);
-        double lowerLon = longitude - (lon * distance);
-
-        double greaterLat = latitude + (lat * distance);
-        double greaterLon = longitude + (lon * distance);
-
-        GeoPoint lesserGeopoint = new GeoPoint(lowerLat, lowerLon);
-        GeoPoint greaterGeopoint = new GeoPoint(greaterLat, greaterLon);
+//        distance = distance/1.609; // converting km to miles equivalent
+//        double lat = 0.0144927536231884;
+//        double lon = 0.0181818181818182;
+//
+//        double lowerLat = latitude - (lat * distance);
+//        double lowerLon = longitude - (lon * distance);
+//
+//        double greaterLat = latitude + (lat * distance);
+//        double greaterLon = longitude + (lon * distance);
+//
+//        GeoPoint lesserGeopoint = new GeoPoint(lowerLat, lowerLon);
+//        GeoPoint greaterGeopoint = new GeoPoint(greaterLat, greaterLon);
 
         if(inventoryArrayList.size() > 0) {
             inventoryArrayList.clear();
         }
 
-        Query query = mRef.collection("inventory")
-                .whereGreaterThan("location", lesserGeopoint)
-                .whereLessThan("location", greaterGeopoint);
+        Query query = mRef.collection("inventory");
+//                .whereGreaterThan("location", lesserGeopoint)
+//                .whereLessThan("location", greaterGeopoint);
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -182,81 +183,81 @@ public class InventoryFragment extends Fragment {
         });
     }
 
-    void accessLocation(){
-        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(getContext());
-
-        LocationRequest lr = new LocationRequest();
-        lr.setInterval(10000);
-        lr.setFastestInterval(3000);
-        lr.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationCallback callback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                if (client != null) {
-                    client.removeLocationUpdates(this);
-                }
-                if(locationResult == null) {
-                    Log.d("test", "no latitude and longitude");
-                }
-                if (locationResult != null && locationResult.getLocations().size() > 0) {
-                    try{
-                        int latestIdx = locationResult.getLocations().size() - 1;
-                        Location location = locationResult.getLocations().get(latestIdx);
-                        Log.i("test", "Latitude: " + location.getLatitude());
-                        Log.i("test","Longitude: " + location.getLongitude());
-                        double test_lat = location.getLatitude();
-                        double test_long = location.getLongitude();
-                        getNearbyInventory(test_lat, test_long, within);
-                    }catch (Exception e){
-                    }
-                }
-            }
-        };
-
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    locationRequestCode);
-            return;
-        }
-        LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
-            alert.setTitle("Location Access Request");
-            alert.setMessage("Press Ok to turn on location. ");
-            alert.setPositiveButton("Ok", (dialog, which) -> {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            });
-            alert.setNegativeButton("No", (dialog, which) -> {
-                Toast.makeText(getActivity(), "Please turn on location to proceed.", Toast.LENGTH_SHORT).show();
-            });
-            alert.show();
-        } else {
-            client.requestLocationUpdates(lr, callback, Looper.getMainLooper());
-        }
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1000: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    accessLocation();
-                } else {
-                    Toast.makeText(getContext(), "Permission denied", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
-        }
-    }
+//    void accessLocation(){
+//        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(getContext());
+//
+//        LocationRequest lr = new LocationRequest();
+//        lr.setInterval(10000);
+//        lr.setFastestInterval(3000);
+//        lr.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//        LocationCallback callback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                super.onLocationResult(locationResult);
+//                if (client != null) {
+//                    client.removeLocationUpdates(this);
+//                }
+//                if(locationResult == null) {
+//                    Log.d("test", "no latitude and longitude");
+//                }
+//                if (locationResult != null && locationResult.getLocations().size() > 0) {
+//                    try{
+//                        int latestIdx = locationResult.getLocations().size() - 1;
+//                        Location location = locationResult.getLocations().get(latestIdx);
+//                        Log.i("test", "Latitude: " + location.getLatitude());
+//                        Log.i("test","Longitude: " + location.getLongitude());
+//                        double test_lat = location.getLatitude();
+//                        double test_long = location.getLongitude();
+//                        getNearbyInventory(test_lat, test_long, within);
+//                    }catch (Exception e){
+//                    }
+//                }
+//            }
+//        };
+//
+//        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+//                    locationRequestCode);
+//            return;
+//        }
+//        LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+//        if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//            MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
+//            alert.setTitle("Location Access Request");
+//            alert.setMessage("Press Ok to turn on location. ");
+//            alert.setPositiveButton("Ok", (dialog, which) -> {
+//                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                startActivity(intent);
+//            });
+//            alert.setNegativeButton("No", (dialog, which) -> {
+//                Toast.makeText(getActivity(), "Please turn on location to proceed.", Toast.LENGTH_SHORT).show();
+//            });
+//            alert.show();
+//        } else {
+//            client.requestLocationUpdates(lr, callback, Looper.getMainLooper());
+//        }
+//
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        switch (requestCode) {
+//            case 1000: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    accessLocation();
+//                } else {
+//                    Toast.makeText(getContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
+//            }
+//        }
+//    }
 
 }

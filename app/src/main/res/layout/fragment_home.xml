@@ -7,13 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".main.HomeFragment">
 
-    <ImageView
-        android:layout_width="207dp"
-        android:layout_height="395dp"
-        android:layout_alignParentBottom="true"
-        android:scaleType="fitEnd"
-        android:src="@drawable/ic_vine" />
-
     <RelativeLayout
         android:id="@+id/home"
         android:layout_width="match_parent"
@@ -76,61 +69,131 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/home_card_2"
+            android:layout_width="350dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="20dp"
+            android:layout_below="@id/home_card">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="30dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="95dp">
+                    <ImageView
+                        android:id="@+id/home_pay_im"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/icon_pay"
+                        android:tint="@color/colorPrimary"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pay"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="95dp">
+                    <ImageView
+                        android:id="@+id/home_add_money"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_add_circle"
+                        android:tint="@color/colorPrimary"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/home_card_2"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp">
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/home_add_money"
-            android:layout_width="200dp"
+            android:id="@+id/home_shop_fab"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             app:backgroundTint="@color/purple"
             app:rippleColor="@color/white"
             android:textColor="@color/white"
-            android:layout_marginTop="25dp"
-            android:layout_below="@id/home_card"
-            app:icon="@drawable/icon_add_money"
+            app:icon="@drawable/ic_cart"
             app:iconTint="@color/white"
-            android:text="Add Money"
-            android:textAllCaps="false"
-            android:layout_centerHorizontal="true" />
-
-
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/home_help_desk_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="71dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            app:backgroundTint="@color/purple"
-            app:rippleColor="@color/white"
-            android:textColor="@color/white"
-            app:icon="@drawable/ic_047_24_hours_support"
-            app:iconTint="@color/white"
-            android:text="Helpdesk!"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/home_feedback_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="45dp"
-            android:textAlignment="center"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            app:backgroundTint="@color/purple"
-            app:rippleColor="@color/white"
-            android:textColor="@color/white"
-            app:icon="@drawable/ic_feedback"
-            app:iconTint="@color/white"
-            android:text="Feedback"
-            android:textAllCaps="false" />
-
-
-
+            android:text="Shop"
+            android:layout_centerHorizontal="true"
+            android:textAllCaps="false"/>
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/home_order_fab"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                app:backgroundTint="#A9A9A9"
+                app:rippleColor="@color/white"
+                android:textColor="@color/white"
+                app:icon="@drawable/icon_transaction"
+                app:iconTint="@color/white"
+                android:text="View Orders"
+                android:layout_centerHorizontal="true"
+                android:textAllCaps="false"
+                android:layout_below="@id/home_shop_fab"
+                android:layout_marginTop="10dp"/>
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/home_help_fab"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                app:backgroundTint="@color/purple"
+                app:rippleColor="@color/white"
+                android:textColor="@color/white"
+                app:icon="@drawable/ic_047_24_hours_support"
+                app:iconTint="@color/white"
+                android:text="Helpdesk"
+                android:layout_centerHorizontal="true"
+                android:textAllCaps="false"
+                android:layout_below="@+id/home_order_fab"
+                android:layout_marginTop="10dp"/>
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/home_feedback_fab"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                app:backgroundTint="#A9A9A9"
+                app:rippleColor="@color/white"
+                android:textColor="@color/white"
+                app:icon="@drawable/ic_feedback"
+                app:iconTint="@color/white"
+                android:text="Feedback"
+                android:layout_below="@id/home_help_fab"
+                android:layout_centerHorizontal="true"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"/>
+        </RelativeLayout>
     </RelativeLayout>
 
     <RelativeLayout
