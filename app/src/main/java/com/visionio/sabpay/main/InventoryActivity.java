@@ -88,6 +88,7 @@ public class InventoryActivity extends AppCompatActivity {
     Chip loadMore_chip;
     Query loadItemQuery;
     long itemLimit = 10;
+    boolean isAllItemsLoaded = false;
 
     // dialog views
     Dialog cart_dialog;
@@ -165,6 +166,7 @@ public class InventoryActivity extends AppCompatActivity {
         loadMore_chip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                loadMore_chip.setEnabled(false);
                 loadItems(mInventory.getId());
             }
         });
@@ -179,28 +181,43 @@ public class InventoryActivity extends AppCompatActivity {
                     .whereArrayContains("inventories", inv_id)
                     .limit(itemLimit);
         }
-
+        if(isAllItemsLoaded){
+            Utils.toast(this, "No more items", Toast.LENGTH_SHORT);
+            loadMore_chip.setEnabled(true);
+            return;
+        }
+        Log.i("test", "loadItems: read++");
         loadItemQuery.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        loadMore_chip.setEnabled(true);
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
                             assert querySnapshot != null;
-
-                            DocumentSnapshot lastVisible = querySnapshot.getDocuments()
-                                    .get(querySnapshot.size() -1);
-                            loadItemQuery = mRef.collection("item")
-                                    .orderBy("title")
-                                    .whereArrayContains("inventories", inv_id)
-                                    .startAfter(lastVisible)
-                                    .limit(itemLimit);
 
                             List<Item> itemList = new ArrayList<>();
                             for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                 itemList.add(documentSnapshot.toObject(Item.class));
                             }
-                            adapter.setItemList(itemList);
+
+                            if(itemList.size()!=0){
+                                DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+                                        .get(querySnapshot.size() -1);
+                                loadItemQuery = mRef.collection("item")
+                                        .orderBy("title")
+                                        .whereArrayContains("inventories", inv_id)
+                                        .startAfter(lastVisible)
+                                        .limit(itemLimit);
+                                adapter.setItemList(itemList);
+                                if(itemList.size()<itemLimit){
+                                    isAllItemsLoaded = true;
+                                    loadItemQuery = null;
+                                }
+                            }else{
+                                loadItemQuery = null;
+                                isAllItemsLoaded = true;
+                            }
                         } else {
                             Log.i("toast", task.getException().getLocalizedMessage());
                             Utils.toast(InventoryActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
