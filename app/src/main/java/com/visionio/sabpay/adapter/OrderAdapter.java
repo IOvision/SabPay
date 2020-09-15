@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
+import com.visionio.sabpay.models.Item;
 import com.visionio.sabpay.models.Order;
 
 import java.util.List;
@@ -27,7 +28,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         itemTouchListener = recyclerItemTouchListener;
     }
 
-
+    public void setOrderList(List<Order> orderList) {
+        if(this.orders==null){
+            this.orders = orderList;
+        }
+        else {
+            this.orders.addAll(orderList);
+        }
+        notifyDataSetChanged();
+    }
 
     @Override
     public long getItemId(int position) {

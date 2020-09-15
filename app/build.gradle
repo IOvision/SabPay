@@ -6,7 +6,7 @@ android {
    signingConfigs {
        release {
            //storeFile file('/Users/danishjamal/Documents/Android/Sabpay-confidential/keystore_encrypted.jks')
-           //storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
+           storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
            storePassword 'Vision.io@9654'
            keyAlias 'upload'
            keyPassword 'Vision.io@9654'

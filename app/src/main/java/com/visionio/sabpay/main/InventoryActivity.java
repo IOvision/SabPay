@@ -194,6 +194,7 @@ public class InventoryActivity extends AppCompatActivity {
                         loadMore_chip.setEnabled(true);
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
+
                             assert querySnapshot != null;
 
                             List<Item> itemList = new ArrayList<>();

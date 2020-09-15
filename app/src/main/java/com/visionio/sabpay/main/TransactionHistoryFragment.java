@@ -2,6 +2,7 @@ package com.visionio.sabpay.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -53,7 +55,11 @@ public class TransactionHistoryFragment extends Fragment {
     OrderAdapter orderAdapter;
     MaterialButtonToggleGroup toggleButton;
     FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
+    long itemLimit = 10;
+    Query loadOrderQuery;
+    FirebaseFirestore mRef;
+    Chip loadMore_chip;
+    boolean isAllItemsLoaded = false;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -66,6 +72,7 @@ public class TransactionHistoryFragment extends Fragment {
         toggleButton = view.findViewById(R.id.toggleButtonHistory);
         transactions = view.findViewById(R.id.btn_transaction_history);
         orders = view.findViewById(R.id.btn_order_history);
+        loadMore_chip = view.findViewById(R.id.history_loadMore_chip);
         ((MainActivity)getActivity()).setTitle("History");
         return view;
     }
@@ -73,14 +80,15 @@ public class TransactionHistoryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        mRef = FirebaseFirestore.getInstance();
         toggleButton.setSingleSelection(true);
 
         toggleButton.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (checkedId == R.id.btn_transaction_history) {
+
                 loadTransactionHistory();
             } else if (checkedId == R.id.btn_order_history) {
-                loadOrderHistory();
+
             } else {
                 //
             }
@@ -115,29 +123,80 @@ public class TransactionHistoryFragment extends Fragment {
     void loadOrder() {
         progressBar.setVisibility(View.VISIBLE);
         bg_txt_tv.setVisibility(View.GONE);
-        FirebaseFirestore.getInstance().collection("order").whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid()).get()
+
+        if(loadOrderQuery == null) {
+            loadOrderQuery = mRef.collection("order")
+                    .whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid())
+                    .orderBy("timestamp")
+                    .limit(itemLimit);
+        }
+        if(isAllItemsLoaded) {
+            Utils.toast(getContext(), "No more items", Toast.LENGTH_SHORT);
+            progressBar.setVisibility(View.GONE);
+            loadMore_chip.setEnabled(true);
+            return;
+        }
+        loadOrderQuery.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        progressBar.setVisibility(View.GONE);
-                        if (task.isSuccessful()){
-                            if (task.getResult().getDocuments().size() != 0){
-                                List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                                for (DocumentSnapshot current : docs){
-                                    Order order = current.toObject(Order.class);
-                                    orderAdapter.add(order);
-                                }
-                            }else{
-                                if(orderRecyclerView.getVisibility()==View.VISIBLE){
-                                    bg_txt_tv.setText("No orders yet!");
-                                    bg_txt_tv.setVisibility(View.VISIBLE);
-                                }
+                        loadMore_chip.setEnabled(true);
+                        if(task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+
+                            assert querySnapshot != null;
+
+                            List<Order> orderList = new ArrayList<>();
+                            for(DocumentSnapshot documentSnapshot: querySnapshot) {
+                                orderAdapter.add(documentSnapshot.toObject(Order.class));
+                                orderList.add(documentSnapshot.toObject(Order.class));
                             }
-                        }else{
-                            Utils.toast(getContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                            if(orderList.size()!=0) {
+                                DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+                                        .get(querySnapshot.size() - 1);
+                                loadOrderQuery = mRef.collection("order")
+                                        .orderBy("timestamp")
+                                        .whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid())
+                                        .startAfter(lastVisible)
+                                        .limit(itemLimit);
+                                orderAdapter.setOrderList(orderList);
+                                if(orderList.size()<itemLimit) {
+                                    isAllItemsLoaded = true;
+                                    loadOrderQuery = null;
+                                } else {
+                                    loadOrderQuery = null;
+                                    isAllItemsLoaded = true;
+                                }
+                            } else {
+                                Log.i("toast", task.getException().getLocalizedMessage());
+                                Utils.toast(getActivity(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                            }
                         }
                     }
                 });
+//        FirebaseFirestore.getInstance().collection("order").whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid()).get()
+//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        progressBar.setVisibility(View.GONE);
+//                        if (task.isSuccessful()){
+//                            if (task.getResult().getDocuments().size() != 0){
+//                                List<DocumentSnapshot> docs = task.getResult().getDocuments();
+//                                for (DocumentSnapshot current : docs){
+//                                    Order order = current.toObject(Order.class);
+//                                    orderAdapter.add(order);
+//                                }
+//                            }else{
+//                                if(orderRecyclerView.getVisibility()==View.VISIBLE){
+//                                    bg_txt_tv.setText("No orders yet!");
+//                                    bg_txt_tv.setVisibility(View.VISIBLE);
+//                                }
+//                            }
+//                        }else{
+//                            Utils.toast(getContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+//                        }
+//                    }
+//                });
     }
 
     public void loadTransactionHistory() {
