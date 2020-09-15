@@ -58,16 +58,35 @@
 
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/inv_activity_rv_nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/inv_activity_rv"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/inventorty_item_list_item" />
+            android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/inv_activity_rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/inventorty_item_list_item" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/inv_activity_loadMore_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_more"
+                app:chipSurfaceColor="#FFDD00"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/blue_link"
+                android:layout_marginEnd="@dimen/dimen_32dp"
+                android:layout_marginBottom="48dp"/>
+        </RelativeLayout>
+
+
 
     </androidx.core.widget.NestedScrollView>
 

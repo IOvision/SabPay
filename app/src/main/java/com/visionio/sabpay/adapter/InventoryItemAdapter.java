@@ -23,13 +23,19 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
     OnItemClickListener<Item> clickListener;
 
     public void setItemList(List<Item> itemList) {
-        this.itemList = itemList;
+        if(this.itemList==null){
+            this.itemList = itemList;
+        }
+        else {
+            this.itemList.addAll(itemList);
+        }
         notifyDataSetChanged();
     }
 
     public void setClickListener(OnItemClickListener<Item> clickListener) {
         this.clickListener = clickListener;
     }
+
 
     public InventoryItemAdapter(Context context, ArrayList<Item> inventoryList) {
         this.context = context;

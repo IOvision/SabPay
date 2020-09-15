@@ -16,6 +16,7 @@
     <string name="view_order_details">View Order Details</string>
     <string name="pay">Pay</string>
     <string name="enter_delivery_address">Enter Delivery Address</string>
+    <string name="show_more">Show More</string>
 
     <string-array name="category">
         <item>Select one</item>

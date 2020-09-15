@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +25,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -32,6 +34,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
@@ -71,6 +74,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     InventoryItemAdapter adapter;
     RecyclerView recyclerView;
+    NestedScrollView nestedScrollView;
 
     FirebaseFirestore mRef;
     FirebaseAuth mAuth;
@@ -79,6 +83,11 @@ public class InventoryActivity extends AppCompatActivity {
 
     //TODO: Create separate static class for cart
     List<Item> cart;
+
+    // pagination query
+    Chip loadMore_chip;
+    Query loadItemQuery;
+    long itemLimit = 10;
 
     // dialog views
     Dialog cart_dialog;
@@ -118,9 +127,11 @@ public class InventoryActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(mInventory.getName());
         cart = new ArrayList<>();
 
+        nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
         inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
+        loadMore_chip = findViewById(R.id.inv_activity_loadMore_chip);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
@@ -151,24 +162,47 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
+        loadMore_chip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadItems(mInventory.getId());
+            }
+        });
         loadItems(mInventory.getId());
     }
 
     void loadItems(String inv_id) {
-        mRef.collection("item")
-                .whereArrayContains("inventories", inv_id).get()
+
+        if(loadItemQuery==null){
+            loadItemQuery = mRef.collection("item")
+                    .orderBy("title")
+                    .whereArrayContains("inventories", inv_id)
+                    .limit(itemLimit);
+        }
+
+        loadItemQuery.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
                             assert querySnapshot != null;
+
+                            DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+                                    .get(querySnapshot.size() -1);
+                            loadItemQuery = mRef.collection("item")
+                                    .orderBy("title")
+                                    .whereArrayContains("inventories", inv_id)
+                                    .startAfter(lastVisible)
+                                    .limit(itemLimit);
+
                             List<Item> itemList = new ArrayList<>();
                             for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                 itemList.add(documentSnapshot.toObject(Item.class));
                             }
                             adapter.setItemList(itemList);
                         } else {
+                            Log.i("toast", task.getException().getLocalizedMessage());
                             Utils.toast(InventoryActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
                         }
                     }
