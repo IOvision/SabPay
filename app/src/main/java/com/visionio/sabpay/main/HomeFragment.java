@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -19,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.ThreeBounce;
@@ -75,11 +79,11 @@ public class HomeFragment extends Fragment {
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseFirestore mRef = FirebaseFirestore.getInstance();
     TextView balanceTv, wallet_text, current_balance_text;
-    ExtendedFloatingActionButton addMoney;
+    ImageView addMoney, pay;
     ProgressBar balance_pb, add_money_pg;
     ListenerRegistration listenerRegistration;
     Button btn_add, btn_cancel;
-    ExtendedFloatingActionButton helpDesk_btn, feedback_btn;
+    ExtendedFloatingActionButton helpDesk_btn, feedback_btn, shop_btn, orders_btn;
     RelativeLayout add;
     String amount;
     EditText et_amount;
@@ -87,6 +91,9 @@ public class HomeFragment extends Fragment {
     LinearLayout ll;
     final int PaytmActivityCode = 160;
     String orderid, mid, txnToken, callbackurl;
+    FragmentManager fragmentManager;
+    FrameLayout frameLayout;
+    FragmentTransaction fragmentTransaction;
     //AddTransaction transaction = new AddTransaction(amount.getText().toString(), user.getCustomerID());
 
     public HomeFragment() {
@@ -109,16 +116,50 @@ public class HomeFragment extends Fragment {
         balanceTv = view.findViewById(R.id.home_balance);
         addMoney = view.findViewById(R.id.home_add_money);
         balance_pb = view.findViewById(R.id.home_balance_pb);
-        helpDesk_btn = view.findViewById(R.id.home_help_desk_btn);
+        helpDesk_btn = view.findViewById(R.id.home_help_fab);
         add = view.findViewById(R.id.home_add);
         btn_add = view.findViewById(R.id.home_add_btn);
         btn_cancel = view.findViewById(R.id.home_add_cancel);
         et_amount = view.findViewById(R.id.home_add_et);
-        feedback_btn = view.findViewById(R.id.home_feedback_btn);
+        feedback_btn = view.findViewById(R.id.home_feedback_fab);
+        shop_btn = view.findViewById(R.id.home_shop_fab);
+        orders_btn = view.findViewById(R.id.home_order_fab);
         add_money_pg = view.findViewById(R.id.home_add_money_pg);
+        pay = view.findViewById(R.id.home_pay_im);
         wallet_text = view.findViewById(R.id.home_your_wallet);
         current_balance_text = view.findViewById(R.id.home_current_balance);
         ll = view.findViewById(R.id.home_ll);
+
+        pay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PayFragment fragment = new PayFragment();
+                fragmentManager = getFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frame, fragment);
+                fragmentTransaction.commit();
+            }
+        });
+        shop_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InventoryFragment fragment = new InventoryFragment();
+                fragmentManager = getFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frame, fragment);
+                fragmentTransaction.commit();
+            }
+        });
+        orders_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TransactionHistoryFragment fragment = new TransactionHistoryFragment();
+                fragmentManager = getFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frame, fragment);
+                fragmentTransaction.commit();
+            }
+        });
         feedback_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), FeedbackActivity.class)));
 
         helpDesk_btn.setOnClickListener(v -> startActivity(new Intent(getActivity(), HelpDeskActivity.class)));

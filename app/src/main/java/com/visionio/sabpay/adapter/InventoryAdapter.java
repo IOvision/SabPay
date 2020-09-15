@@ -63,7 +63,12 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
     public void onBindViewHolder(@NonNull InventoryAdapter.InventoryViewHolder holder, final int position) {
         final Inventory current = inventoryList.get(position);
         holder.inventoryName.setText(current.getName());
-        holder.inventoryLocation.setText(String.valueOf(current.isOpened()));
+        if(current.isOpened()) {
+            holder.inventoryLocation.setText("Open");
+        } else {
+            holder.inventoryLocation.setText("Close");
+        }
+//        holder.inventoryLocation.setText(String.valueOf(current.isOpened()));
         holder.symbol.setSliderAdapter(new SimpleImageAdapter(context){{
             setImageUrls(current.getImages());
         }});
