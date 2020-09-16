@@ -38,8 +38,8 @@
                 app:sliderIndicatorSelectedColor="#5A5A5A"
                 app:sliderIndicatorUnselectedColor="#FFF"
                 app:sliderScrollTimeInSec="2"
-                app:sliderStartAutoCycle="true" />
-
+                app:sliderStartAutoCycle="true">
+            </com.smarteist.autoimageslider.SliderView>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/inv_activity_toolbar"
@@ -103,6 +103,13 @@
         app:layout_anchorGravity="bottom|end"
         android:text="@string/_0" />
 
-
+    <ImageView
+        android:id="@+id/shop_info_icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_info"
+        android:layout_gravity="end"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,12 +2,15 @@ package com.visionio.sabpay.main;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -21,6 +24,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
@@ -105,6 +109,7 @@ public class InventoryActivity extends AppCompatActivity {
     Button payAndOrder_bt, confirmOrder_bt;
     Invoice mInvoice;
 
+    ImageView shop_info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,14 +137,16 @@ public class InventoryActivity extends AppCompatActivity {
         inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
         loadMore_chip = findViewById(R.id.inv_activity_loadMore_chip);
+        shop_info = findViewById(R.id.shop_info_icon);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
+        shop_info.setOnClickListener(v -> showInfoDialog());
+
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
-        adapter.setClickListener((object, position, view) -> {
-            addToCart(object);
-            //Utils.toast(InventoryActivity.this, object.getTitle(), Toast.LENGTH_LONG);
-        });
+
+        adapter.setClickListener((object, position, view) -> addToCart(object));
+
         recyclerView.setAdapter(adapter);
 
         inv_images_sv.setSliderAdapter(new SimpleImageAdapter(this) {{
@@ -160,7 +167,43 @@ public class InventoryActivity extends AppCompatActivity {
             loadMore_chip.setEnabled(false);
             loadItems(mInventory.getId());
         });
+
         loadItems(mInventory.getId());
+    }
+
+    private void showInfoDialog() {
+        Dialog dialog = new Dialog(InventoryActivity.this);
+        dialog.setContentView(R.layout.shop_info_layout);
+        Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        TextView shopName, ownerName, email, phone;
+        ExtendedFloatingActionButton call;
+
+        shopName = dialog.findViewById(R.id.shop_info_shop_name);
+        ownerName = dialog.findViewById(R.id.shop_info_owner_name);
+        email = dialog.findViewById(R.id.shop_info_email);
+        phone = dialog.findViewById(R.id.shop_info_number);
+        call = dialog.findViewById(R.id.shop_info_call);
+
+        shopName.setText(mInventory.getName());
+        mRef.collection("user").document(mInventory.getOwner().getId()).get()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        User inventoryUser = Objects.requireNonNull(task.getResult()).toObject(User.class);
+                        assert inventoryUser != null;
+                        ownerName.setText(inventoryUser.getName());
+                        email.setText(inventoryUser.getEmail());
+                        phone.setText(inventoryUser.getPhone());
+                        call.setOnClickListener(v -> {
+                            String SPhone = phone.getText().toString();
+                            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", SPhone, null));
+                            startActivity(intent);
+                        });
+                        dialog.show();
+                    } else {
+                        Toast.makeText(InventoryActivity.this, "Some error occurred", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     void loadItems(String inv_id) {
@@ -207,7 +250,8 @@ public class InventoryActivity extends AppCompatActivity {
                             isAllItemsLoaded = true;
                         }
                     } else {
-                        Utils.toast(InventoryActivity.this, Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
+                        Utils.toast(InventoryActivity.this,
+                                Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
                     }
                 });
     }
@@ -322,6 +366,7 @@ public class InventoryActivity extends AppCompatActivity {
                 new AlertDialog.Builder(InventoryActivity.this)
                         .setTitle("Proceed Further")
                         .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
+
                         .setPositiveButton("Continue", (dialog, which) -> {
                             invoice_dialog.dismiss();
                             pay();
@@ -348,6 +393,7 @@ public class InventoryActivity extends AppCompatActivity {
                         .setNegativeButton("Cancel", null)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
+
             }
         });
 
