@@ -3,11 +3,14 @@ package com.visionio.sabpay.main;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +48,6 @@ import com.visionio.sabpay.adapter.InventoryItemAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.api.SabPayNotify;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
@@ -102,10 +104,11 @@ public class InventoryActivity extends AppCompatActivity {
     BottomSheetDialog invoice_dialog;
     TextView item_count_tv, entity_count_tv, order_from_tv;
     TextView base_amount_tv, delivery_charge_tv;
-    TextView total_tv, discount_tv, payable_amount_tv, promo_tv ;
+    TextView total_tv, discount_tv, payable_amount_tv;
     Button payAndOrder_bt, confirmOrder_bt;
     Invoice mInvoice;
 
+    ImageView shop_info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +128,7 @@ public class InventoryActivity extends AppCompatActivity {
         //mInventory = (Inventory)i.getSerializableExtra("inventory");
         String json = i.getStringExtra("inventory");
         mInventory = Inventory.formJson(json);
-        getSupportActionBar().setTitle(mInventory.getName());
+        Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
         cart = new ArrayList<>();
 
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
@@ -133,17 +136,14 @@ public class InventoryActivity extends AppCompatActivity {
         inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
         loadMore_chip = findViewById(R.id.inv_activity_loadMore_chip);
+        shop_info = findViewById(R.id.shop_info_icon);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
+        shop_info.setOnClickListener(v -> showInfoDialog());
+
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
-        adapter.setClickListener(new OnItemClickListener<Item>() {
-            @Override
-            public void onItemClicked(Item object, int position, View view) {
-                addToCart(object);
-                //Utils.toast(InventoryActivity.this, object.getTitle(), Toast.LENGTH_LONG);
-            }
-        });
+        adapter.setClickListener((object, position, view) -> addToCart(object));
         recyclerView.setAdapter(adapter);
 
         inv_images_sv.setSliderAdapter(new SimpleImageAdapter(this) {{
@@ -170,7 +170,46 @@ public class InventoryActivity extends AppCompatActivity {
                 loadItems(mInventory.getId());
             }
         });
+
         loadItems(mInventory.getId());
+    }
+
+    private void showInfoDialog() {
+        Dialog dialog = new Dialog(InventoryActivity.this);
+        dialog.setContentView(R.layout.shop_info_layout);
+        Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        TextView shopName, ownerName, email, phone;
+        ExtendedFloatingActionButton call;
+
+        shopName = dialog.findViewById(R.id.shop_info_shop_name);
+        ownerName = dialog.findViewById(R.id.shop_info_owner_name);
+        email = dialog.findViewById(R.id.shop_info_email);
+        phone = dialog.findViewById(R.id.shop_info_number);
+        call = dialog.findViewById(R.id.shop_info_call);
+
+        shopName.setText(mInventory.getName());
+        mRef.collection("user").document(mInventory.getOwner().getId()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()) {
+                            User inventoryUser = Objects.requireNonNull(task.getResult()).toObject(User.class);
+                            assert inventoryUser != null;
+                            ownerName.setText(inventoryUser.getName());
+                            email.setText(inventoryUser.getEmail());
+                            phone.setText(inventoryUser.getPhone());
+                            call.setOnClickListener(v -> {
+                                String SPhone = phone.getText().toString();
+                                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", SPhone, null));
+                                startActivity(intent);
+                            });
+                            dialog.show();
+                        } else {
+                            Toast.makeText(InventoryActivity.this, "Some error occurred", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     void loadItems(String inv_id) {
@@ -188,41 +227,38 @@ public class InventoryActivity extends AppCompatActivity {
         }
         Log.i("test", "loadItems: read++");
         loadItemQuery.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        loadMore_chip.setEnabled(true);
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
+                .addOnCompleteListener(task -> {
+                    loadMore_chip.setEnabled(true);
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
 
-                            assert querySnapshot != null;
+                        assert querySnapshot != null;
 
-                            List<Item> itemList = new ArrayList<>();
-                            for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                itemList.add(documentSnapshot.toObject(Item.class));
-                            }
-
-                            if(itemList.size()!=0){
-                                DocumentSnapshot lastVisible = querySnapshot.getDocuments()
-                                        .get(querySnapshot.size() -1);
-                                loadItemQuery = mRef.collection("item")
-                                        .orderBy("title")
-                                        .whereArrayContains("inventories", inv_id)
-                                        .startAfter(lastVisible)
-                                        .limit(itemLimit);
-                                adapter.setItemList(itemList);
-                                if(itemList.size()<itemLimit){
-                                    isAllItemsLoaded = true;
-                                    loadItemQuery = null;
-                                }
-                            }else{
-                                loadItemQuery = null;
-                                isAllItemsLoaded = true;
-                            }
-                        } else {
-                            Log.i("toast", task.getException().getLocalizedMessage());
-                            Utils.toast(InventoryActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                        List<Item> itemList = new ArrayList<>();
+                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                            itemList.add(documentSnapshot.toObject(Item.class));
                         }
+
+                        if(itemList.size()!=0){
+                            DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+                                    .get(querySnapshot.size() -1);
+                            loadItemQuery = mRef.collection("item")
+                                    .orderBy("title")
+                                    .whereArrayContains("inventories", inv_id)
+                                    .startAfter(lastVisible)
+                                    .limit(itemLimit);
+                            adapter.setItemList(itemList);
+                            if(itemList.size()<itemLimit){
+                                isAllItemsLoaded = true;
+                                loadItemQuery = null;
+                            }
+                        }else{
+                            loadItemQuery = null;
+                            isAllItemsLoaded = true;
+                        }
+                    } else {
+                        Log.i("toast", task.getException().getLocalizedMessage());
+                        Utils.toast(InventoryActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
                     }
                 });
     }
@@ -256,17 +292,14 @@ public class InventoryActivity extends AppCompatActivity {
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
-        dialog_confirm_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String address = delivery_address_til.getEditText().getText().toString().trim();
-                if(address.equals("")){
-                    delivery_address_til.setError("Address Can't be empty");
-                } else{
-                    delivery_address_til.setErrorEnabled(false);
-                    delivery_address = address;
-                    showInvoice();
-                }
+        dialog_confirm_bt.setOnClickListener(v -> {
+            String address = delivery_address_til.getEditText().getText().toString().trim();
+            if(address.equals("")){
+                delivery_address_til.setError("Address Can't be empty");
+            } else{
+                delivery_address_til.setErrorEnabled(false);
+                delivery_address = address;
+                showInvoice();
             }
         });
 
@@ -321,25 +354,18 @@ public class InventoryActivity extends AppCompatActivity {
         });
 
 
-        payAndOrder_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
-                    Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
-                } else {
-                    new AlertDialog.Builder(InventoryActivity.this)
-                            .setTitle("Proceed Further")
-                            .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
-                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    pay();
-                                }
-                            })
+        payAndOrder_bt.setOnClickListener(v -> {
+            if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
+                Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
+            } else {
+                new AlertDialog.Builder(InventoryActivity.this)
+                        .setTitle("Proceed Further")
+                        .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
+                        .setPositiveButton("Continue", (dialog, which) -> pay())
 
-                            .setNegativeButton("Cancel", null)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                }
+                        .setNegativeButton("Cancel", null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
         confirmOrder_bt.setOnClickListener(new View.OnClickListener() {
@@ -352,11 +378,7 @@ public class InventoryActivity extends AppCompatActivity {
                             .setTitle("Proceed Further")
                             .setMessage("Are you sure?")
 
-                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    placeOrder(null);
-                                }
-                            })
+                            .setPositiveButton("Continue", (dialog, which) -> placeOrder(null))
 
                             .setNegativeButton("Cancel", null)
                             .setIcon(android.R.drawable.ic_dialog_alert)
@@ -411,6 +433,7 @@ public class InventoryActivity extends AppCompatActivity {
                 if(!response.isSuccessful()){
                     String body = null;
                     try {
+                        assert response.errorBody() != null;
                         body = response.errorBody().string();
                     } catch (IOException e) {
                         body = "{}";
@@ -428,7 +451,7 @@ public class InventoryActivity extends AppCompatActivity {
                     String s = String.format("Status: %s\nFrom: %s\nAmount: %s\nTransaction Id: %s",
                             result.get("status"), result.get("from"), result.get("amount"), result.get("transactionId"));
                     Utils.toast(InventoryActivity.this, s, Toast.LENGTH_LONG);
-                    String transactionId =  result.get("transactionId").toString();
+                    String transactionId =  Objects.requireNonNull(result.get("transactionId")).toString();
                     placeOrder(transactionId);
                 }
             }
@@ -479,22 +502,18 @@ public class InventoryActivity extends AppCompatActivity {
             mInvoice.setTransaction(transactionId);
         }
         order.updateActiveState();
-        mRef.runTransaction(new Transaction.Function<Void>() {
-            @Nullable
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentReference orderRef = mRef.document("order/"+order.getOrderId());
-                if(order.getInvoiceId()!=null){
-                    String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), order.getInvoiceId());
-                    DocumentReference invoiceRef = mRef.document(path);
+        mRef.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference orderRef = mRef.document("order/"+order.getOrderId());
+            if(order.getInvoiceId()!=null){
+                String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), order.getInvoiceId());
+                DocumentReference invoiceRef = mRef.document(path);
 
-                    transaction.set(orderRef, order);
-                    transaction.set(invoiceRef, mInvoice);
-                }else{
-                    transaction.set(orderRef, order);
-                }
-                return null;
+                transaction.set(orderRef, order);
+                transaction.set(invoiceRef, mInvoice);
+            }else{
+                transaction.set(orderRef, order);
             }
+            return null;
         }).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
