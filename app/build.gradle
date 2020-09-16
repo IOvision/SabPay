@@ -6,7 +6,7 @@ android {
    signingConfigs {
        release {
            //storeFile file('/Users/danishjamal/Documents/Android/Sabpay-confidential/keystore_encrypted.jks')
-           storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
+           storeFile file('C:\\Users\\Rakshit\\keystore_encrypted.jks')
            storePassword 'Vision.io@9654'
            keyAlias 'upload'
            keyPassword 'Vision.io@9654'
@@ -26,7 +26,7 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
-            debuggable false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {

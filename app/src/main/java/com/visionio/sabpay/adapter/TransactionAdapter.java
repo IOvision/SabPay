@@ -40,6 +40,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         mAuth = FirebaseAuth.getInstance();
     }
 
+    public void setTransactionList(List<Transaction> transactionList) {
+        if (this.transactions==null) {
+            this.transactions = transactionList;
+        } else {
+            this.transactions.addAll(transactionList);
+        }
+        notifyDataSetChanged();
+    }
+
     @Override
     public long getItemId(int position) {
         return position;

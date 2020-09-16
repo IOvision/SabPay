@@ -54,9 +54,8 @@ public class TransactionHistoryFragment extends Fragment {
     TransactionAdapter transactionAdapter;
     OrderAdapter orderAdapter;
     MaterialButtonToggleGroup toggleButton;
-    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    long itemLimit = 10;
-    Query loadOrderQuery;
+    long itemLimit = 2;
+    Query loadOrderQuery, loadTransactionQuery;
     FirebaseFirestore mRef;
     Chip loadMore_chip;
     boolean isAllItemsLoaded = false;
@@ -83,12 +82,18 @@ public class TransactionHistoryFragment extends Fragment {
         mRef = FirebaseFirestore.getInstance();
         toggleButton.setSingleSelection(true);
 
+        loadMore_chip.setOnClickListener(view1 -> {
+            if (toggleButton.getCheckedButtonId() == R.id.btn_transaction_history)
+                loadTransactions();
+            else
+                loadOrders();
+        });
+
         toggleButton.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (checkedId == R.id.btn_transaction_history) {
-
                 loadTransactionHistory();
             } else if (checkedId == R.id.btn_order_history) {
-
+                loadOrderHistory();
             } else {
                 //
             }
@@ -97,30 +102,26 @@ public class TransactionHistoryFragment extends Fragment {
     }
 
     public void loadOrderHistory() {
+        isAllItemsLoaded = false;
         transactionRecyclerView.setVisibility(View.GONE);
         orderRecyclerView.setVisibility(View.VISIBLE);
-        orderAdapter = new OrderAdapter(new ArrayList<>(), new OnItemClickListener<Order>() {
-            @Override
-            public void onItemClicked(Order order, int position, View view) {
-                    Intent i = new Intent(getActivity(), InvoiceActivity.class);
-                    String orderJson = new Gson().toJson(order);
-                    i.putExtra("order", orderJson);
-                    i.putExtra("invoiceId", order.getInvoiceId());
-                    i.putExtra("orderId", order.getOrderId());
-                    i.putExtra("orderStatus", order.getStatus());
-                    startActivity(i);
-
-            }
+        orderAdapter = new OrderAdapter(new ArrayList<>(), (order, position, view) -> {
+                Intent i = new Intent(getActivity(), InvoiceActivity.class);
+                String orderJson = new Gson().toJson(order);
+                i.putExtra("order", orderJson);
+                i.putExtra("invoiceId", order.getInvoiceId());
+                i.putExtra("orderId", order.getOrderId());
+                i.putExtra("orderStatus", order.getStatus());
+                startActivity(i);
         });
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderRecyclerView.setHasFixedSize(false);
         orderRecyclerView.setAdapter(orderAdapter);
-
-        loadOrder();
+        loadOrders();
     }
 
 
-    void loadOrder() {
+    void loadOrders() {
         progressBar.setVisibility(View.VISIBLE);
         bg_txt_tv.setVisibility(View.GONE);
 
@@ -137,71 +138,50 @@ public class TransactionHistoryFragment extends Fragment {
             return;
         }
         loadOrderQuery.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        loadMore_chip.setEnabled(true);
-                        if(task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
+                .addOnCompleteListener(task -> {
+                    loadMore_chip.setEnabled(true);
+                    if(task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        Log.d("testing", "size: " + task.getResult().size());
+                        assert querySnapshot != null;
 
-                            assert querySnapshot != null;
-
-                            List<Order> orderList = new ArrayList<>();
-                            for(DocumentSnapshot documentSnapshot: querySnapshot) {
-                                orderAdapter.add(documentSnapshot.toObject(Order.class));
-                                orderList.add(documentSnapshot.toObject(Order.class));
-                            }
-                            if(orderList.size()!=0) {
-                                DocumentSnapshot lastVisible = querySnapshot.getDocuments()
-                                        .get(querySnapshot.size() - 1);
-                                loadOrderQuery = mRef.collection("order")
-                                        .orderBy("timestamp")
-                                        .whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid())
-                                        .startAfter(lastVisible)
-                                        .limit(itemLimit);
-                                orderAdapter.setOrderList(orderList);
-                                if(orderList.size()<itemLimit) {
-                                    isAllItemsLoaded = true;
-                                    loadOrderQuery = null;
-                                } else {
-                                    loadOrderQuery = null;
-                                    isAllItemsLoaded = true;
-                                }
-                            } else {
-                                Log.i("toast", task.getException().getLocalizedMessage());
-                                Utils.toast(getActivity(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
-                            }
+                        List<Order> orderList = new ArrayList<>();
+                        for(DocumentSnapshot documentSnapshot: querySnapshot) {
+                            orderAdapter.add(documentSnapshot.toObject(Order.class));
+                            orderList.add(documentSnapshot.toObject(Order.class));
                         }
+                        if(orderList.size()!=0) {
+                            DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+                                    .get(querySnapshot.size() - 1);
+                            loadOrderQuery = mRef.collection("order")
+                                    .orderBy("timestamp")
+                                    .whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid())
+                                    .startAfter(lastVisible)
+                                    .limit(itemLimit);
+                            orderAdapter.setOrderList(orderList);
+                            if(orderList.size()<itemLimit) {
+                                isAllItemsLoaded = true;
+                                loadOrderQuery = null;
+                            } else {
+                                loadOrderQuery = null;
+                                isAllItemsLoaded = true;
+                            }
+                        } else {
+                            loadOrderQuery = null;
+                            isAllItemsLoaded = true;
+                        }
+                    } else {
+                        Log.i("toast", task.getException().getLocalizedMessage());
+                        Utils.toast(getActivity(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
                     }
                 });
-//        FirebaseFirestore.getInstance().collection("order").whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid()).get()
-//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        progressBar.setVisibility(View.GONE);
-//                        if (task.isSuccessful()){
-//                            if (task.getResult().getDocuments().size() != 0){
-//                                List<DocumentSnapshot> docs = task.getResult().getDocuments();
-//                                for (DocumentSnapshot current : docs){
-//                                    Order order = current.toObject(Order.class);
-//                                    orderAdapter.add(order);
-//                                }
-//                            }else{
-//                                if(orderRecyclerView.getVisibility()==View.VISIBLE){
-//                                    bg_txt_tv.setText("No orders yet!");
-//                                    bg_txt_tv.setVisibility(View.VISIBLE);
-//                                }
-//                            }
-//                        }else{
-//                            Utils.toast(getContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
-//                        }
-//                    }
-//                });
     }
 
     public void loadTransactionHistory() {
+        isAllItemsLoaded = false;
         orderRecyclerView.setVisibility(View.GONE);
         transactionRecyclerView.setVisibility(View.VISIBLE);
+
         transactionAdapter = new TransactionAdapter(new ArrayList<>());
         transactionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         transactionRecyclerView.setHasFixedSize(false);
@@ -213,38 +193,59 @@ public class TransactionHistoryFragment extends Fragment {
     public void loadTransactions(){
         progressBar.setVisibility(View.VISIBLE);
         bg_txt_tv.setVisibility(View.GONE);
-        FirebaseFirestore.getInstance().collection("user")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .collection("transaction")
-                // TODO: check the filter thing
-                //.whereEqualTo("type", 0)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                progressBar.setVisibility(View.GONE);
-                int i = 0;
-                for (DocumentSnapshot snapshot: queryDocumentSnapshots){
-                    Transaction currentTransaction = snapshot.toObject(Transaction.class);
 
-                    // TODO: fix getType thing and test the transaction item
-                    if(currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                        currentTransaction.setSendByMe(true);
-                    }else{
-                        currentTransaction.setSendByMe(false);
-                    }
-                    currentTransaction.loadUserDataFromReference(transactionAdapter);
-                    transactionAdapter.add(currentTransaction);
-                    progressBar.setVisibility(View.GONE);
-                    i++;
-                }
-                if(i==0 && transactionRecyclerView.getVisibility()==View.VISIBLE){
-                    bg_txt_tv.setVisibility(View.VISIBLE);
-                    bg_txt_tv.setText("No transaction");
-                }
-            }
-        }).addOnFailureListener(e -> {
+        if(loadTransactionQuery == null) {
+            loadTransactionQuery = mRef.collection("user")
+                    .document(FirebaseAuth.getInstance().getUid()).collection("transaction")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
+                    .limit(itemLimit);
+        }
+        if (isAllItemsLoaded) {
+            Utils.toast(getContext(), "No more items", Toast.LENGTH_SHORT);
             progressBar.setVisibility(View.GONE);
-        });
+            loadMore_chip.setEnabled(true);
+            return;
+        }
+        loadTransactionQuery.get()
+            .addOnCompleteListener(task -> {
+                loadMore_chip.setEnabled(true);
+                progressBar.setVisibility(View.GONE);
+                if (task.isSuccessful()) {
+                    QuerySnapshot querySnapshot = task.getResult();
+                    assert querySnapshot != null;
+                    Log.d("testing", "size: " + task.getResult().size());
+                    List<Transaction> transactions = new ArrayList<>();
+                    for (DocumentSnapshot documentSnapshot: querySnapshot) {
+                        Transaction currentTransaction = documentSnapshot.toObject(Transaction.class);
+                        if (currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getUid())){
+                            currentTransaction.setSendByMe(true);
+                        } else {
+                            currentTransaction.setSendByMe(false);
+                        }
+                        currentTransaction.loadUserDataFromReference(transactionAdapter);
+                        transactions.add(currentTransaction);
+                    }
+                    if (transactions.size()!=0) {
+                        DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+                                .get(querySnapshot.size() - 1);
+                        loadTransactionQuery = mRef.collection("user")
+                                .document(FirebaseAuth.getInstance().getUid()).collection("transaction")
+                                .orderBy("timestamp", Query.Direction.DESCENDING)
+                                .startAfter(lastVisible)
+                                .limit(itemLimit);
+                        transactionAdapter.setTransactionList(transactions);
+                        if (transactions.size()<itemLimit) {
+                            isAllItemsLoaded = true;
+                            loadTransactionQuery = null;
+                        }
+                    } else {
+                        loadTransactionQuery = null;
+                        isAllItemsLoaded = true;
+                    }
+                } else {
+                    Log.i("toast", task.getException().getLocalizedMessage());
+                    Utils.toast(getActivity(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                }
+            });
     }
 }
