@@ -1,6 +1,7 @@
 package com.visionio.sabpay.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.visionio.sabpay.models.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import it.sephiroth.android.library.numberpicker.NumberPicker;
@@ -39,10 +41,6 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
         this.context = context;
     }
 
-    public List<Item> getItemList() {
-        return itemList;
-    }
-
     public void setItemList(List<Item> itemList) {
         this.itemList = itemList;
     }
@@ -55,9 +53,6 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
         this.context = context;
     }
 
-    public OnItemClickListener<Item> getClickListener() {
-        return clickListener;
-    }
 
     public void setClickListener(OnItemClickListener<Item> clickListener) {
         this.clickListener = clickListener;
@@ -86,34 +81,39 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
             public void onProgressChanged(@NotNull NumberPicker numberPicker, int i, boolean b) {
                 Utils.toast(context, "prog: "+i, Toast.LENGTH_SHORT);
                 curr.setCart_qty(i);
+
+                if(i==0 && getItemCount()>0){
+                    itemList.remove(i);
+                    notifyItemRemoved(position);
+                    clickListener.onItemClicked(null, -2, null);
+                }
+                if(getItemCount()==0 && clickListener!=null){
+                    // info: callback when all items from cart is removed
+                    holder.qty_np.setNumberPickerChangeListener(null);
+                    clickListener.onItemClicked(null, -1, null);
+                }
             }
 
             @Override
             public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
-
+                Log.i("test", "onStartTrackingTouch: ");
             }
 
             @Override
             public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
-
+                Log.i("test", "onStopTrackingTouch: "+numberPicker.getProgress());
             }
         });
 
-        /*holder.qty_np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                if(newVal-oldVal>0){
-                    curr.addToCart();
-                }else{
-                    curr.removeFromCart();
-                }
-            }
-        });*/
     }
 
     @Override
     public int getItemCount() {
         return itemList.size();
+    }
+
+    public List<Item> getItemList() {
+        return new ArrayList<>(itemList);
     }
 
     class CartItemViewHolder extends RecyclerView.ViewHolder{

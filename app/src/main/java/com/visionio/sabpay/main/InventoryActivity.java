@@ -1,19 +1,19 @@
 package com.visionio.sabpay.main;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,8 +21,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
@@ -33,7 +31,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
@@ -45,13 +42,14 @@ import com.visionio.sabpay.adapter.InventoryItemAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.api.SabPayNotify;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,6 +90,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     // dialog views
     Dialog cart_dialog;
+    ProgressBar cart_dialog_pb;
     TextInputLayout delivery_address_til;
     String delivery_address;
     Button dialog_confirm_bt;
@@ -102,7 +101,7 @@ public class InventoryActivity extends AppCompatActivity {
     BottomSheetDialog invoice_dialog;
     TextView item_count_tv, entity_count_tv, order_from_tv;
     TextView base_amount_tv, delivery_charge_tv;
-    TextView total_tv, discount_tv, payable_amount_tv, promo_tv ;
+    TextView total_tv, discount_tv, payable_amount_tv;
     Button payAndOrder_bt, confirmOrder_bt;
     Invoice mInvoice;
 
@@ -125,7 +124,7 @@ public class InventoryActivity extends AppCompatActivity {
         //mInventory = (Inventory)i.getSerializableExtra("inventory");
         String json = i.getStringExtra("inventory");
         mInventory = Inventory.formJson(json);
-        getSupportActionBar().setTitle(mInventory.getName());
+        Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
         cart = new ArrayList<>();
 
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
@@ -137,12 +136,9 @@ public class InventoryActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(false);
 
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
-        adapter.setClickListener(new OnItemClickListener<Item>() {
-            @Override
-            public void onItemClicked(Item object, int position, View view) {
-                addToCart(object);
-                //Utils.toast(InventoryActivity.this, object.getTitle(), Toast.LENGTH_LONG);
-            }
+        adapter.setClickListener((object, position, view) -> {
+            addToCart(object);
+            //Utils.toast(InventoryActivity.this, object.getTitle(), Toast.LENGTH_LONG);
         });
         recyclerView.setAdapter(adapter);
 
@@ -151,24 +147,18 @@ public class InventoryActivity extends AppCompatActivity {
         }});
 
 
-        cart_fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(cart.size()==0){
-                    Utils.toast(InventoryActivity.this, "No items in cart", Toast.LENGTH_SHORT);
-                    return;
-                }
-                showCart();
-                View.OnClickListener listener = this;
+        cart_fab.setOnClickListener(v -> {
+            if(cart.size()==0){
+                Utils.toast(InventoryActivity.this, "No items in cart", Toast.LENGTH_SHORT);
+                return;
             }
+            showCart();
+            //View.OnClickListener listener = this;
         });
 
-        loadMore_chip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadMore_chip.setEnabled(false);
-                loadItems(mInventory.getId());
-            }
+        loadMore_chip.setOnClickListener(v -> {
+            loadMore_chip.setEnabled(false);
+            loadItems(mInventory.getId());
         });
         loadItems(mInventory.getId());
     }
@@ -186,53 +176,42 @@ public class InventoryActivity extends AppCompatActivity {
             loadMore_chip.setEnabled(true);
             return;
         }
-        Log.i("test", "loadItems: read++");
         loadItemQuery.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        loadMore_chip.setEnabled(true);
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
+                .addOnCompleteListener(task -> {
+                    loadMore_chip.setEnabled(true);
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
 
-                            assert querySnapshot != null;
+                        assert querySnapshot != null;
 
-                            List<Item> itemList = new ArrayList<>();
-                            for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                itemList.add(documentSnapshot.toObject(Item.class));
-                            }
-
-                            if(itemList.size()!=0){
-                                DocumentSnapshot lastVisible = querySnapshot.getDocuments()
-                                        .get(querySnapshot.size() -1);
-                                loadItemQuery = mRef.collection("item")
-                                        .orderBy("title")
-                                        .whereArrayContains("inventories", inv_id)
-                                        .startAfter(lastVisible)
-                                        .limit(itemLimit);
-                                adapter.setItemList(itemList);
-                                if(itemList.size()<itemLimit){
-                                    isAllItemsLoaded = true;
-                                    loadItemQuery = null;
-                                }
-                            }else{
-                                loadItemQuery = null;
-                                isAllItemsLoaded = true;
-                            }
-                        } else {
-                            Log.i("toast", task.getException().getLocalizedMessage());
-                            Utils.toast(InventoryActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                        List<Item> itemList = new ArrayList<>();
+                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                            itemList.add(documentSnapshot.toObject(Item.class));
                         }
+
+                        if(itemList.size()!=0){
+                            DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+                                    .get(querySnapshot.size() -1);
+                            loadItemQuery = mRef.collection("item")
+                                    .orderBy("title")
+                                    .whereArrayContains("inventories", inv_id)
+                                    .startAfter(lastVisible)
+                                    .limit(itemLimit);
+                            adapter.setItemList(itemList);
+                            if(itemList.size()<itemLimit){
+                                isAllItemsLoaded = true;
+                                loadItemQuery = null;
+                            }
+                        }else{
+                            loadItemQuery = null;
+                            isAllItemsLoaded = true;
+                        }
+                    } else {
+                        Utils.toast(InventoryActivity.this, Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
                     }
                 });
     }
 
-    void hideCart(){
-        if(cart_dialog==null){
-            return;
-        }
-        cart_dialog.hide();
-    }
     void showCart(){
         if(cart_dialog!=null){
             dialog_cart_adapter.setItemList(new ArrayList<>(cart));
@@ -244,8 +223,11 @@ public class InventoryActivity extends AppCompatActivity {
     void setUpCart(){
         cart_dialog = new Dialog(this);
         cart_dialog.setContentView(R.layout.cart_layout);
-        cart_dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+        Window window = cart_dialog.getWindow();
+        assert window!=null;
+        window.setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
+        cart_dialog_pb = cart_dialog.findViewById(R.id.order_placing_pb);
         dialog_confirm_bt = cart_dialog.findViewById(R.id.cart_layout_confirm_bt);
         delivery_address_til = cart_dialog.findViewById(R.id.cart_layout_deliveryAddress_til);
         dialog_items_rv = cart_dialog.findViewById(R.id.cart_layout_itemList_rv);
@@ -253,22 +235,32 @@ public class InventoryActivity extends AppCompatActivity {
         dialog_items_rv.setHasFixedSize(false);
 
         dialog_cart_adapter = new CartItemAdapter(new ArrayList<>(cart), this);
+        dialog_cart_adapter.setClickListener((item, pos, view) -> {
+            if(pos==-1){
+                cart.clear();
+                cart_fab.setText(String.format("%s", cart.size()));
+                cart_dialog.dismiss();
+            }else if(pos==-2){
+                cart.clear();
+                cart = dialog_cart_adapter.getItemList();
+                cart_fab.setText(String.format("%s", cart.size()));
+            }
+        });
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
-        dialog_confirm_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String address = delivery_address_til.getEditText().getText().toString().trim();
-                if(address.equals("")){
-                    delivery_address_til.setError("Address Can't be empty");
-                } else{
-                    delivery_address_til.setErrorEnabled(false);
-                    delivery_address = address;
-                    showInvoice();
-                }
+        dialog_confirm_bt.setOnClickListener(v -> {
+            String address = Objects.requireNonNull(delivery_address_til.getEditText()).getText().toString().trim();
+            if(address.equals("")){
+                delivery_address_til.setError("Address Can't be empty");
+            } else{
+                delivery_address_til.setErrorEnabled(false);
+                delivery_address = address;
+                showInvoice();
             }
         });
+
+
 
         cart_dialog.show();
     }
@@ -288,8 +280,10 @@ public class InventoryActivity extends AppCompatActivity {
 
         invoice_dialog = new BottomSheetDialog(this);
         invoice_dialog.setContentView(R.layout.invoice_layout);
-        invoice_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        invoice_dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+        Window window = invoice_dialog.getWindow();
+        assert window!=null;
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+        window.setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
         item_count_tv = invoice_dialog.findViewById(R.id.invoice_itemCount_tv);
         entity_count_tv = invoice_dialog.findViewById(R.id.invoice_entityCount_tv);
@@ -321,47 +315,39 @@ public class InventoryActivity extends AppCompatActivity {
         });
 
 
-        payAndOrder_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
-                    Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
-                } else {
-                    new AlertDialog.Builder(InventoryActivity.this)
-                            .setTitle("Proceed Further")
-                            .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
-                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    pay();
-                                }
-                            })
+        payAndOrder_bt.setOnClickListener(v -> {
+            if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
+                Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
+            } else {
+                new AlertDialog.Builder(InventoryActivity.this)
+                        .setTitle("Proceed Further")
+                        .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
+                        .setPositiveButton("Continue", (dialog, which) -> {
+                            invoice_dialog.dismiss();
+                            pay();
+                        })
 
-                            .setNegativeButton("Cancel", null)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                }
+                        .setNegativeButton("Cancel", null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
-        confirmOrder_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
-                    Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
-                } else {
-                    new AlertDialog.Builder(InventoryActivity.this)
-                            .setTitle("Proceed Further")
-                            .setMessage("Are you sure?")
+        confirmOrder_bt.setOnClickListener(v -> {
+            if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
+                Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
+            } else {
+                new AlertDialog.Builder(InventoryActivity.this)
+                        .setTitle("Proceed Further")
+                        .setMessage("Are you sure?")
 
-                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    placeOrder(null);
-                                }
-                            })
+                        .setPositiveButton("Continue", (dialog, which) -> {
+                            invoice_dialog.dismiss();
+                            placeOrder(null);
+                        })
 
-                            .setNegativeButton("Cancel", null)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                }
+                        .setNegativeButton("Cancel", null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
 
@@ -402,15 +388,23 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     void pay(){
+        confirmOrder_bt.setEnabled(false);
+        payAndOrder_bt.setEnabled(false);
+        cart_dialog_pb.setVisibility(View.VISIBLE);
         Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
                mInventory.getOwner().getId(), mInvoice.getTotal_amount(), API.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+            public void onResponse(@NotNull Call<Map<String, Object>> call,
+                                   @NotNull Response<Map<String, Object>> response) {
+                confirmOrder_bt.setEnabled(true);
+                payAndOrder_bt.setEnabled(true);
+                cart_dialog_pb.setVisibility(View.GONE);
                 Map<String, Object> result;
                 if(!response.isSuccessful()){
-                    String body = null;
+                    String body;
                     try {
+                        assert response.errorBody() != null;
                         body = response.errorBody().string();
                     } catch (IOException e) {
                         body = "{}";
@@ -421,6 +415,7 @@ public class InventoryActivity extends AppCompatActivity {
                     return;
                 }
                 result = response.body();
+                assert result != null;
                 if(result.containsKey("error")){
                     Utils.toast(InventoryActivity.this,
                             Objects.requireNonNull(result.get("error")).toString(), Toast.LENGTH_LONG);
@@ -428,20 +423,26 @@ public class InventoryActivity extends AppCompatActivity {
                     String s = String.format("Status: %s\nFrom: %s\nAmount: %s\nTransaction Id: %s",
                             result.get("status"), result.get("from"), result.get("amount"), result.get("transactionId"));
                     Utils.toast(InventoryActivity.this, s, Toast.LENGTH_LONG);
-                    String transactionId =  result.get("transactionId").toString();
+                    String transactionId =  Objects.requireNonNull(result.get("transactionId")).toString();
                     placeOrder(transactionId);
                 }
             }
 
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                Log.i("test", "onFailure: "+t.getLocalizedMessage());
-                int a = 0;
+            public void onFailure(@NotNull Call<Map<String, Object>> call, @NotNull Throwable t) {
+                confirmOrder_bt.setEnabled(true);
+                payAndOrder_bt.setEnabled(true);
+                cart_dialog_pb.setVisibility(View.GONE);
+                //Log.i("test", "onFailure: "+t.getLocalizedMessage());
+                Utils.toast(InventoryActivity.this, t.getLocalizedMessage(), Toast.LENGTH_LONG);
             }
         });
     }
 
     void placeOrder(String transactionId){
+        confirmOrder_bt.setEnabled(false);
+        payAndOrder_bt.setEnabled(false);
+        cart_dialog_pb.setVisibility(View.VISIBLE);
         Order order = new Order();
         order.setOrderId(mRef.collection("order").document().getId());
         order.setAmount(mInvoice.getTotal_amount());
@@ -479,56 +480,51 @@ public class InventoryActivity extends AppCompatActivity {
             mInvoice.setTransaction(transactionId);
         }
         order.updateActiveState();
-        mRef.runTransaction(new Transaction.Function<Void>() {
-            @Nullable
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentReference orderRef = mRef.document("order/"+order.getOrderId());
-                if(order.getInvoiceId()!=null){
-                    String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), order.getInvoiceId());
-                    DocumentReference invoiceRef = mRef.document(path);
+        mRef.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference orderRef = mRef.document("order/"+order.getOrderId());
+            if(order.getInvoiceId()!=null){
+                String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), order.getInvoiceId());
+                DocumentReference invoiceRef = mRef.document(path);
 
-                    transaction.set(orderRef, order);
-                    transaction.set(invoiceRef, mInvoice);
-                }else{
-                    transaction.set(orderRef, order);
-                }
-                return null;
+                transaction.set(orderRef, order);
+                transaction.set(invoiceRef, mInvoice);
+            }else{
+                transaction.set(orderRef, order);
             }
-        }).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Utils.toast(InventoryActivity.this, "Order Placed Successfully", Toast.LENGTH_LONG);
-                    String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
-                    Log.i("test", "onComplete: "+s);
-                    String msg = String.format("Address: %s\nOrder Id: %s\nAmount: Rs. %s\nFrom: %s",
-                            delivery_address,
-                            order.getOrderId(),
-                            order.getAmount(),
-                            order.getUser().get("firstName"));
-                    new SabPayNotify.Builder()
-                            .setTitle("New Order")
-                            .setMessage(msg)
-                            .send(getApplicationContext(), mInventory.getOwner().getId(), true);
-                }else{
-                    Log.i("test", "onComplete: "+task.getException().getLocalizedMessage());
-                }
+            return null;
+        }).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                Utils.toast(InventoryActivity.this, "Order Placed Successfully", Toast.LENGTH_LONG);
+                String msg = String.format("Address: %s\nOrder Id: %s\nAmount: Rs. %s\nFrom: %s",
+                        delivery_address,
+                        order.getOrderId(),
+                        order.getAmount(),
+                        order.getUser().get("firstName"));
+                new SabPayNotify.Builder()
+                        .setTitle("New Order")
+                        .setMessage(msg)
+                        .send(getApplicationContext(), mInventory.getOwner().getId(), true);
+            }else{
+                //Log.i("test", "onComplete: "+task.getException().getLocalizedMessage());
+                Utils.toast(InventoryActivity.this,
+                        Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
+            }
+            cart_dialog_pb.setVisibility(View.GONE);
+            new Handler().postDelayed(() -> {
                 cart_dialog.dismiss();
-                invoice_dialog.dismiss();
                 finish();
-            }
+            }, 3000);
+
         });
     }
 
-    //TODO: Increase quantity when clicked multiple times
     void addToCart(Item i) {
         //adapter.addToCart(i);
         Item item = i.copy();
         for (Item it : cart) {
             if (it.equals(i)) {
                 it.addToCart();
-                Utils.toast(this, String.format("Item already in cart", it.getTitle()), Toast.LENGTH_SHORT);
+                Utils.toast(this, String.format("%s already in cart", it.getTitle()), Toast.LENGTH_SHORT);
                 return;
             }
         }

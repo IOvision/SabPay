@@ -101,8 +101,8 @@ public class TransactionHistoryFragment extends Fragment {
         transactions.setOnClickListener(view1 -> loadTransactionHistory() );
         orders.setOnClickListener(view1 -> loadOrderHistory());
 
-        toggleButton.check(R.id.btn_transaction_history);
-        transactions.callOnClick();
+        toggleButton.check(R.id.btn_order_history);
+        orders.callOnClick();
     }
 
     public void loadOrderHistory() {
