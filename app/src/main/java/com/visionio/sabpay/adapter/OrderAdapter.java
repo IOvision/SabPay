@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
-import com.visionio.sabpay.models.Item;
 import com.visionio.sabpay.models.Order;
 
 import java.util.List;
@@ -81,8 +80,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     public void add(Order order) {
         orders.add(order);
-        notifyItemInserted(position++);
+        notifyDataSetChanged();
     }
+
 
     public void allClear() {
         orders.clear();

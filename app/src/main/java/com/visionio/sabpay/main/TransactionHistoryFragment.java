@@ -2,7 +2,6 @@ package com.visionio.sabpay.main;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -33,13 +28,13 @@ import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.OrderAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.models.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TransactionHistoryFragment extends Fragment {
 
@@ -58,7 +53,10 @@ public class TransactionHistoryFragment extends Fragment {
     Query loadOrderQuery, loadTransactionQuery;
     FirebaseFirestore mRef;
     Chip loadMore_chip;
-    boolean isAllItemsLoaded = false;
+    View.OnClickListener transactionLoadListener = v -> loadTransactions();
+    View.OnClickListener orderLoadListener = v -> loadOrders();
+    boolean isAllTransactionsLoaded = false;
+    boolean isAllOrdersLoaded = false;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,7 +70,7 @@ public class TransactionHistoryFragment extends Fragment {
         transactions = view.findViewById(R.id.btn_transaction_history);
         orders = view.findViewById(R.id.btn_order_history);
         loadMore_chip = view.findViewById(R.id.history_loadMore_chip);
-        ((MainActivity)getActivity()).setTitle("History");
+        ((MainActivity) Objects.requireNonNull(getActivity())).setTitle("History");
         return view;
     }
 
@@ -82,72 +80,68 @@ public class TransactionHistoryFragment extends Fragment {
         mRef = FirebaseFirestore.getInstance();
         toggleButton.setSingleSelection(true);
 
-        loadMore_chip.setOnClickListener(view1 -> {
-            if (toggleButton.getCheckedButtonId() == R.id.btn_transaction_history)
-                loadTransactions();
-            else
-                loadOrders();
-        });
-
-        toggleButton.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (checkedId == R.id.btn_transaction_history) {
-                loadTransactionHistory();
-            } else if (checkedId == R.id.btn_order_history) {
-                loadOrderHistory();
-            } else {
-                //
-            }
-        });
-        toggleButton.check(R.id.btn_transaction_history);
-    }
-
-    public void loadOrderHistory() {
-        isAllItemsLoaded = false;
-        transactionRecyclerView.setVisibility(View.GONE);
-        orderRecyclerView.setVisibility(View.VISIBLE);
-        orderAdapter = new OrderAdapter(new ArrayList<>(), (order, position, view) -> {
-                Intent i = new Intent(getActivity(), InvoiceActivity.class);
-                String orderJson = new Gson().toJson(order);
-                i.putExtra("order", orderJson);
-                i.putExtra("invoiceId", order.getInvoiceId());
-                i.putExtra("orderId", order.getOrderId());
-                i.putExtra("orderStatus", order.getStatus());
-                startActivity(i);
+        orderAdapter = new OrderAdapter(new ArrayList<>(), (order, position, view1) -> {
+            Intent i = new Intent(getActivity(), InvoiceActivity.class);
+            String orderJson = new Gson().toJson(order);
+            i.putExtra("order", orderJson);
+            i.putExtra("invoiceId", order.getInvoiceId());
+            i.putExtra("orderId", order.getOrderId());
+            i.putExtra("orderStatus", order.getStatus());
+            startActivity(i);
         });
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderRecyclerView.setHasFixedSize(false);
         orderRecyclerView.setAdapter(orderAdapter);
-        loadOrders();
+
+        transactionAdapter = new TransactionAdapter(new ArrayList<>());
+        transactionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        transactionRecyclerView.setHasFixedSize(false);
+        transactionRecyclerView.setAdapter(transactionAdapter);
+
+        transactions.setOnClickListener(view1 -> loadTransactionHistory() );
+        orders.setOnClickListener(view1 -> loadOrderHistory());
+
+        toggleButton.check(R.id.btn_transaction_history);
+        transactions.callOnClick();
     }
 
+    public void loadOrderHistory() {
+        transactionRecyclerView.setVisibility(View.GONE);
+        orderRecyclerView.setVisibility(View.VISIBLE);
+        loadMore_chip.setOnClickListener(orderLoadListener);
+        if(orderAdapter.getItemCount()==0){
+            loadOrders();
+        }
+    }
 
-    void loadOrders() {
+    void loadOrders(){
         progressBar.setVisibility(View.VISIBLE);
         bg_txt_tv.setVisibility(View.GONE);
-
+        loadMore_chip.setEnabled(false);
         if(loadOrderQuery == null) {
             loadOrderQuery = mRef.collection("order")
                     .whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid())
                     .orderBy("timestamp")
                     .limit(itemLimit);
         }
-        if(isAllItemsLoaded) {
-            Utils.toast(getContext(), "No more items", Toast.LENGTH_SHORT);
+        if(isAllOrdersLoaded) {
+            Utils.toast(getContext(), "No more orders", Toast.LENGTH_SHORT);
             progressBar.setVisibility(View.GONE);
+            loadMore_chip.setEnabled(true);
             loadMore_chip.setEnabled(true);
             return;
         }
         loadOrderQuery.get()
                 .addOnCompleteListener(task -> {
                     loadMore_chip.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
+                    loadMore_chip.setEnabled(true);
                     if(task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
-                        Log.d("testing", "size: " + task.getResult().size());
                         assert querySnapshot != null;
 
                         List<Order> orderList = new ArrayList<>();
                         for(DocumentSnapshot documentSnapshot: querySnapshot) {
-                            orderAdapter.add(documentSnapshot.toObject(Order.class));
                             orderList.add(documentSnapshot.toObject(Order.class));
                         }
                         if(orderList.size()!=0) {
@@ -160,49 +154,45 @@ public class TransactionHistoryFragment extends Fragment {
                                     .limit(itemLimit);
                             orderAdapter.setOrderList(orderList);
                             if(orderList.size()<itemLimit) {
-                                isAllItemsLoaded = true;
+                                isAllOrdersLoaded= true;
                                 loadOrderQuery = null;
-                            } else {
-                                loadOrderQuery = null;
-                                isAllItemsLoaded = true;
                             }
                         } else {
                             loadOrderQuery = null;
-                            isAllItemsLoaded = true;
+                            isAllOrdersLoaded = true;
                         }
                     } else {
-                        Log.i("toast", task.getException().getLocalizedMessage());
-                        Utils.toast(getActivity(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                        Utils.toast(getActivity(), Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
                     }
                 });
     }
 
     public void loadTransactionHistory() {
-        isAllItemsLoaded = false;
         orderRecyclerView.setVisibility(View.GONE);
         transactionRecyclerView.setVisibility(View.VISIBLE);
+        loadMore_chip.setOnClickListener(transactionLoadListener);
+        if(transactionAdapter.getItemCount()==0){
+            loadTransactions();
+        }
 
-        transactionAdapter = new TransactionAdapter(new ArrayList<>());
-        transactionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        transactionRecyclerView.setHasFixedSize(false);
-        transactionRecyclerView.setAdapter(transactionAdapter);
-
-        loadTransactions();
     }
 
     public void loadTransactions(){
         progressBar.setVisibility(View.VISIBLE);
         bg_txt_tv.setVisibility(View.GONE);
-
+        loadMore_chip.setEnabled(false);
         if(loadTransactionQuery == null) {
+            String uid = FirebaseAuth.getInstance().getUid();
+            assert uid != null;
             loadTransactionQuery = mRef.collection("user")
-                    .document(FirebaseAuth.getInstance().getUid()).collection("transaction")
+                    .document(uid).collection("transaction")
                     .orderBy("timestamp", Query.Direction.DESCENDING)
                     .limit(itemLimit);
         }
-        if (isAllItemsLoaded) {
-            Utils.toast(getContext(), "No more items", Toast.LENGTH_SHORT);
+        if (isAllTransactionsLoaded) {
+            Utils.toast(getContext(), "No more transactions", Toast.LENGTH_SHORT);
             progressBar.setVisibility(View.GONE);
+            loadMore_chip.setEnabled(true);
             loadMore_chip.setEnabled(true);
             return;
         }
@@ -210,13 +200,14 @@ public class TransactionHistoryFragment extends Fragment {
             .addOnCompleteListener(task -> {
                 loadMore_chip.setEnabled(true);
                 progressBar.setVisibility(View.GONE);
+                loadMore_chip.setEnabled(true);
                 if (task.isSuccessful()) {
                     QuerySnapshot querySnapshot = task.getResult();
                     assert querySnapshot != null;
-                    Log.d("testing", "size: " + task.getResult().size());
                     List<Transaction> transactions = new ArrayList<>();
                     for (DocumentSnapshot documentSnapshot: querySnapshot) {
                         Transaction currentTransaction = documentSnapshot.toObject(Transaction.class);
+                        assert currentTransaction != null;
                         if (currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getUid())){
                             currentTransaction.setSendByMe(true);
                         } else {
@@ -228,23 +219,24 @@ public class TransactionHistoryFragment extends Fragment {
                     if (transactions.size()!=0) {
                         DocumentSnapshot lastVisible = querySnapshot.getDocuments()
                                 .get(querySnapshot.size() - 1);
+                        String uid = FirebaseAuth.getInstance().getUid();
+                        assert uid!=null;
                         loadTransactionQuery = mRef.collection("user")
-                                .document(FirebaseAuth.getInstance().getUid()).collection("transaction")
+                                .document(uid).collection("transaction")
                                 .orderBy("timestamp", Query.Direction.DESCENDING)
                                 .startAfter(lastVisible)
                                 .limit(itemLimit);
                         transactionAdapter.setTransactionList(transactions);
                         if (transactions.size()<itemLimit) {
-                            isAllItemsLoaded = true;
+                            isAllTransactionsLoaded = true;
                             loadTransactionQuery = null;
                         }
                     } else {
                         loadTransactionQuery = null;
-                        isAllItemsLoaded = true;
+                        isAllTransactionsLoaded = true;
                     }
                 } else {
-                    Log.i("toast", task.getException().getLocalizedMessage());
-                    Utils.toast(getActivity(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                    Utils.toast(getActivity(), Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
                 }
             });
     }
