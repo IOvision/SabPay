@@ -7,9 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -30,7 +28,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -54,7 +51,6 @@ import com.visionio.sabpay.adapter.SearchListAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.api.SabPayNotify;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
@@ -167,17 +163,23 @@ public class InventoryActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(false);
 
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
-
-        searchListAdapter = new SearchListAdapter(new ArrayList<String>(), new OnItemClickListener<String>() {
-            @Override
-            public void onItemClicked(String object, int position, View view) {
-                FirebaseFirestore.getInstance().collection("item").document(object)
-                        .get().addOnSuccessListener(snapshot -> {
-                            Item item = snapshot.toObject(Item.class);
-                            addToCart(item);
-                        });
+        searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
+            for (Item it : cart) {
+                if (it.getId().equals(object)) {
+                    it.addToCart();
+                    Utils.toast(InventoryActivity.this, String.format("%s already in cart", it.getTitle()), Toast.LENGTH_SHORT);
+                    return;
+                }
             }
+            FirebaseFirestore.getInstance().collection("item").document(object)
+                    .get().addOnSuccessListener(snapshot -> {
+                Item item = snapshot.toObject(Item.class);
+                assert item != null;
+                addToCart(item);
+            });
         });
+
+
         searchRecycler.setLayoutManager(new LinearLayoutManager(this));
         searchRecycler.setHasFixedSize(false);
         searchRecycler.setAdapter(searchListAdapter);
@@ -215,21 +217,13 @@ public class InventoryActivity extends AppCompatActivity {
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}  @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
             @Override
             public void afterTextChanged(Editable editable) {
                 searchListAdapter.clear();
                 for(String s : mInventory.getItems()) {
-                    if (s.startsWith(editable.toString()) && !editable.toString().isEmpty()) {
+                    if (s.toLowerCase().startsWith(editable.toString().toLowerCase()) && !editable.toString().isEmpty()) {
                         searchListAdapter.add(s);
-                        Log.d("testing", "onTextChanged: " + s);
                     } else if (editable.toString().isEmpty()) {
                         searchListAdapter.clear();
                     }
