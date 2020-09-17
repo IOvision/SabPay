@@ -13,11 +13,12 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.gms.tasks.OnFailureListener;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
@@ -97,13 +98,14 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
         if (order.isPaymentDone()) {
             loadInvoice();
-        } else {
+        }else {
             items = order.getItems();
             for (Item i : items) {
                 i.setCart_qty(i.getQty());
             }
             invoice = Invoice.fromItems(items);
             setTextViewsWhenInvoiceIsNotGenerated();
+
             setUpInvoice();
         }
     }
@@ -118,11 +120,8 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
                     items = invoice.getItems();
                     setTextViews();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                .addOnFailureListener(e -> {
 
-                    }
                 });
     }
 
@@ -130,7 +129,12 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         if(invoice_dialog!=null){
             return;
         }
-        pay_bt.setVisibility(View.VISIBLE);
+        if(!order.isPaymentDone() &&
+                !order.status.equalsIgnoreCase(Order.STATUS.ORDER_RECEIVED) &&
+                !order.status.equalsIgnoreCase(Order.STATUS.ORDER_CANCELLED)){
+            pay_bt.setVisibility(View.VISIBLE);
+        }
+
         pay_bt.setOnClickListener(v -> {
             invoice_dialog.show();
             invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
