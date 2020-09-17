@@ -2,6 +2,7 @@ package com.visionio.sabpay.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.OrderAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
+import com.visionio.sabpay.models.InvoiceDialog;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.models.Utils;
@@ -49,7 +51,7 @@ public class TransactionHistoryFragment extends Fragment {
     TransactionAdapter transactionAdapter;
     OrderAdapter orderAdapter;
     MaterialButtonToggleGroup toggleButton;
-    long itemLimit = 2;
+    long itemLimit = 10;
     Query loadOrderQuery, loadTransactionQuery;
     FirebaseFirestore mRef;
     Chip loadMore_chip;
@@ -81,13 +83,10 @@ public class TransactionHistoryFragment extends Fragment {
         toggleButton.setSingleSelection(true);
 
         orderAdapter = new OrderAdapter(new ArrayList<>(), (order, position, view1) -> {
-            Intent i = new Intent(getActivity(), InvoiceActivity.class);
-            String orderJson = new Gson().toJson(order);
-            i.putExtra("order", orderJson);
-            i.putExtra("invoiceId", order.getInvoiceId());
-            i.putExtra("orderId", order.getOrderId());
-            i.putExtra("orderStatus", order.getStatus());
-            startActivity(i);
+            Log.d("testing", "onViewCreated: " + order.getFromInventory());
+            InvoiceDialog invoiceDialog = new InvoiceDialog(getContext(), order);
+            //invoiceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            invoiceDialog.show();
         });
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderRecyclerView.setHasFixedSize(false);

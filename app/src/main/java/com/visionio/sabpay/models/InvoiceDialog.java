@@ -1,8 +1,12 @@
-package com.visionio.sabpay;
+package com.visionio.sabpay.models;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -12,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,13 +33,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
+import com.visionio.sabpay.InvoiceActivity;
+import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.InvoiceAdapter;
 import com.visionio.sabpay.api.API;
-import com.visionio.sabpay.models.Inventory;
-import com.visionio.sabpay.models.Invoice;
-import com.visionio.sabpay.models.Item;
-import com.visionio.sabpay.models.Order;
-import com.visionio.sabpay.models.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class InvoiceActivity extends AppCompatActivity {
+public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
     String invoiceId, orderIdString, orderStatus;
     TextView orderTime, orderId, orderAmount, paymentStatus, baseAmount, discount, promoCode, totalAmount;
@@ -64,28 +64,32 @@ public class InvoiceActivity extends AppCompatActivity {
 
     FirebaseFirestore mRef;
     FirebaseAuth mAuth;
+    Context mContext;
 
-    // bottom sheet for invoice and its related layout
     BottomSheetDialog invoice_dialog;
     TextView item_count_tv, entity_count_tv, order_from_tv;
     TextView base_amount_tv, delivery_charge_tv;
     TextView total_tv, discount_tv, payable_amount_tv, promo_tv;
     Button payAndOrder_bt, confirmOrder_bt;
 
+    public InvoiceDialog(@NonNull Context context, Order order) {
+        super(context);
+        this.order = order;
+        this.invoiceId = order.getInvoiceId();
+        this.orderIdString = order.getOrderId();
+        this.orderStatus = order.getStatus();
+        this.mContext = context;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         setContentView(R.layout.activity_invoice);
+
         mRef = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            order = new Gson().fromJson(extras.getString("order"), Order.class);
-            invoiceId = extras.getString("invoiceId");
-            orderIdString = extras.getString("orderId");
-            orderStatus = extras.getString("orderStatus");
-        }
-
         progressBar = findViewById(R.id.invoice_activity_progressBar_pb);
         pay_bt = findViewById(R.id.invoice_activity_pay_bt);
         orderTime = findViewById(R.id.order_time);
@@ -132,44 +136,6 @@ public class InvoiceActivity extends AppCompatActivity {
                 });
     }
 
-    private void setTextViews() {
-
-        orderTime.setText(String.valueOf(invoice.getTimestamp().toDate()));
-        orderId.setText(orderIdString);
-        orderAmount.setText("\u20B9" + String.valueOf(invoice.getTotal_amount()));
-        paymentStatus.setText("\u20B9" + String.valueOf(invoice.getBase_amount()));
-        baseAmount.setText("\u20B9" + String.valueOf(invoice.getBase_amount()));
-        discount.setText("\u20B9" + String.valueOf(invoice.getDiscount()));
-        promoCode.setText(String.valueOf(invoice.getPromo()));
-        totalAmount.setText("\u20B9" + String.valueOf(invoice.getTotal_amount()));
-        loadItems();
-    }
-
-    private void setTextViewsWhenInvoiceIsNotGenerated() {
-        orderTime.setText(String.valueOf(order.getTimestamp().toDate()));
-        orderId.setText(order.getOrderId());
-        orderAmount.setText("\u20B9" + String.valueOf(order.getAmount()));
-        paymentStatus.setText(String.valueOf(order.getStatus()));
-        baseAmount.setText("N.A.");
-        discount.setText("N.A.");
-        promoCode.setText("N.A.");
-        totalAmount.setText("\u20B9" + String.valueOf(order.getAmount()));
-        loadItems();
-    }
-
-    private void loadItems() {
-        //Log.d("Testing", "invoice: " + String.valueOf(invoice.getItems()));
-        adapter = new InvoiceAdapter(new ArrayList<>());
-        itemListRecycler.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        itemListRecycler.setHasFixedSize(false);
-        itemListRecycler.setAdapter(adapter);
-
-        for (Item item : items) {
-            adapter.add(item);
-        }
-        Log.d("Testing", "invoice: " + adapter.getItemCount());
-    }
-
     void setUpInvoice() {
         if(invoice_dialog!=null){
             return;
@@ -183,7 +149,7 @@ public class InvoiceActivity extends AppCompatActivity {
             }
         });
 
-        invoice_dialog = new BottomSheetDialog(this);
+        invoice_dialog = new BottomSheetDialog(mContext);
         invoice_dialog.setContentView(R.layout.invoice_layout);
         invoice_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         invoice_dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -237,6 +203,7 @@ public class InvoiceActivity extends AppCompatActivity {
         invoice_dialog.setCancelable(false);
         updateInvoice();
     }
+
     void updateInvoice() {
         String item_count = Invoice.STR_ITEM_COUNT + " " + items.size();
         String entity_count = Invoice.STR_ENTITY_COUNT + " " + Utils.getEntityCount(items);
@@ -265,19 +232,20 @@ public class InvoiceActivity extends AppCompatActivity {
     void fetchAndPay() {
         progressBar.setVisibility(View.VISIBLE);
         mRef.document(String.format("inventory/%s", order.getFromInventory())).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Inventory inventory = task.getResult().toObject(Inventory.class);
-                            pay(inventory.getOwner().getId());
-                        } else {
-                            progressBar.setVisibility(View.GONE);
-                            Utils.toast(InvoiceActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
-                        }
+            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        Inventory inventory = task.getResult().toObject(Inventory.class);
+                        pay(inventory.getOwner().getId());
+                    } else {
+                        progressBar.setVisibility(View.GONE);
+                        Utils.toast(mContext, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
                     }
-                });
+                }
+            });
     }
+
     void pay(String receiverId) {
         Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
                 receiverId, invoice.getTotal_amount(), API.api_key);
@@ -293,20 +261,20 @@ public class InvoiceActivity extends AppCompatActivity {
                         body = "{}";
                     }
                     result = new Gson().fromJson(body, HashMap.class);
-                    Utils.toast(InvoiceActivity.this,
+                    Utils.toast(mContext,
                             Objects.requireNonNull(result.get("error")).toString(), Toast.LENGTH_LONG);
                     progressBar.setVisibility(View.GONE);
                     return;
                 }
                 result = response.body();
                 if (result.containsKey("error")) {
-                    Utils.toast(InvoiceActivity.this,
+                    Utils.toast(mContext,
                             Objects.requireNonNull(result.get("error")).toString(), Toast.LENGTH_LONG);
                     progressBar.setVisibility(View.GONE);
                 } else {
                     String s = String.format("Status: %s\nFrom: %s\nAmount: %s\nTransaction Id: %s",
                             result.get("status"), result.get("from"), result.get("amount"), result.get("transactionId"));
-                    Utils.toast(InvoiceActivity.this, s, Toast.LENGTH_LONG);
+                    Utils.toast(mContext, s, Toast.LENGTH_LONG);
                     String transactionId = result.get("transactionId").toString();
                     placeOrder(transactionId);
                 }
@@ -319,6 +287,7 @@ public class InvoiceActivity extends AppCompatActivity {
             }
         });
     }
+
     void placeOrder(String transactionId) {
         String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
         order.setInvoiceId(invoiceId);
@@ -339,7 +308,7 @@ public class InvoiceActivity extends AppCompatActivity {
         invoice.setTransaction(transactionId);
 
 
-        mRef.runTransaction(new Transaction.Function<Void>() {
+        mRef.runTransaction(new com.google.firebase.firestore.Transaction.Function<Void>() {
             @Nullable
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -357,16 +326,56 @@ public class InvoiceActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Utils.toast(InvoiceActivity.this, "Order Placed Successfully", Toast.LENGTH_LONG);
+                    Utils.toast(getContext(), "Order Placed Successfully", Toast.LENGTH_LONG);
                     String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
                     Log.i("test", "onComplete: " + s);
                 } else {
                     Log.i("test", "onComplete: " + task.getException().getLocalizedMessage());
                 }
                 progressBar.setVisibility(View.GONE);
-                finish();
             }
         });
     }
 
+    private void setTextViews() {
+
+        orderTime.setText(String.valueOf(invoice.getTimestamp().toDate()));
+        orderId.setText(orderIdString);
+        orderAmount.setText("\u20B9" + String.valueOf(invoice.getTotal_amount()));
+        paymentStatus.setText("\u20B9" + String.valueOf(invoice.getBase_amount()));
+        baseAmount.setText("\u20B9" + String.valueOf(invoice.getBase_amount()));
+        discount.setText("\u20B9" + String.valueOf(invoice.getDiscount()));
+        promoCode.setText(String.valueOf(invoice.getPromo()));
+        totalAmount.setText("\u20B9" + String.valueOf(invoice.getTotal_amount()));
+        loadItems();
+    }
+
+    private void setTextViewsWhenInvoiceIsNotGenerated() {
+        orderTime.setText(String.valueOf(order.getTimestamp().toDate()));
+        orderId.setText(order.getOrderId());
+        orderAmount.setText("\u20B9" + String.valueOf(order.getAmount()));
+        paymentStatus.setText(String.valueOf(order.getStatus()));
+        baseAmount.setText("N.A.");
+        discount.setText("N.A.");
+        promoCode.setText("N.A.");
+        totalAmount.setText("\u20B9" + String.valueOf(order.getAmount()));
+        loadItems();
+    }
+
+    private void loadItems() {
+        adapter = new InvoiceAdapter(new ArrayList<>());
+        itemListRecycler.setLayoutManager(new LinearLayoutManager(mContext));
+        itemListRecycler.setHasFixedSize(false);
+        itemListRecycler.setAdapter(adapter);
+
+        for (Item item : items) {
+            adapter.add(item);
+        }
+        Log.d("Testing", "invoice: " + adapter.getItemCount());
+    }
+
+    @Override
+    public void onClick(View view) {
+
+    }
 }
