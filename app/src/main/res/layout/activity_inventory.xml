@@ -41,21 +41,39 @@
                 app:sliderStartAutoCycle="true">
             </com.smarteist.autoimageslider.SliderView>
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/inv_activity_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin">
+                app:layout_collapseMode="pin"
+                app:menu="@menu/inventory_appbar">
 
-
-            </androidx.appcompat.widget.Toolbar>
-
-
+                <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <EditText
+                    android:id="@+id/inventory_search_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Search items..."
+                    android:textColor="@color/white"
+                    android:textColorHint="#C7C7C7"
+                    android:visibility="gone"
+                    android:layout_toStartOf="@id/inventory_image_close"/>
+                <ImageView
+                    android:id="@+id/inventory_image_close"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_close"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:visibility="gone"/>
+            </RelativeLayout>
+            </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
 
     </com.google.android.material.appbar.AppBarLayout>
-
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/inv_activity_rv_nestedScrollView"
@@ -103,13 +121,13 @@
         app:layout_anchorGravity="bottom|end"
         android:text="@string/_0" />
 
-    <ImageView
-        android:id="@+id/shop_info_icon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/ic_info"
-        android:layout_gravity="end"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/inventory_search_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginHorizontal="@dimen/dimen_50dp"
+        tools:listitem="@layout/inventory_search_list"
+        android:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

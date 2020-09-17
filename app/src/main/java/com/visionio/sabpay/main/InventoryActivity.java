@@ -5,10 +5,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -24,6 +30,8 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
@@ -42,9 +50,11 @@ import com.smarteist.autoimageslider.SliderView;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.CartItemAdapter;
 import com.visionio.sabpay.adapter.InventoryItemAdapter;
+import com.visionio.sabpay.adapter.SearchListAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.api.SabPayNotify;
+import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
@@ -72,6 +82,12 @@ public class InventoryActivity extends AppCompatActivity {
     Inventory mInventory;
 
     SliderView inv_images_sv;
+
+    MaterialToolbar toolbar;
+    EditText search;
+    ImageView searchClose;
+    RecyclerView searchRecycler;
+    SearchListAdapter searchListAdapter;
 
     InventoryItemAdapter adapter;
     RecyclerView recyclerView;
@@ -108,7 +124,7 @@ public class InventoryActivity extends AppCompatActivity {
     Button payAndOrder_bt, confirmOrder_bt;
     Invoice mInvoice;
 
-    ImageView shop_info;
+    List<String> searchList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +136,14 @@ public class InventoryActivity extends AppCompatActivity {
         mRef = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        searchList = new ArrayList<>();
         setup();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.inventory_appbar, menu);
+        return true;
     }
 
     private void setup() {
@@ -131,18 +154,33 @@ public class InventoryActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
         cart = new ArrayList<>();
 
+        searchRecycler = findViewById(R.id.inventory_search_recycler);
+        searchClose = findViewById(R.id.inventory_image_close);
+        search = findViewById(R.id.inventory_search_et);
+        toolbar = findViewById(R.id.inv_activity_toolbar);
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
         inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
         loadMore_chip = findViewById(R.id.inv_activity_loadMore_chip);
-        shop_info = findViewById(R.id.shop_info_icon);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
-        shop_info.setOnClickListener(v -> showInfoDialog());
-
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
+
+        searchListAdapter = new SearchListAdapter(new ArrayList<String>(), new OnItemClickListener<String>() {
+            @Override
+            public void onItemClicked(String object, int position, View view) {
+                FirebaseFirestore.getInstance().collection("item").document(object)
+                        .get().addOnSuccessListener(snapshot -> {
+                            Item item = snapshot.toObject(Item.class);
+                            addToCart(item);
+                        });
+            }
+        });
+        searchRecycler.setLayoutManager(new LinearLayoutManager(this));
+        searchRecycler.setHasFixedSize(false);
+        searchRecycler.setAdapter(searchListAdapter);
 
         adapter.setClickListener((object, position, view) -> addToCart(object));
 
@@ -152,6 +190,52 @@ public class InventoryActivity extends AppCompatActivity {
             setImageUrls(mInventory.getImages());
         }});
 
+        toolbar.setOnMenuItemClickListener((Toolbar.OnMenuItemClickListener) item -> {
+            if (item.getItemId() == R.id.inventory_appbar_info){
+                showInfoDialog();
+                return true;
+            }
+            else if (item.getItemId() == R.id.inventory_appbar_search) {
+                searchClose.setVisibility(View.VISIBLE);
+                search.setVisibility(View.VISIBLE);
+                searchRecycler.setVisibility(View.VISIBLE);
+                search.requestFocus();
+                return true;
+            }
+            return false;
+        });
+
+        searchClose.setOnClickListener(v -> {
+            searchClose.setVisibility(View.GONE);
+            search.setVisibility(View.GONE);
+            searchRecycler.setVisibility(View.GONE);
+            searchListAdapter.clear();
+            search.setText("");
+        });
+
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                searchListAdapter.clear();
+                for(String s : mInventory.getItems()) {
+                    if (s.startsWith(editable.toString()) && !editable.toString().isEmpty()) {
+                        searchListAdapter.add(s);
+                        Log.d("testing", "onTextChanged: " + s);
+                    } else if (editable.toString().isEmpty()) {
+                        searchListAdapter.clear();
+                    }
+                }
+            }
+        });
 
         cart_fab.setOnClickListener(v -> {
             if(cart.size()==0){
