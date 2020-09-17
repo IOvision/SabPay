@@ -308,7 +308,8 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
             }
         }).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Utils.toast(getContext(), "Order Placed Successfully", Toast.LENGTH_LONG);
+                Utils.toast(getContext(), "Paid Successfully", Toast.LENGTH_LONG);
+                pay_bt.setVisibility(View.GONE);
                 String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
                 Log.i("test", "onComplete: " + s);
             } else {
