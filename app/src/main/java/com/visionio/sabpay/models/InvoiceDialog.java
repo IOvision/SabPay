@@ -13,27 +13,20 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
-import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.InvoiceAdapter;
 import com.visionio.sabpay.api.API;
@@ -69,7 +62,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     BottomSheetDialog invoice_dialog;
     TextView item_count_tv, entity_count_tv, order_from_tv;
     TextView base_amount_tv, delivery_charge_tv;
-    TextView total_tv, discount_tv, payable_amount_tv, promo_tv;
+    TextView total_tv, discount_tv, payable_amount_tv;
     Button payAndOrder_bt, confirmOrder_bt;
 
     public InvoiceDialog(@NonNull Context context, Order order) {
@@ -85,8 +78,8 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         setContentView(R.layout.activity_invoice);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         mRef = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -117,16 +110,13 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
     private void loadInvoice() {
         FirebaseFirestore.getInstance().collection("user")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                 .collection("invoice").document(invoiceId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        invoice = documentSnapshot.toObject(Invoice.class);
-                        Log.d("invoice", "invoice" + invoice.getId());
-                        items = invoice.getItems();
-                        setTextViews();
-                    }
+                .addOnSuccessListener(documentSnapshot -> {
+                    invoice = documentSnapshot.toObject(Invoice.class);
+                    Log.d("invoice", "invoice" + invoice.getId());
+                    items = invoice.getItems();
+                    setTextViews();
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -141,12 +131,9 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
             return;
         }
         pay_bt.setVisibility(View.VISIBLE);
-        pay_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                invoice_dialog.show();
-                invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-            }
+        pay_bt.setOnClickListener(v -> {
+            invoice_dialog.show();
+            invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
         });
 
         invoice_dialog = new BottomSheetDialog(mContext);
@@ -184,12 +171,9 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         });
 
 
-        payAndOrder_bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                invoice_dialog.dismiss();
-                fetchAndPay();
-            }
+        payAndOrder_bt.setOnClickListener(v -> {
+            invoice_dialog.dismiss();
+            fetchAndPay();
         });
 
         confirmOrder_bt.setVisibility(View.GONE);
@@ -232,16 +216,14 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     void fetchAndPay() {
         progressBar.setVisibility(View.VISIBLE);
         mRef.document(String.format("inventory/%s", order.getFromInventory())).get()
-            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        Inventory inventory = task.getResult().toObject(Inventory.class);
-                        pay(inventory.getOwner().getId());
-                    } else {
-                        progressBar.setVisibility(View.GONE);
-                        Utils.toast(mContext, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
-                    }
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Inventory inventory = Objects.requireNonNull(task.getResult()).toObject(Inventory.class);
+                    assert inventory != null;
+                    pay(inventory.getOwner().getId());
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    Utils.toast(mContext, Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
                 }
             });
     }
@@ -256,6 +238,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
                 if (!response.isSuccessful()) {
                     String body = null;
                     try {
+                        assert response.errorBody() != null;
                         body = response.errorBody().string();
                     } catch (IOException e) {
                         body = "{}";
@@ -267,6 +250,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
                     return;
                 }
                 result = response.body();
+                assert result != null;
                 if (result.containsKey("error")) {
                     Utils.toast(mContext,
                             Objects.requireNonNull(result.get("error")).toString(), Toast.LENGTH_LONG);
@@ -322,18 +306,15 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
                 return null;
             }
-        }).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Utils.toast(getContext(), "Order Placed Successfully", Toast.LENGTH_LONG);
-                    String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
-                    Log.i("test", "onComplete: " + s);
-                } else {
-                    Log.i("test", "onComplete: " + task.getException().getLocalizedMessage());
-                }
-                progressBar.setVisibility(View.GONE);
+        }).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Utils.toast(getContext(), "Order Placed Successfully", Toast.LENGTH_LONG);
+                String s = String.format("OrderId: %s\nInvoiceId: %s", order.getOrderId(), order.getInvoiceId());
+                Log.i("test", "onComplete: " + s);
+            } else {
+                Log.i("test", "onComplete: " + task.getException().getLocalizedMessage());
             }
+            progressBar.setVisibility(View.GONE);
         });
     }
 
@@ -371,7 +352,6 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         for (Item item : items) {
             adapter.add(item);
         }
-        Log.d("Testing", "invoice: " + adapter.getItemCount());
     }
 
     @Override

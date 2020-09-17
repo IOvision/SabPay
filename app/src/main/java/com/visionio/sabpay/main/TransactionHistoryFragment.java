@@ -83,7 +83,6 @@ public class TransactionHistoryFragment extends Fragment {
         toggleButton.setSingleSelection(true);
 
         orderAdapter = new OrderAdapter(new ArrayList<>(), (order, position, view1) -> {
-            Log.d("testing", "onViewCreated: " + order.getFromInventory());
             InvoiceDialog invoiceDialog = new InvoiceDialog(getContext(), order);
             //invoiceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             invoiceDialog.show();
