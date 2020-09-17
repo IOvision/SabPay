@@ -24,7 +24,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
@@ -559,7 +558,7 @@ public class InventoryActivity extends AppCompatActivity {
             new Handler().postDelayed(() -> {
                 cart_dialog.dismiss();
                 finish();
-            }, 3000);
+            }, 1500);
 
         });
     }
