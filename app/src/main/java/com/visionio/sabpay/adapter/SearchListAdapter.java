@@ -34,7 +34,9 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
     public void onBindViewHolder(@NonNull SearchListViewHolder holder, int position) {
         String s = name.get(position);
         holder.name_tv.setText(s.split(":")[0]);
-        holder.itemView.setOnClickListener(view -> this.listener.onItemClicked(s.split(":")[1], position, holder.itemView));
+        holder.itemView.setOnClickListener(view -> {
+            this.listener.onItemClicked(s.split(":")[1], position, holder.itemView);
+        });
     }
 
     @Override

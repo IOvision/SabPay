@@ -9,12 +9,8 @@
         android:text="Baigan"
         android:textSize="@dimen/dimen_22sp"
         android:fontFamily="@font/product_sans_regular"
-        android:layout_marginStart="@dimen/dimen_10dp"
-        android:id="@+id/inventory_search_name"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dimen_1dp"
-        android:background="@color/grey"
-        android:layout_marginVertical="2dp"
-        android:layout_below="@id/inventory_search_name"/>
+        android:padding="@dimen/dimen_10dp"
+        android:id="@+id/inventory_search_name"
+        android:background="?attr/selectableItemBackground"/>
+
 </RelativeLayout>
