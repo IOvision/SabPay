@@ -4,18 +4,18 @@ import com.google.firebase.firestore.DocumentReference;
 
 public class Wallet {
 
-    Integer balance;
+    Double balance;
     Integer offPayBalance;
     DocumentReference lastTransaction;
 
     public Wallet() {
     }
 
-    public Integer getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(Integer balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
 
