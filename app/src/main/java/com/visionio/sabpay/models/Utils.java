@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
-    public static int WELCOME_BALANCE = 25;
+    public static double WELCOME_BALANCE = 25;
     public static List<Contact> deviceContacts;
     public final static String RS = "₹";
 
