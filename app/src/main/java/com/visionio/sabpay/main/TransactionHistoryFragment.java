@@ -119,7 +119,7 @@ public class TransactionHistoryFragment extends Fragment {
         if(loadOrderQuery == null) {
             loadOrderQuery = mRef.collection("order")
                     .whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid())
-                    .orderBy("timestamp")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
                     .limit(itemLimit);
         }
         if(isAllOrdersLoaded) {
@@ -146,7 +146,7 @@ public class TransactionHistoryFragment extends Fragment {
                             DocumentSnapshot lastVisible = querySnapshot.getDocuments()
                                     .get(querySnapshot.size() - 1);
                             loadOrderQuery = mRef.collection("order")
-                                    .orderBy("timestamp")
+                                    .orderBy("timestamp", Query.Direction.DESCENDING)
                                     .whereEqualTo("user.userId", FirebaseAuth.getInstance().getUid())
                                     .startAfter(lastVisible)
                                     .limit(itemLimit);
