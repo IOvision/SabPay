@@ -1,5 +1,7 @@
 package com.visionio.sabpay.models;
 
+import android.util.Log;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 
@@ -114,6 +116,15 @@ public class Invoice {
         Invoice invoice = new Invoice();
         invoice.setAmounts(Utils.getBaseAmount(items), 0);
         invoice.setItems(items);
+        return invoice;
+    }
+
+    @Exclude
+    public static Invoice fromCart(Cart cart) {
+        Invoice invoice = new Invoice();
+        cart.finalizeQuantity();
+        invoice.setAmounts(Utils.getBaseAmount(cart.getItemList()), 0);
+        invoice.setItems(cart.getItemList());
         return invoice;
     }
 

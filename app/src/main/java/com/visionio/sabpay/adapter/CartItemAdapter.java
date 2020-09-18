@@ -1,44 +1,32 @@
 package com.visionio.sabpay.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
+import com.visionio.sabpay.interfaces.CartListener;
 import com.visionio.sabpay.models.Item;
-import com.visionio.sabpay.models.Utils;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import it.sephiroth.android.library.numberpicker.NumberPicker;
+import java.util.Map;
 
 public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartItemViewHolder> {
 
     List<Item> itemList;
     Context context;
+    Map<String, Integer> quantity;
+    CartListener clickListener;
 
-    OnItemClickListener<Item> clickListener;
-
-    public CartItemAdapter(List<Item> itemList, Context context, OnItemClickListener<Item> clickListener) {
+    public CartItemAdapter(List<Item> itemList, Context context, Map<String, Integer> quantity) {
         this.itemList = itemList;
         this.context = context;
-        this.clickListener = clickListener;
-    }
-
-    public CartItemAdapter(List<Item> itemList, Context context) {
-        this.itemList = itemList;
-        this.context = context;
+        this.quantity = quantity;
     }
 
     public void setItemList(List<Item> itemList) {
@@ -54,7 +42,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
     }
 
 
-    public void setClickListener(OnItemClickListener<Item> clickListener) {
+    public void setClickListener(CartListener clickListener) {
         this.clickListener = clickListener;
     }
 
@@ -70,41 +58,29 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
         Item curr = itemList.get(position);
 
         holder.detail_tv.setText(String.format("%s ₹%s/%s", curr.getTitle(), curr.getCost(), curr.getUnit()));
-        holder.qty_np.setMaxValue(curr.getQty());
-
-        holder.qty_np.setMinValue(0);
-        holder.qty_np.setMaxValue(curr.getQty());
-        holder.qty_np.setProgress(curr.getCart_qty());
-
-        holder.qty_np.setNumberPickerChangeListener(new NumberPicker.OnNumberPickerChangeListener() {
+        holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
+        holder.increase_btn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(@NotNull NumberPicker numberPicker, int i, boolean b) {
-                Utils.toast(context, "prog: "+i, Toast.LENGTH_SHORT);
-                curr.setCart_qty(i);
-
-                if(i==0 && getItemCount()>0){
-                    itemList.remove(i);
-                    notifyItemRemoved(position);
-                    clickListener.onItemClicked(null, -2, null);
-                }
-                if(getItemCount()==0 && clickListener!=null){
-                    // info: callback when all items from cart is removed
-                    holder.qty_np.setNumberPickerChangeListener(null);
-                    clickListener.onItemClicked(null, -1, null);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(@NotNull NumberPicker numberPicker) {
-                Log.i("test", "onStartTrackingTouch: ");
-            }
-
-            @Override
-            public void onStopTrackingTouch(@NotNull NumberPicker numberPicker) {
-                Log.i("test", "onStopTrackingTouch: "+numberPicker.getProgress());
+            public void onClick(View v) {
+                clickListener.onIncreaseQty(curr);
+                holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
             }
         });
+        holder.decrease_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(holder.qty.getText()=="1"){
+                    clickListener.onDecreaseQty(curr);
+                    holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
+                    notifyItemRemoved(position);
+                    notifyDataSetChanged();
 
+                } else {
+                    clickListener.onDecreaseQty(curr);
+                    holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
+                }
+            }
+        });
     }
 
     @Override
@@ -112,22 +88,19 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
         return itemList.size();
     }
 
-    public List<Item> getItemList() {
-        return new ArrayList<>(itemList);
-    }
-
-    class CartItemViewHolder extends RecyclerView.ViewHolder{
+    static class CartItemViewHolder extends RecyclerView.ViewHolder{
 
         TextView detail_tv;
-        it.sephiroth.android.library.numberpicker.NumberPicker qty_np;
-
+        Button qty, increase_btn, decrease_btn;
         View v;
 
         public CartItemViewHolder(@NonNull View itemView) {
             super(itemView);
             v = itemView;
             detail_tv = itemView.findViewById(R.id.cart_item_detail_tv);
-            qty_np = itemView.findViewById(R.id.cart_item_numberPicker);
+            qty = itemView.findViewById(R.id.cart_item_qty_text);
+            increase_btn = itemView.findViewById(R.id.cart_item_increase_qty);
+            decrease_btn = itemView.findViewById(R.id.cart_item_decrease_qty);
         }
     }
 }

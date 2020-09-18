@@ -3,6 +3,7 @@ package com.visionio.sabpay.main;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -54,6 +55,8 @@ import com.visionio.sabpay.adapter.SearchListAdapter;
 import com.visionio.sabpay.adapter.SimpleImageAdapter;
 import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.api.SabPayNotify;
+import com.visionio.sabpay.interfaces.CartListener;
+import com.visionio.sabpay.models.Cart;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
@@ -97,8 +100,6 @@ public class InventoryActivity extends AppCompatActivity {
 
     ExtendedFloatingActionButton cart_fab;
 
-    //TODO: Create separate static class for cart
-    List<Item> cart;
 
     // pagination query
     Chip loadMore_chip;
@@ -124,6 +125,21 @@ public class InventoryActivity extends AppCompatActivity {
     Invoice mInvoice;
 
     List<String> searchList;
+
+    Cart newCart;
+    CartListener cartListener = new CartListener() {
+        @Override
+        public void onIncreaseQty(Item item) {
+            newCart.addItem(item);
+            cart_fab.setText(String.format("%s", newCart.getItemCount()));
+        }
+
+        @Override
+        public void onDecreaseQty(Item item) {
+            newCart.decreaseItem(item);
+            cart_fab.setText(String.format("%s", newCart.getItemCount()));
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +167,7 @@ public class InventoryActivity extends AppCompatActivity {
         String json = i.getStringExtra("inventory");
         mInventory = Inventory.formJson(json);
         Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
-        cart = new ArrayList<>();
+        newCart = new Cart();
 
         searchRecycler = findViewById(R.id.inventory_search_recycler);
         searchClose = findViewById(R.id.inventory_image_close);
@@ -167,9 +183,9 @@ public class InventoryActivity extends AppCompatActivity {
 
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
         searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
-            for (Item it : cart) {
+            for (Item it : newCart.getItemList()) {
                 if (it.getId().equals(object)) {
-                    it.addToCart();
+                    newCart.addItem(it);
                     Utils.toast(InventoryActivity.this, String.format("%s already in cart", it.getTitle()), Toast.LENGTH_SHORT);
                     return;
                 }
@@ -178,7 +194,7 @@ public class InventoryActivity extends AppCompatActivity {
                     .get().addOnSuccessListener(snapshot -> {
                 Item item = snapshot.toObject(Item.class);
                 assert item != null;
-                addToCart(item);
+                newCart.addItem(item);
             });
         });
 
@@ -187,7 +203,7 @@ public class InventoryActivity extends AppCompatActivity {
         searchRecycler.setHasFixedSize(false);
         searchRecycler.setAdapter(searchListAdapter);
 
-        adapter.setClickListener((object, position, view) -> addToCart(object));
+        adapter.setClickListener(cartListener);
 
         recyclerView.setAdapter(adapter);
 
@@ -235,7 +251,7 @@ public class InventoryActivity extends AppCompatActivity {
         });
 
         cart_fab.setOnClickListener(v -> {
-            if(cart.size()==0){
+            if(newCart.getItemCount() == 0){
                 Utils.toast(InventoryActivity.this, "No items in cart", Toast.LENGTH_SHORT);
                 return;
             }
@@ -338,7 +354,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     void showCart(){
         if(cart_dialog!=null){
-            dialog_cart_adapter.setItemList(new ArrayList<>(cart));
+            dialog_cart_adapter.setItemList(newCart.getItemList());
             cart_dialog.show();
             return;
         }
@@ -358,18 +374,20 @@ public class InventoryActivity extends AppCompatActivity {
         dialog_items_rv.setLayoutManager(new LinearLayoutManager(this));
         dialog_items_rv.setHasFixedSize(false);
 
-        dialog_cart_adapter = new CartItemAdapter(new ArrayList<>(cart), this);
-        dialog_cart_adapter.setClickListener((item, pos, view) -> {
-            if(pos==-1){
-                cart.clear();
-                cart_fab.setText(String.format("%s", cart.size()));
-                cart_dialog.dismiss();
-            }else if(pos==-2){
-                cart.clear();
-                cart = dialog_cart_adapter.getItemList();
-                cart_fab.setText(String.format("%s", cart.size()));
-            }
-        });
+        dialog_cart_adapter = new CartItemAdapter(newCart.getItemList(), InventoryActivity.this, newCart.getQuantity());
+        dialog_cart_adapter.setClickListener(cartListener);
+
+//        dialog_cart_adapter.setClickListener((item, pos, view) -> {
+//            if(pos==-1){
+//                cart.clear();
+//                cart_fab.setText(String.format("%s", cart.size()));
+//                cart_dialog.dismiss();
+//            }else if(pos==-2){
+//                cart.clear();
+//                cart = dialog_cart_adapter.getItemList();
+//                cart_fab.setText(String.format("%s", cart.size()));
+//            }
+//        });
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
@@ -383,13 +401,14 @@ public class InventoryActivity extends AppCompatActivity {
                 showInvoice();
             }
         });
+        cart_dialog.setOnShowListener(dialog -> {
 
-
+        });
         cart_dialog.show();
     }
 
     void showInvoice(){
-        mInvoice = Invoice.fromItems(cart);
+        mInvoice = Invoice.fromCart(newCart);
         if(invoice_dialog!=null){
             updateInvoice();
             invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -488,8 +507,8 @@ public class InventoryActivity extends AppCompatActivity {
 
     }
     void updateInvoice(){
-        String item_count = Invoice.STR_ITEM_COUNT+" "+cart.size();
-        String entity_count = Invoice.STR_ENTITY_COUNT+" "+Utils.getEntityCount(cart);
+        String item_count = Invoice.STR_ITEM_COUNT+" "+newCart.getUniqueItemCount();
+        String entity_count = Invoice.STR_ENTITY_COUNT+" "+newCart.getItemCount();
         String order_from = Invoice.STR_ORDER_FROM+" "+mInventory.getName();
 
         String base_amt = Utils.equalize(mInvoice.getBase_amount(), Invoice.STR_BASE_AMOUNT);
@@ -641,22 +660,6 @@ public class InventoryActivity extends AppCompatActivity {
             }, 1500);
 
         });
-    }
-
-    void addToCart(Item i) {
-        //adapter.addToCart(i);
-        Item item = i.copy();
-        for (Item it : cart) {
-            if (it.equals(i)) {
-                it.addToCart();
-                Utils.toast(this, String.format("%s already in cart", it.getTitle()), Toast.LENGTH_SHORT);
-                return;
-            }
-        }
-        item.addToCart();
-        cart.add(item);
-        cart_fab.setText(String.format("%s", cart.size()));
-        Utils.toast(this, String.format("1 unit of %s Added", i.getTitle()), Toast.LENGTH_SHORT);
     }
 
     private void revealShow(View rootView, boolean reveal, final AlertDialog dialog){

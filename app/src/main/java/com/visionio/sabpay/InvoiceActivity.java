@@ -32,6 +32,7 @@ import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.visionio.sabpay.adapter.InvoiceAdapter;
 import com.visionio.sabpay.api.API;
+import com.visionio.sabpay.models.Cart;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
@@ -72,6 +73,8 @@ public class InvoiceActivity extends AppCompatActivity {
     TextView total_tv, discount_tv, payable_amount_tv, promo_tv;
     Button payAndOrder_bt, confirmOrder_bt;
 
+    Cart cart = new Cart();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +104,7 @@ public class InvoiceActivity extends AppCompatActivity {
         if (order.isPaymentDone()) {
             loadInvoice();
         } else {
+
             items = order.getItems();
             for (Item i : items) {
                 i.setCart_qty(i.getQty());

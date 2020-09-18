@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.smarteist.autoimageslider.SliderView;
 import com.visionio.sabpay.R;
+import com.visionio.sabpay.interfaces.CartListener;
 import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Item;
 
@@ -20,7 +21,7 @@ import java.util.List;
 public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAdapter.InventoryItemViewHolder> {
     Context context;
     List<Item> itemList;
-    OnItemClickListener<Item> clickListener;
+    CartListener clickListener;
 
     public void setItemList(List<Item> itemList) {
         if(this.itemList==null){
@@ -32,7 +33,7 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
         notifyDataSetChanged();
     }
 
-    public void setClickListener(OnItemClickListener<Item> clickListener) {
+    public void setClickListener(CartListener clickListener) {
         this.clickListener = clickListener;
     }
 
@@ -50,22 +51,6 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
     @Override
     public int getItemViewType(int position) {
         return position;
-    }
-
-    public void addToCart(Item i){
-        for(Item it: itemList){
-            if(it.equals(i)){
-                it.addToCart();
-            }
-        }
-    }
-
-    public void removeFromCart(Item i){
-        for(Item it: itemList){
-            if(it.equals(i)){
-                it.removeFromCart();
-            }
-        }
     }
 
     @NonNull
@@ -90,7 +75,7 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
                 if(clickListener==null){
                     return;
                 }
-                clickListener.onItemClicked(current, position, v);
+                clickListener.onIncreaseQty(current);
             }
         });
     }

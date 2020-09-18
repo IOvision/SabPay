@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    app:cardCornerRadius="20dp"
-    android:background="#D9DDDC">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/cart_item_detail_tv"
-            android:layout_width="match_parent"
+            android:id="@+id/cart_item_title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="32dp"
-            android:layout_toStartOf="@id/cart_item_qty_group"
             android:textSize="20sp"
             tools:text="Milk Rs. 45/L" />
 
@@ -45,7 +39,7 @@
             <Button
                 android:id="@+id/cart_item_qty_text"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                android:layout_width="@dimen/dimen_50dp"
                 android:layout_height="40dp"
                 android:textColor="@color/white"
                 android:text="11"
@@ -66,4 +60,4 @@
 
     </RelativeLayout>
 
-</androidx.cardview.widget.CardView>
+</RelativeLayout>

@@ -111,7 +111,7 @@ public class Item {
         i.setUnit(this.getUnit());
         i.setInventory_id(this.getInventory_id());
         i.setImages(this.getImages());
-        i.setCart_qty(this.getCart_qty());
+        //i.setCart_qty(this.getCart_qty());
         return i;
     }
 
@@ -126,21 +126,6 @@ public class Item {
         }
     }
 
-    @Exclude
-    public void addToCart(){
-        if(cart_qty==qty){
-            return;
-        }
-        Log.d("item", "addToCart: " + qty);
-        cart_qty++;
-    }
-    @Exclude
-    public void removeFromCart(){
-        if(cart_qty==0){
-            return;
-        }
-        cart_qty--;
-    }
     @Exclude
     public int getCart_qty() {
         return cart_qty;
