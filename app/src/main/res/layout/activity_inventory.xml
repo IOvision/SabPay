@@ -49,30 +49,30 @@
                 app:menu="@menu/inventory_appbar">
 
                 <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <EditText
-                    android:id="@+id/inventory_search_et"
+                    android:id="@+id/search_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="Search items..."
-                    android:textColor="@color/white"
-                    android:textColorHint="#C7C7C7"
-                    android:visibility="gone"
-                    android:layout_toStartOf="@id/inventory_image_close"/>
-                <ImageView
-                    android:id="@+id/inventory_image_close"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_close"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"
-                    android:visibility="gone"/>
+                    android:layout_height="match_parent">
+                    <EditText
+                        android:id="@+id/inventory_search_et"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="Search items..."
+                        android:textColor="@color/white"
+                        android:textColorHint="#C7C7C7"
+                        android:visibility="gone"
+                        android:layout_toStartOf="@id/inventory_image_close"
+                        android:fontFamily="@font/product_sans_regular"/>
+                    <ImageView
+                        android:id="@+id/inventory_image_close"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_close"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"
+                        android:visibility="gone"/>
             </RelativeLayout>
             </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -125,9 +125,11 @@
         android:id="@+id/inventory_search_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_15dp"
+        android:layout_marginEnd="@dimen/dimen_96dp"
         android:layout_marginTop="?attr/actionBarSize"
-        android:layout_marginHorizontal="@dimen/dimen_50dp"
+        android:visibility="visible"
         tools:listitem="@layout/inventory_search_list"
-        android:visibility="visible" />
+        android:translationZ="@dimen/dimen_10dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
