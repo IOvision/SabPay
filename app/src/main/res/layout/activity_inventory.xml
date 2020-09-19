@@ -16,7 +16,7 @@
             android:id="@+id/inv_activity_collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="#A9A9A9"
+            app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <com.smarteist.autoimageslider.SliderView
@@ -111,13 +111,13 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/inv_activity_cart_exFab"
-        android:layout_width="92dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:textStyle="bold"
         app:backgroundTint="#9932CC"
         app:icon="@drawable/ic_cart"
-        app:layout_anchor="@id/inv_activity_collapsing_toolbar"
+        app:layout_anchor="@id/inv_activity_app_bar_layout"
         app:layout_anchorGravity="bottom|end"
         android:text="@string/_0" />
 

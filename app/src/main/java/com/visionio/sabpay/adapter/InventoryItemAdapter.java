@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.smarteist.autoimageslider.SliderView;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.CartListener;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.models.Item;
 
 import java.util.ArrayList;
@@ -69,14 +68,11 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
         holder.symbol.setSliderAdapter(new SimpleImageAdapter(context) {{
             setImageUrls(current.getImages());
         }});
-        holder.v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(clickListener==null){
-                    return;
-                }
-                clickListener.onIncreaseQty(current);
+        holder.v.setOnClickListener(v -> {
+            if(clickListener==null){
+                return;
             }
+            clickListener.onIncreaseQty(current);
         });
     }
 

@@ -6,13 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.interfaces.CartListener;
 import com.visionio.sabpay.models.Item;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 
@@ -59,19 +60,13 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
 
         holder.detail_tv.setText(String.format("%s ₹%s/%s", curr.getTitle(), curr.getCost(), curr.getUnit()));
         holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
-        holder.increase_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clickListener.onIncreaseQty(curr);
-                holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
-            }
+        holder.increase_btn.setOnClickListener(v -> {
+            clickListener.onIncreaseQty(curr);
+            holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
         });
-        holder.decrease_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clickListener.onDecreaseQty(curr);
-                holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
-            }
+        holder.decrease_btn.setOnClickListener(v -> {
+            clickListener.onDecreaseQty(curr);
+            holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
         });
     }
 

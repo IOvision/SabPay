@@ -3,7 +3,6 @@ package com.visionio.sabpay.main;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,11 +27,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -89,6 +87,7 @@ public class InventoryActivity extends AppCompatActivity {
     SliderView inv_images_sv;
 
     CollapsingToolbarLayout collapsingToolbarLayout;
+    AppBarLayout appBarLayout;
 
     MaterialToolbar toolbar;
     EditText search;
@@ -145,6 +144,9 @@ public class InventoryActivity extends AppCompatActivity {
             cart_fab.setText(String.format("%s", newCart.getItemCount()));
             if (dialog_cart_adapter != null) {
                 dialog_cart_adapter.notifyDataSetChanged();
+                if(dialog_cart_adapter.getItemCount()==0){
+                    cart_dialog.dismiss();
+                }
             }
         }
     };
@@ -155,7 +157,7 @@ public class InventoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
 
-        Toolbar toolbar = findViewById(R.id.inv_activity_toolbar);
+        toolbar = findViewById(R.id.inv_activity_toolbar);
         setSupportActionBar(toolbar);
         mRef = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -190,6 +192,14 @@ public class InventoryActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
+        appBarLayout = findViewById(R.id.inv_activity_app_bar_layout);
+        appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
+            verticalOffset = Math.abs(verticalOffset)/5;
+            float flexibleSpace = appBarLayout.getTotalScrollRange() - verticalOffset;
+            Log.i("test", "onCreate: "+verticalOffset);
+            cart_fab.animate().translationY(verticalOffset).start();
+        });
+
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
         searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
             for (Item it : newCart.getItemList()) {
@@ -220,7 +230,7 @@ public class InventoryActivity extends AppCompatActivity {
             setImageUrls(mInventory.getImages());
         }});
 
-        toolbar.setOnMenuItemClickListener((Toolbar.OnMenuItemClickListener) item -> {
+        toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.inventory_appbar_info){
                 showInfoDialog();
                 return true;
@@ -268,17 +278,13 @@ public class InventoryActivity extends AppCompatActivity {
             //View.OnClickListener listener = this;
         });
 
-        nestedScrollView.getViewTreeObserver().addOnScrollChangedListener(
-                new ViewTreeObserver.OnScrollChangedListener() {
-                    @Override
-                    public void onScrollChanged() {
-                        View view = (View) nestedScrollView.getChildAt(nestedScrollView.getChildCount() - 1);
-                        int diff = (view.getBottom() - (nestedScrollView.getHeight() + nestedScrollView.getScrollY()));
-                        if (diff == 0) {
-                            isLoading = true;
-                            loadItems(mInventory.getId());
-                            Toast.makeText(InventoryActivity.this, "End of ScrollView", Toast.LENGTH_SHORT).show();
-                        }
+        nestedScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+                    View view = nestedScrollView.getChildAt(nestedScrollView.getChildCount() - 1);
+                    int diff = (view.getBottom() - (nestedScrollView.getHeight() + nestedScrollView.getScrollY()));
+                    if (diff == 0) {
+                        isLoading = true;
+                        loadItems(mInventory.getId());
+                        Toast.makeText(InventoryActivity.this, "End of ScrollView", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
