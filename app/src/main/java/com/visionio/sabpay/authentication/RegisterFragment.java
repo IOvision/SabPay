@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseException;
@@ -30,6 +31,7 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.helper.TokenManager;
@@ -160,7 +162,14 @@ public class RegisterFragment extends Fragment {
                 til1.setError("Enter a Proper Email");
             }
             else {
-                nextState();
+                FirebaseFirestore.getInstance().collection("user").whereEqualTo("email", mEmail)
+                        .get().addOnSuccessListener(queryDocumentSnapshots -> {
+                           if (queryDocumentSnapshots.size() == 0) {
+                               nextState();
+                           } else {
+                               til1.setError("An account already exists with this email");
+                           }
+                        });
             }
         }
         else if (state==3){
@@ -256,6 +265,7 @@ public class RegisterFragment extends Fragment {
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
                             TokenManager.handleOnLoginSignUp(getActivity().getApplicationContext());
+                            Paper.book().write("loginSuccess", Boolean.TRUE);
                             startActivity(new Intent(getActivity(), MainActivity.class));
                             getActivity().finish();
                         }else{

@@ -93,6 +93,7 @@ public class LoginFragment extends Fragment {
                 storeData(user1);
                 TokenManager.handleOnLoginSignUp(Objects.requireNonNull(getActivity()).getApplicationContext());
                 progressOff();
+
                 startActivity(new Intent(getContext(), MainActivity.class));
                 getActivity().finish();
                 /*if(!user1.getLogin()){

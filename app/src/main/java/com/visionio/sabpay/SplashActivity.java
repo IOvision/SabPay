@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.main.MainActivity;
 
 public class SplashActivity extends AppCompatActivity {
@@ -20,7 +21,13 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         (new Handler()).postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            if (FirebaseAuth.getInstance().getCurrentUser() == null){
+                startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
+            } else if (FirebaseAuth.getInstance().getCurrentUser().getEmail() != null) {
+                startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
+            } else {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            }
             finish();
         }, 1500);
 
