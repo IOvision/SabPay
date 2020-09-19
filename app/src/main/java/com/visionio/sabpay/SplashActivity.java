@@ -20,12 +20,11 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
         (new Handler()).postDelayed(() -> {
             if (FirebaseAuth.getInstance().getCurrentUser() == null){
                 startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
-            } else if (email == null ) {
+            } else if (FirebaseAuth.getInstance().getCurrentUser().getEmail() == null) {
                 startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
             } else {
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
