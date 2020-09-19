@@ -63,11 +63,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
     public void onBindViewHolder(@NonNull InventoryAdapter.InventoryViewHolder holder, final int position) {
         final Inventory current = inventoryList.get(position);
         holder.inventoryName.setText(current.getName());
-        holder.inventoryLocation.setVisibility(View.GONE);
-        if(current.isOpened())
-            holder.inventoryLocation.setText("Open");
-        else
-            holder.inventoryLocation.setText("Close");
+        holder.inventoryAddress.setText(current.getAddress());
         holder.symbol.setSliderAdapter(new SimpleImageAdapter(context){{
             setImageUrls(current.getImages());
         }});
@@ -89,7 +85,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
 
     public static class InventoryViewHolder extends RecyclerView.ViewHolder{
 
-        TextView inventoryName, inventoryLocation, quantity;
+        TextView inventoryName, inventoryAddress, quantity;
         SliderView symbol;
 
         View v;
@@ -98,7 +94,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
             super(itemView);
             v = itemView;
             inventoryName = itemView.findViewById(R.id.item_inventoryName_tv);
-            inventoryLocation = itemView.findViewById(R.id.item_inventoryLocation_tv);
+            inventoryAddress = itemView.findViewById(R.id.item_inventoryAddress_tv);
             quantity = itemView.findViewById(R.id.item_qty_tv);
             symbol = itemView.findViewById(R.id.items_image_sv);
         }

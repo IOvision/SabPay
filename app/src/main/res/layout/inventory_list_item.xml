@@ -55,11 +55,12 @@
                 tools:text="Milk"
                 android:textSize="22sp"/>
             <TextView
-                android:id="@+id/item_inventoryLocation_tv"
+                android:id="@+id/item_inventoryAddress_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Rs. 45/Kg"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                android:layout_marginTop="5dp"/>
 
         </LinearLayout>
 

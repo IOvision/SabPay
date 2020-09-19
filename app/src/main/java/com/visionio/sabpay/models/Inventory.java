@@ -22,12 +22,21 @@ public class Inventory implements Serializable {
     DocumentReference owner; // user/id ref of owner of this inventory
     boolean opened; // tells whether the shop/inventory is open or close
     int totalItems; // tells total number of unique items... for example it shop has 2 bananas and 3 apples so totalItems = 2.
-
+    String address;
 
     public Inventory() {
         totalItems = 0;
         opened = false;
         images = new ArrayList<>();
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        address = "Kia Park Apartments, Veera Desai Road, Shastri Nagar, Andheri West Mumbai, Maharashtra 400102";
+        this.address = address;
     }
 
     public String getId() {
