@@ -281,7 +281,7 @@ public class InventoryActivity extends AppCompatActivity {
                     if (diff == 0) {
                         isLoading = true;
                         loadItems(mInventory.getId());
-                        Toast.makeText(InventoryActivity.this, "End of ScrollView", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(InventoryActivity.this, "Loading more items", Toast.LENGTH_SHORT).show();
                     }
                 }
         );

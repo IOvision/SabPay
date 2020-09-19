@@ -3,7 +3,6 @@ package com.visionio.sabpay.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +23,8 @@ import com.visionio.sabpay.R;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.main.MainActivity;
 import com.visionio.sabpay.models.User;
+
+import java.util.Objects;
 
 import io.paperdb.Paper;
 
@@ -76,9 +77,8 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        updateUI(mAuth.getCurrentUser());
+                        updateUI(Objects.requireNonNull(mAuth.getCurrentUser()));
                     } else {
-                        Log.w("Login:", "signInWithEmail:failure", task.getException());
                         Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
                         progressOff();
                     }
@@ -89,9 +89,13 @@ public class LoginFragment extends Fragment {
         final FirebaseFirestore mRef = FirebaseFirestore.getInstance();
         mRef.collection("user").document(user.getUid()).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
-                User user1 = task.getResult().toObject(User.class);
-                if(!user1.getLogin()){
-                    mRef.collection("user").document(user1.getUid()).update("login", true);
+                User user1 = Objects.requireNonNull(task.getResult()).toObject(User.class);
+                storeData(user1);
+                TokenManager.handleOnLoginSignUp(Objects.requireNonNull(getActivity()).getApplicationContext());
+                progressOff();
+                startActivity(new Intent(getContext(), MainActivity.class));
+                getActivity().finish();
+                /*if(!user1.getLogin()){
                     storeData(user1);
                     TokenManager.handleOnLoginSignUp(getActivity().getApplicationContext());
                     startActivity(new Intent(getContext(), MainActivity.class));
@@ -99,7 +103,7 @@ public class LoginFragment extends Fragment {
                 }else{
                     Toast.makeText(getContext(), "User already log-in another device", Toast.LENGTH_SHORT).show();
                     progressOff();
-                }
+                }*/
             }else{
                 Toast.makeText(getContext(), "Authentication Failed", Toast.LENGTH_SHORT).show();
                 progressOff();

@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity{
             registration.remove();
         }
         mRef.collection("user").document(mAuth.getUid()).update(new HashMap<String, Object>(){{
-            put("login", false);
+            //put("login", false);
             put("instanceId", null);
         }})
                 .addOnCompleteListener(task -> {
@@ -199,6 +199,7 @@ public class MainActivity extends AppCompatActivity{
                         mAuth.signOut();
                         Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
                         startActivity(intent);
+                        finishAffinity();
                     } else {
                         Toast.makeText(MainActivity.this, "Could not sign out", Toast.LENGTH_SHORT).show();
                     }
