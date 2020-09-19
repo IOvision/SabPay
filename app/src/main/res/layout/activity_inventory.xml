@@ -107,8 +107,47 @@
         app:backgroundTint="#9932CC"
         app:icon="@drawable/ic_cart"
         app:layout_anchor="@id/inv_activity_app_bar_layout"
-        app:layout_anchorGravity="bottom|end"
+        app:layout_anchorGravity="end|bottom"
         android:text="@string/_0" />
+
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/inv_activity_item_counter_cl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
+        app:layout_anchor="@id/inv_activity_cart_exFab"
+        app:layout_anchorGravity="top|right"
+        android:scaleX="0.7"
+        android:scaleY="0.7"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/white_circle_24dp" />
+
+            <TextView
+                android:id="@+id/inv_activity_item_counter_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_0"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/roboto_regular"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/inventory_search_recycler"
@@ -117,7 +156,7 @@
         android:layout_marginStart="@dimen/dimen_15dp"
         android:layout_marginEnd="@dimen/dimen_96dp"
         android:layout_marginTop="?attr/actionBarSize"
-        android:visibility="visible"
+        android:visibility="gone"
         tools:listitem="@layout/inventory_search_list"
         android:translationZ="@dimen/dimen_10dp"/>
 

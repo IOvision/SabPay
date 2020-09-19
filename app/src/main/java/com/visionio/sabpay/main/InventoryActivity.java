@@ -27,6 +27,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -102,6 +103,8 @@ public class InventoryActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
 
     ExtendedFloatingActionButton cart_fab;
+    CoordinatorLayout item_counter_cl;
+    TextView item_counter_tv;
 
 
     // pagination query
@@ -134,12 +137,14 @@ public class InventoryActivity extends AppCompatActivity {
         public void onIncreaseQty(Item item) {
             newCart.addItem(item);
             cart_fab.setText(String.format("%s", newCart.getItemCount()));
+            item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
         }
 
         @Override
         public void onDecreaseQty(Item item) {
             newCart.decreaseItem(item);
             cart_fab.setText(String.format("%s", newCart.getItemCount()));
+            item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
             if (dialog_cart_adapter != null) {
                 dialog_cart_adapter.notifyDataSetChanged();
                 if(dialog_cart_adapter.getItemCount()==0){
@@ -184,6 +189,8 @@ public class InventoryActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.inv_activity_toolbar);
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
+        item_counter_cl = findViewById(R.id.inv_activity_item_counter_cl);
+        item_counter_tv = findViewById(R.id.inv_activity_item_counter_tv);
         inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -193,8 +200,36 @@ public class InventoryActivity extends AppCompatActivity {
         appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             verticalOffset = Math.abs(verticalOffset)/5;
             float flexibleSpace = appBarLayout.getTotalScrollRange() - verticalOffset;
+            Log.i("tes", "space: "+appBarLayout.getTotalScrollRange());
             Log.i("test", "onCreate: "+verticalOffset);
             cart_fab.animate().translationY(verticalOffset).start();
+            if(verticalOffset>=132 && verticalOffset<=170){
+                item_counter_cl.setVisibility(View.VISIBLE);
+            }else{
+                item_counter_cl.setVisibility(View.GONE);
+            }
+        });
+
+        cart_fab.addOnShrinkAnimationListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                Log.i("text", "onAnimationEnd: ++");
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
         });
 
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
