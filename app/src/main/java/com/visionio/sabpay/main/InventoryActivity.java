@@ -36,7 +36,6 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -106,7 +105,6 @@ public class InventoryActivity extends AppCompatActivity {
 
 
     // pagination query
-    Chip loadMore_chip;
     Query loadItemQuery;
     long itemLimit = 10;
     boolean isAllItemsLoaded = false;
@@ -188,7 +186,6 @@ public class InventoryActivity extends AppCompatActivity {
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
         inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
-        loadMore_chip = findViewById(R.id.inv_activity_loadMore_chip);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
@@ -289,11 +286,6 @@ public class InventoryActivity extends AppCompatActivity {
                 }
         );
 
-        loadMore_chip.setOnClickListener(v -> {
-            loadMore_chip.setEnabled(false);
-            loadItems(mInventory.getId());
-        });
-
         loadItems(mInventory.getId());
     }
 
@@ -342,13 +334,11 @@ public class InventoryActivity extends AppCompatActivity {
         }
         if(isAllItemsLoaded){
             Utils.toast(this, "No more items", Toast.LENGTH_SHORT);
-            loadMore_chip.setEnabled(true);
             isLoading = false;
             return;
         }
         loadItemQuery.get()
                 .addOnCompleteListener(task -> {
-                    loadMore_chip.setEnabled(true);
                     isLoading = false;
                     if (task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
