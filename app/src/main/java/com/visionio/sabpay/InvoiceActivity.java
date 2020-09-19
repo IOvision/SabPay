@@ -73,7 +73,7 @@ public class InvoiceActivity extends AppCompatActivity {
     TextView total_tv, discount_tv, payable_amount_tv, promo_tv;
     Button payAndOrder_bt, confirmOrder_bt;
 
-    Cart cart = new Cart();
+    Cart cart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +104,8 @@ public class InvoiceActivity extends AppCompatActivity {
         if (order.isPaymentDone()) {
             loadInvoice();
         } else {
-
-            items = order.getItems();
+            cart = new Cart();
+            cart.setItemList(order.getItems());
             for (Item i : items) {
                 i.setCart_qty(i.getQty());
             }

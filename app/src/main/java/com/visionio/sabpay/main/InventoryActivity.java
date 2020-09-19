@@ -10,10 +10,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,6 +34,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -84,6 +87,8 @@ public class InventoryActivity extends AppCompatActivity {
     Inventory mInventory;
 
     SliderView inv_images_sv;
+
+    CollapsingToolbarLayout collapsingToolbarLayout;
 
     MaterialToolbar toolbar;
     EditText search;
@@ -138,8 +143,12 @@ public class InventoryActivity extends AppCompatActivity {
         public void onDecreaseQty(Item item) {
             newCart.decreaseItem(item);
             cart_fab.setText(String.format("%s", newCart.getItemCount()));
+            if (dialog_cart_adapter != null) {
+                dialog_cart_adapter.notifyDataSetChanged();
+            }
         }
     };
+    boolean isLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -259,6 +268,21 @@ public class InventoryActivity extends AppCompatActivity {
             //View.OnClickListener listener = this;
         });
 
+        nestedScrollView.getViewTreeObserver().addOnScrollChangedListener(
+                new ViewTreeObserver.OnScrollChangedListener() {
+                    @Override
+                    public void onScrollChanged() {
+                        View view = (View) nestedScrollView.getChildAt(nestedScrollView.getChildCount() - 1);
+                        int diff = (view.getBottom() - (nestedScrollView.getHeight() + nestedScrollView.getScrollY()));
+                        if (diff == 0) {
+                            isLoading = true;
+                            loadItems(mInventory.getId());
+                            Toast.makeText(InventoryActivity.this, "End of ScrollView", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
+
         loadMore_chip.setOnClickListener(v -> {
             loadMore_chip.setEnabled(false);
             loadItems(mInventory.getId());
@@ -303,7 +327,7 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     void loadItems(String inv_id) {
-
+        Log.d("testing", "loadItems: Loading Items");
         if(loadItemQuery==null){
             loadItemQuery = mRef.collection("item")
                     .orderBy("title")
@@ -313,11 +337,13 @@ public class InventoryActivity extends AppCompatActivity {
         if(isAllItemsLoaded){
             Utils.toast(this, "No more items", Toast.LENGTH_SHORT);
             loadMore_chip.setEnabled(true);
+            isLoading = false;
             return;
         }
         loadItemQuery.get()
                 .addOnCompleteListener(task -> {
                     loadMore_chip.setEnabled(true);
+                    isLoading = false;
                     if (task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
 

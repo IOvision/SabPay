@@ -19,8 +19,8 @@ import java.util.Map;
 public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartItemViewHolder> {
 
     List<Item> itemList;
-    Context context;
     Map<String, Integer> quantity;
+    Context context;
     CartListener clickListener;
 
     public CartItemAdapter(List<Item> itemList, Context context, Map<String, Integer> quantity) {
@@ -69,16 +69,8 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
         holder.decrease_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(holder.qty.getText()=="1"){
-                    clickListener.onDecreaseQty(curr);
-                    holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
-                    notifyItemRemoved(position);
-                    notifyDataSetChanged();
-
-                } else {
-                    clickListener.onDecreaseQty(curr);
-                    holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
-                }
+                clickListener.onDecreaseQty(curr);
+                holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
             }
         });
     }

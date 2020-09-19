@@ -99,11 +99,10 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         if (order.isPaymentDone()) {
             loadInvoice();
         }else {
-            items = order.getItems();
-            for (Item i : items) {
-                i.setCart_qty(i.getQty());
-            }
-            invoice = Invoice.fromItems(items);
+            Cart cart = new Cart();
+            cart.setItemList(order.getItems());
+            cart.itemQtyToCartQty();
+            invoice = Invoice.fromItems(cart.getItemList());
             setTextViewsWhenInvoiceIsNotGenerated();
 
             setUpInvoice();
