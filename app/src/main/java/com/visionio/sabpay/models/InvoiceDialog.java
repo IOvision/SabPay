@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,7 +24,6 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.visionio.sabpay.R;
@@ -278,16 +276,17 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     void placeOrder(String transactionId) {
         String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
         order.setInvoiceId(invoiceId);
-        if(order.getStatus().equalsIgnoreCase(Order.STATUS.ORDER_DELIVERED)){
-            order.setStatus(Order.STATUS.ORDER_COMPLETE);
-        }
 
         Map<String, Object> orderUpdate = new HashMap<>();
-        orderUpdate.put("items", null);
         orderUpdate.put("transactionId", transactionId);
         orderUpdate.put("invoiceId", invoiceId);
         orderUpdate.put("status", order.getStatus());
         orderUpdate.put("active", order.getActive());
+
+        if(order.getStatus().equalsIgnoreCase(Order.STATUS.ORDER_DELIVERED)){
+            order.setStatus(Order.STATUS.ORDER_COMPLETE);
+            orderUpdate.put("items", null);
+        }
 
         invoice.setId(invoiceId);
         invoice.setPromo(null);
@@ -295,20 +294,16 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         invoice.setTransaction(transactionId);
 
 
-        mRef.runTransaction(new com.google.firebase.firestore.Transaction.Function<Void>() {
-            @Nullable
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentReference orderRef = mRef.document("order/" + order.getOrderId());
+        mRef.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference orderRef = mRef.document("order/" + order.getOrderId());
 
-                String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), invoiceId);
-                DocumentReference invoiceRef = mRef.document(path);
+            String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), invoiceId);
+            DocumentReference invoiceRef = mRef.document(path);
 
-                transaction.update(orderRef, orderUpdate);
-                transaction.set(invoiceRef, invoice);
+            transaction.update(orderRef, orderUpdate);
+            transaction.set(invoiceRef, invoice);
 
-                return null;
-            }
+            return null;
         }).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Utils.toast(getContext(), "Paid Successfully", Toast.LENGTH_LONG);
