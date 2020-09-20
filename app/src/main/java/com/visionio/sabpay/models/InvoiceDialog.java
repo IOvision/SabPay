@@ -66,6 +66,9 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
     public InvoiceDialog(@NonNull Context context, Order order) {
         super(context);
+        if(order.items != null) {
+            this.items = order.items;
+        }
         this.order = order;
         this.invoiceId = order.getInvoiceId();
         this.orderIdString = order.getOrderId();
@@ -282,6 +285,10 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         orderUpdate.put("invoiceId", invoiceId);
         orderUpdate.put("status", order.getStatus());
         orderUpdate.put("active", order.getActive());
+        if(order.getStatus().equalsIgnoreCase(Order.STATUS.ORDER_DELIVERED)) {
+            orderUpdate.put("items", null);
+
+        }
 
         if(order.getStatus().equalsIgnoreCase(Order.STATUS.ORDER_DELIVERED)){
             order.setStatus(Order.STATUS.ORDER_COMPLETE);
@@ -318,7 +325,6 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     }
 
     private void setTextViews() {
-
         orderTime.setText(String.valueOf(invoice.getTimestamp().toDate()));
         orderId.setText(orderIdString);
         orderAmount.setText("\u20B9" + String.valueOf(invoice.getTotal_amount()));
