@@ -121,7 +121,9 @@
         app:layout_anchorGravity="top|right"
         android:scaleX="0.7"
         android:scaleY="0.7"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="-20dp">
 
         <RelativeLayout
             android:id="@+id/img"

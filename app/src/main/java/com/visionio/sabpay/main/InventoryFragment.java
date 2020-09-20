@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -66,6 +67,7 @@ public class InventoryFragment extends Fragment {
     FirebaseFirestore mRef;
     ArrayList<Inventory> inventoryArrayList;
     Inventory inventory;
+    LottieAnimationView animation;
     public InventoryFragment() {
         // Required empty public constructor
     }
@@ -75,6 +77,7 @@ public class InventoryFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_invnetory, container, false);
         recyclerView = view.findViewById(R.id.inventory_recycler);
+        animation = view.findViewById(R.id.animationView);
         ((MainActivity)getActivity()).setTitle("Inventory");
         return view;
     }
@@ -86,6 +89,7 @@ public class InventoryFragment extends Fragment {
         inventoryArrayList = new ArrayList<>();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
 
         // todo: fix access location and use it instead of hard coded lat and long
         getNearbyInventory(0,0,0);
@@ -176,6 +180,7 @@ public class InventoryFragment extends Fragment {
                         inventoryArrayList.add(inventory);
                     }
                     adapter.setInventoryList(inventoryArrayList);
+                    animation.setVisibility(View.GONE);
                 }else{
                     Log.i("test ", "onComplete: test "+task.getException().getLocalizedMessage());
                 }
