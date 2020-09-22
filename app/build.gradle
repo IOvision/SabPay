@@ -10,6 +10,7 @@ android {
            storePassword 'Vision.io@9654'
            keyAlias 'upload'
            keyPassword 'Vision.io@9654'
+           storeFile file('C:\\Users\\Rakshit\\keystore_encrypted.jks')
            //storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
        }
    }
@@ -22,12 +23,13 @@ android {
         versionCode 4
         versionName "3.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
     }
     buildTypes {
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
-            debuggable true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
