@@ -210,33 +210,13 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
-        cart_fab.addOnShrinkAnimationListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                Log.i("text", "onAnimationEnd: ++");
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-
         adapter = new InventoryItemAdapter(this, new ArrayList<>());
         searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
             for (Item it : newCart.getItemList()) {
                 if (it.getId().equals(object)) {
                     newCart.addItem(it);
+                    cart_fab.setText(String.format("%s", newCart.getItemCount()));
+                    item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
                     Utils.toast(InventoryActivity.this, String.format("%s already in cart", it.getTitle()), Toast.LENGTH_SHORT);
                     return;
                 }
@@ -246,6 +226,8 @@ public class InventoryActivity extends AppCompatActivity {
                 Item item = snapshot.toObject(Item.class);
                 assert item != null;
                 newCart.addItem(item);
+                cart_fab.setText(String.format("%s", newCart.getItemCount()));
+                item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
             });
         });
 

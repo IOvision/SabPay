@@ -32,7 +32,7 @@
         android:theme="@style/AppTheme"
         android:screenOrientation="portrait">
         <activity android:name=".InvoiceActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity android:name=".main.InventoryActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".GpayProcedureActivity"
@@ -45,7 +45,7 @@
         <service
             android:name=".services.FirebaseService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
