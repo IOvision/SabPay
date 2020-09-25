@@ -156,6 +156,12 @@ public class InventoryActivity extends AppCompatActivity {
     boolean isLoading = false;
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Paper.book().delete("json");
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
