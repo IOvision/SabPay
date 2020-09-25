@@ -176,9 +176,7 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     private void setup() {
-        Intent i = getIntent();
-        //mInventory = (Inventory)i.getSerializableExtra("inventory");
-        String json = i.getStringExtra("inventory");
+        String json = Paper.book().read("json");
         mInventory = Inventory.formJson(json);
         Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
         newCart = new Cart();

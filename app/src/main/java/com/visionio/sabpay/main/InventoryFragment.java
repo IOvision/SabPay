@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.paperdb.Paper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -107,7 +108,7 @@ public class InventoryFragment extends Fragment {
             public void onItemClicked(Inventory object, int position, View view) {
                 Intent intent = new Intent(getActivity(), InventoryActivity.class);
                 String json = object.getJson();
-                intent.putExtra("inventory", json);
+                Paper.book().write("json",json);
                 startActivity(intent);
             }
         });
