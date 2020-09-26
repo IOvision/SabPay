@@ -19,6 +19,7 @@ public class Item {
     String unit;// Kg/L/Doz/unit
     int qty; // quantity of item
     double cost; // price of item
+    String category;
     List<String> images;
 
     @Exclude
@@ -26,6 +27,14 @@ public class Item {
 
     public Item() {
 
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getId() {
@@ -111,6 +120,7 @@ public class Item {
         i.setUnit(this.getUnit());
         i.setInventory_id(this.getInventory_id());
         i.setImages(this.getImages());
+        i.setCategory(this.getCategory());
         //i.setCart_qty(this.getCart_qty());
         return i;
     }
