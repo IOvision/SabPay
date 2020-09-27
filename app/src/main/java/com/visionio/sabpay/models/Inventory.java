@@ -23,11 +23,20 @@ public class Inventory implements Serializable {
     boolean opened; // tells whether the shop/inventory is open or close
     int totalItems; // tells total number of unique items... for example it shop has 2 bananas and 3 apples so totalItems = 2.
     String address;
+    List<String> tags; //tells which tags to be included in inventory
 
     public Inventory() {
         totalItems = 0;
         opened = false;
         images = new ArrayList<>();
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public String getAddress() {
