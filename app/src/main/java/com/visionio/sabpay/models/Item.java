@@ -19,10 +19,9 @@ public class Item {
     String description; // item related text like company name
     String unit;// Kg/L/Doz/unit
     int qty; // quantity of item
-    double cost; // price of item
     String category;
     List<String> images;
-    HashMap<String, Boolean> exc; //tells which inventory excludes this item
+    HashMap<String, Double> cost; //tells cost of item in particular inventory
     HashMap<String, Boolean> tags; //tells the tags item belong to
 
     @Exclude
@@ -32,13 +31,9 @@ public class Item {
 
     }
 
-    public HashMap<String, Boolean> getExc() {
-        return exc;
-    }
+    public HashMap<String, Double> getCost() { return cost; }
 
-    public void setExc(HashMap<String, Boolean> exc) {
-        this.exc = exc;
-    }
+    public void setCost(HashMap<String, Double> cost) { this.cost = cost; }
 
     public HashMap<String, Boolean> getTags() {
         return tags;
@@ -102,14 +97,6 @@ public class Item {
 
     public void setQty(int qty) {
         this.qty = qty;
-    }
-
-    public double getCost() {
-        return cost;
-    }
-
-    public void setCost(double cost) {
-        this.cost = cost;
     }
 
     public String getUnit() {

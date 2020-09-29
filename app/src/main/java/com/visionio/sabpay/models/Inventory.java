@@ -24,12 +24,17 @@ public class Inventory implements Serializable {
     int totalItems; // tells total number of unique items... for example it shop has 2 bananas and 3 apples so totalItems = 2.
     String address;
     List<String> tags; //tells which tags to be included in inventory
+    List<String> exe; //tells which items to exclude from particular inventory
 
     public Inventory() {
         totalItems = 0;
         opened = false;
         images = new ArrayList<>();
     }
+
+    public List<String> getExe() { return exe; }
+
+    public void setExe(List<String> exe) { this.exe = exe; }
 
     public List<String> getTags() {
         return tags;
