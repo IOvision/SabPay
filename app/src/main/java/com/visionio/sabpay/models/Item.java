@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Item {
@@ -21,12 +22,30 @@ public class Item {
     double cost; // price of item
     String category;
     List<String> images;
+    HashMap<String, Boolean> exc; //tells which inventory excludes this item
+    HashMap<String, Boolean> tags; //tells the tags item belong to
 
     @Exclude
     int cart_qty = 0;
 
     public Item() {
 
+    }
+
+    public HashMap<String, Boolean> getExc() {
+        return exc;
+    }
+
+    public void setExc(HashMap<String, Boolean> exc) {
+        this.exc = exc;
+    }
+
+    public HashMap<String, Boolean> getTags() {
+        return tags;
+    }
+
+    public void setTags(HashMap<String, Boolean> tags) {
+        this.tags = tags;
     }
 
     public String getCategory() {
