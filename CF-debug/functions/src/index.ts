@@ -2,17 +2,83 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
 import * as CircularJSON from 'circular-json'
+import * as firebase from 'firebase';
 import { totp } from 'otplib'
+
+firebase.initializeApp({
+    apiKey: 'AIzaSyDKd74ql_WS31jnOQFaRsqH_EVLq_92sB8',
+    authDomain: 'https://sabpay-test.firebaseio.com',
+    projectId: 'sabpay-test'
+})
 
 const default_api_key = 'qIEvxBbP8V6e1YLXICde';
 admin.initializeApp()
 
-export const generateOTP = 
+export const getItems =
+functions.https.onRequest(async (req, res) => {
+    res.setHeader('Content-Type', 'aplication/json')
+    if(req.method !== 'GET'){
+        res.status(403).send(null);
+        return;
+    }
+    var lastTitle = <string> req.query.after;
+    const inv = <string> req.query.inv;
+    const limit = Number.parseInt(<string> req.query.limit);
+    const tags_q = <string> req.query.tags;
+    const tags = tags_q.split('_')
+    if(lastTitle === undefined || 
+        tags === undefined || 
+        inv === undefined ||
+        tags.length === 0){
+        res.status(403).send(null);
+        return;
+    }
+    lastTitle = lastTitle.replace('+', ' ');
+    var db = firebase.firestore();
+    const baseQuery = db.collection('item');
+    const items: any[] = [];
+    for (let index = 0; index < tags.length; index++) {
+        //const tag = tags[index];
+        const q = baseQuery.where(`exc`, '!=', inv).limit(limit);
+        const result = await q.get();
+        result.forEach(snap => {
+            const it = snap.data();
+            let isIn = false;
+            for (let i = 0; i < items.length; i++) {
+                const _it = items[i];
+                if(it.id == _it.id){
+                    isIn = true;
+                    break;
+                }
+            }
+            if(!isIn){
+                items.push(it);
+            }
+        })
+    }
+    res.status(200).send(items);
+
+    // admin.firestore().runTransaction(t => {
+    //     const promise: any[] = [];
+    //     tags.forEach(tag => {
+    //         const q = baseQuery.where(`tags.${tag}`, '==', true).limit(limit);
+    //         promise.push(q.get());
+    //     })
+    //     return Promise.all(promise);
+    // }).then(snaps => {
+    //     res.status(200).send(CircularJSON.stringify(snaps));
+    // }).catch(err => {
+    //     console.log(err)
+    //     res.status(500).send(err)
+    // })    
+})
+
+export const generateOTP =
 functions.region('asia-east2').https.onRequest((req, res) => {
     res.contentType('json');
     const a = Date.now()
     totp.options = {
-        epoch: a, 
+        epoch: a,
         step: 300,
         digits: 6
     }
@@ -48,13 +114,13 @@ functions.region('asia-east2').https.onRequest((req, res) => {
         }).catch((error) => {return res.send(error)})
     }).catch((error) => {return res.send(error)})
 })
-export const verifyOTP = 
+export const verifyOTP =
 functions.region('asia-east2').https.onRequest((req, res) => {
     const secret = <string> req.query.number;
     const otp = <string> req.query.otp;
     const time = parseInt(<string>req.query.time)
     totp.options = {
-        epoch: time, 
+        epoch: time,
         step: 300,
         digits: 6
     }
@@ -65,7 +131,7 @@ functions.region('asia-east2').https.onRequest((req, res) => {
         bool: isValid
     });
 })
-export const notify = 
+export const notify =
 functions.region('asia-east2').https.onRequest((req, res)=>{
     //url/notify?to={1234567890}?title={title}&msg={msg}&merch=0/1
     // https://us-central1-sabpay-ab94e.cloudfunctions.net/notify
@@ -131,10 +197,10 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         res.statusCode = 500;
         return res.send(template('Server Error'))});
 })
-export const placeOrder = 
+export const placeOrder =
 functions.region('asia-east2').https.onRequest((req, res)=>{
     res.contentType('json');
-    if(req.method != 'POST'){ 
+    if(req.method != 'POST'){
         res.statusCode = 405;
         res.setHeader('Content-Type', 'application/json');
         res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
@@ -175,7 +241,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
        orders:[
            {
                 orderId: "",
-                
+
            }
        ]
    }
@@ -198,7 +264,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
 
     const invoices: any[] = [];
     //const os: any[] = [];
-     
+
     const body = req.body
     const itemParams = ['items', 'inventoryId', 'transactionId','discount'];
     const orders: any[] = body.orders;
@@ -227,7 +293,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
 
         const order = {
             id: admin.firestore().collection('order').doc().id,
-            user: userId, 
+            user: userId,
             status: 'PENDING',
             inv: o.inventoryId,
             totalItems: o.items.length,
@@ -279,7 +345,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     const obj = {
         invoice: invoices,
         status: res.statusCode,
-        
+
     };
     //res.send(responseToSend);
 
@@ -292,22 +358,22 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         console.log(err)
         res.statusCode = 522;
         res.send({
-            status: res.statusCode, 
+            status: res.statusCode,
             error: <string>err
         });
     })
 })
-export const test = 
+export const test =
 functions.region('asia-east2').https.onRequest((req, res)=>{
     const arr = ""+req.query.m;
     const animals = arr.split(',');
-    
+
     res.send(animals);
 })
 export const generateInvoice =
 functions.region('asia-east2').https.onRequest((req, res)=>{
     res.contentType('json');
-    if(req.method != 'POST'){ 
+    if(req.method != 'POST'){
         res.statusCode = 405;
         res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
         return;
@@ -351,7 +417,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         if(order?.items==null){
             res.statusCode = 200
             return res.send({
-                status: res.statusCode, 
+                status: res.statusCode,
                 message: 'Invoice Already Generated',
                 invoiceRef: order?.invoice.id
             });
@@ -407,22 +473,22 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             console.log(err)
             res.statusCode = 522;
             res.send({
-            status: res.statusCode, 
+            status: res.statusCode,
             error: 'Internal Server Error'
             });
         })
-        
+
     })
     .catch(err => {
         console.log(err)
         res.statusCode = 522;
         res.send({
-            status: res.statusCode, 
+            status: res.statusCode,
             error: 'Internal Server Error'
         });
     })
 })
-export const biometric_IO = 
+export const biometric_IO =
 functions.region('asia-east2').https.onRequest((req, res)=>{
     /*
     {
@@ -454,13 +520,13 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         .then((bio)=>{
             if(!bio.exists){
                 res.statusCode = 204;
-                return res.send({status: res.statusCode, 
+                return res.send({status: res.statusCode,
                 data: `Mobile Number ${mobile} has no biometric data`});
             }
             const biometric = bio.data()?.template;
             const uid = bio.data()?.uid;
             res.statusCode = 200;
-            return res.send({status: res.statusCode, 
+            return res.send({status: res.statusCode,
                 template: biometric,
                 uid: uid});
         })
@@ -468,7 +534,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             console.log(err)
             res.statusCode = 522;
             res.send({
-            status: res.statusCode, 
+            status: res.statusCode,
             error: 'Internal Server Error'});
         })
 
@@ -481,14 +547,14 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         if(body==null){
             res.statusCode = 422;
             res.send({
-                status: res.statusCode, 
+                status: res.statusCode,
                 error: `Empty body`});
             return;
         }
         fields.forEach(element => {
             if(!body.hasOwnProperty(element)){
                 res.statusCode = 422;
-                res.send({status: res.statusCode, 
+                res.send({status: res.statusCode,
                     error: `Body doesn has ${element} property`});
                 return;
             }
@@ -497,13 +563,13 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         const template = <string>body.template;
         if(mobile==null || mobile.length!=10){
             res.statusCode = 422;
-            res.send({status: res.statusCode, 
+            res.send({status: res.statusCode,
                 error: `Invalid mobile number: ${mobile}`});
             return;
         }
         if(template==null){
             res.statusCode = 422;
-            res.send({status: res.statusCode, 
+            res.send({status: res.statusCode,
                 error: `Invalid template`});
             return;
         }
@@ -518,25 +584,25 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             const uid = <string> userData.docs[0].data().uid
             return admin.firestore().doc(`biometric/${mobile}`).create({
                 template: template,
-                uid: uid 
+                uid: uid
             })
             .then(()=>{
                 res.statusCode = 200;
-                res.send({status: res.statusCode, 
+                res.send({status: res.statusCode,
                     data: `Document successfully created at path: biometric/${mobile}`});
             })
             .catch(err => {
                 console.log(err)
                 res.statusCode = 522;
                 res.send({
-                status: res.statusCode, 
+                status: res.statusCode,
                 error: 'Internal Server Error'});
             })
         }).catch(err => {
             console.log(err)
             res.statusCode = 522;
             res.send({
-            status: res.statusCode, 
+            status: res.statusCode,
             error: 'Internal Server Error'});
         })
     }
@@ -549,7 +615,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
 export const refund =
 functions.region('asia-east2').https.onRequest((req,res)=>{
     res.contentType('json');
-    if(req.method != 'GET'){ 
+    if(req.method != 'GET'){
         res.statusCode = 405;
         res.send({status: res.statusCode, error: `${req.method} method Not Supported`});
         return;
@@ -616,7 +682,7 @@ functions.region('asia-east2').https.onRequest((req,res)=>{
             console.log(err)
             res.statusCode = 522;
             res.send({
-            status: res.statusCode, 
+            status: res.statusCode,
             error: 'Internal Server Error'});
         })
     })
@@ -624,13 +690,13 @@ functions.region('asia-east2').https.onRequest((req,res)=>{
         console.log(err)
         res.statusCode = 522;
         res.send({
-        status: res.statusCode, 
+        status: res.statusCode,
         error: 'Internal Server Error'
         });
     })
 })
 
-export const newComplain = 
+export const newComplain =
 functions.region('asia-east2').firestore.document('complains/{cId}')
 .onCreate((dt) => {
     const complain = dt.data()
@@ -662,7 +728,7 @@ functions.region('asia-east2').firestore.document('complains/{cId}')
             ` // email content in HTML
         };
 
-       
+
         transporter.sendMail(mailOptions, (erro: any, info: any) => {
             if(erro){
                 console.log(erro)
@@ -676,7 +742,7 @@ functions.region('asia-east2').firestore.document('complains/{cId}')
     })
 
 })
-export const transaction_api = 
+export const transaction_api =
 functions.region('asia-east2').https.onRequest((req, res)=>{
     res.contentType('json');
     const from = <string> req.query.from;// senders uid
@@ -772,9 +838,9 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                 return Promise.all(transaction_movment)
                 .then(()=>{
                     res.statusCode = 200;
-                    return res.send({status: res.statusCode, 
+                    return res.send({status: res.statusCode,
                         transactionId: txnId,
-                        from: from_dt.data()?.name, 
+                        from: from_dt.data()?.name,
                         amount: amount});
                 })
                 .catch(error=>{
@@ -799,7 +865,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         return res.send({status: res.statusCode, error: error});
     })
 })
-export const newTransaction = 
+export const newTransaction =
 functions.region('asia-east2').firestore.document('user/{userId}/pending_transaction/transaction')
 .onWrite((change) => {
     const transactionObject = change.after.data()
@@ -860,7 +926,7 @@ functions.region('asia-east2').firestore.document('user/{userId}/pending_transac
             const wallet_amount_update_promises: any = []
 
             const amount = parseInt(transactionObject?.amount)
-        
+
             const update_wallet_amount_in_from = fromDocumentRef.collection('wallet').doc('wallet')
             .update('balance', admin.firestore.FieldValue.increment(-(amount*toDocumentRef.length)))
             wallet_amount_update_promises.push(update_wallet_amount_in_from)
@@ -871,19 +937,19 @@ functions.region('asia-east2').firestore.document('user/{userId}/pending_transac
                     .update('balance', admin.firestore.FieldValue.increment(amount))
                 )
             }
-        
+
             return Promise.all(wallet_amount_update_promises).catch(error => {
                 console.log(error)
             })
-        
+
         }).catch(error => {
             console.log(error)
         })
     }).catch(error => {
         console.log(error)
-    })   
+    })
 })
-export const gPayTransaction = 
+export const gPayTransaction =
 functions.region('asia-east2').firestore
 .document('user/{userId}/pending_gPay_transactions/{tId}')
 .onUpdate((transactionData, context) => {
@@ -917,7 +983,7 @@ functions.region('asia-east2').firestore
         }
 
         ledger.push(updateAmount)
-    
+
         const updatedData = {
             active: activeStatus,
             amount: data?.amount,
@@ -928,7 +994,7 @@ functions.region('asia-east2').firestore
         const fromDocumentRef = (<admin.firestore.DocumentReference> transaction?.from)
 
         const promises: any = []
-    
+
         const updatedTransaction = {
             id: transaction?.id,
             from: transaction?.from,
@@ -975,9 +1041,9 @@ functions.region('asia-east2').firestore
     }).catch(error => {
         console.log(error)
     });
-    
+
 })
-export const splitGpay = 
+export const splitGpay =
 functions.region('asia-east2').https.onRequest((req, res)=>{
     // base/splitGpay?to={}&gPayId={}&m={m1,m2,m3....mn}&gId={}
     const mUids = (""+req.query.m).split('_');
@@ -985,7 +1051,7 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     const gPayId = ""+req.query.gPayId;
     const groupId = ""+req.query.gId;
 
-    
+
     const to = admin.firestore().doc(`user/${toId}`)
 
     const temp = (msg)=>{
@@ -1041,9 +1107,9 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
         res.statusCode = 500;
         res.send(temp("server Error"));
     })
-    
+
 })
-export const splitTransaction = 
+export const splitTransaction =
 functions.region('asia-east2').firestore
 .document('/groups/{grouId}/transactions/{id}')
 .onCreate((result, context) => {
@@ -1057,7 +1123,7 @@ functions.region('asia-east2').firestore
         const splitPromises: any = []
 
         const members: Array<admin.firestore.DocumentReference> = group?.members
-        
+
         for (const member of members) {
             const id = member.collection('pending_gPay_transactions').doc().id
             const data = {
