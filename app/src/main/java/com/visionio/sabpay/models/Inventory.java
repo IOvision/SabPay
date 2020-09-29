@@ -17,7 +17,6 @@ public class Inventory implements Serializable {
     String id; // id of the inventory
     String name; // inventory name, can be name of the store
     List<String> images; // urls of image of store between 0 - 5
-    List<String> items; // list of ids of items in this inventory
     GeoPoint location;
     DocumentReference owner; // user/id ref of owner of this inventory
     boolean opened; // tells whether the shop/inventory is open or close
@@ -81,14 +80,6 @@ public class Inventory implements Serializable {
         return owner;
     }
 
-    public List<String> getItems() {
-        return items;
-    }
-
-    public void setItems(List<String> items) {
-        this.items = items;
-    }
-
     public GeoPoint getLocation() {
         return location;
     }
@@ -123,7 +114,6 @@ public class Inventory implements Serializable {
         map.put("id", id);
         map.put("name", name);
         map.put("images", images);
-        map.put("items", items);
         map.put("owner", owner.getId());
         map.put("int", totalItems);
 
@@ -136,7 +126,6 @@ public class Inventory implements Serializable {
         i.setId(map.get("id").toString());
         i.setName(map.get("name").toString());
         i.setImages((List<String>)map.get("images"));
-        i.setItems((List<String>)map.get("items"));
         i.setOwner(FirebaseFirestore.getInstance().document("user/"+map.get("owner").toString()));
         i.setTotalItems((int)((double) map.get("int")));
         return i;
