@@ -2,14 +2,14 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as nodemailer from 'nodemailer';
 import * as CircularJSON from 'circular-json'
-import * as firebase from 'firebase';
+// import * as firebase from 'firebase';
 import { totp } from 'otplib'
 
-firebase.initializeApp({
-    apiKey: 'AIzaSyDKd74ql_WS31jnOQFaRsqH_EVLq_92sB8',
-    authDomain: 'https://sabpay-test.firebaseio.com',
-    projectId: 'sabpay-test'
-})
+// firebase.initializeApp({
+//     apiKey: 'AIzaSyDKd74ql_WS31jnOQFaRsqH_EVLq_92sB8',
+//     authDomain: 'https://sabpay-test.firebaseio.com',
+//     projectId: 'sabpay-test'
+// })
 
 const default_api_key = 'qIEvxBbP8V6e1YLXICde';
 admin.initializeApp()
@@ -22,24 +22,22 @@ functions.https.onRequest(async (req, res) => {
         return;
     }
     var lastTitle = <string> req.query.after;
-    const inv = <string> req.query.inv;
     const limit = Number.parseInt(<string> req.query.limit);
     const tags_q = <string> req.query.tags;
     const tags = tags_q.split('_')
     if(lastTitle === undefined || 
         tags === undefined || 
-        inv === undefined ||
         tags.length === 0){
         res.status(403).send(null);
         return;
     }
     lastTitle = lastTitle.replace('+', ' ');
-    var db = firebase.firestore();
-    const baseQuery = db.collection('item');
+    const baseQuery = admin.firestore().collection('item');
     const items: any[] = [];
     for (let index = 0; index < tags.length; index++) {
-        //const tag = tags[index];
-        const q = baseQuery.where(`exc`, '!=', inv).limit(limit);
+        const tag = tags[index];
+        const q = baseQuery.where(`tags.${tag}`, '==', true).orderBy('title')
+        .startAfter(lastTitle).limit(limit);
         const result = await q.get();
         result.forEach(snap => {
             const it = snap.data();
@@ -57,20 +55,7 @@ functions.https.onRequest(async (req, res) => {
         })
     }
     res.status(200).send(items);
-
-    // admin.firestore().runTransaction(t => {
-    //     const promise: any[] = [];
-    //     tags.forEach(tag => {
-    //         const q = baseQuery.where(`tags.${tag}`, '==', true).limit(limit);
-    //         promise.push(q.get());
-    //     })
-    //     return Promise.all(promise);
-    // }).then(snaps => {
-    //     res.status(200).send(CircularJSON.stringify(snaps));
-    // }).catch(err => {
-    //     console.log(err)
-    //     res.status(500).send(err)
-    // })    
+  
 })
 
 export const generateOTP =
