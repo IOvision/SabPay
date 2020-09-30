@@ -21,6 +21,7 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
     Context context;
     List<Item> itemList;
     CartListener clickListener;
+    String inventoryId;
 
     public void setItemList(List<Item> itemList) {
         if(this.itemList==null){
@@ -37,9 +38,10 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
     }
 
 
-    public InventoryItemAdapter(Context context, ArrayList<Item> inventoryList) {
+    public InventoryItemAdapter(Context context, ArrayList<Item> inventoryList, String inventoryId) {
         this.context = context;
         this.itemList = inventoryList;
+        this.inventoryId = inventoryId;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
         final Item current = itemList.get(position);
         holder.inventoryName.setText(current.getTitle());
         holder.quantity.setText(String.format("Stock: %s", current.getQty()));
-        holder.inventoryLocation.setText(String.format("Rs. %s/%s", current.getCost(), current.getUnit()));
+        holder.inventoryLocation.setText(String.format("Rs. %s/%s", current.getCost(inventoryId), current.getUnit()));
         holder.symbol.setSliderAdapter(new SimpleImageAdapter(context) {{
             setImageUrls(current.getImages());
         }});

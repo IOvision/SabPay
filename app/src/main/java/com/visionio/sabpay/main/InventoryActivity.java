@@ -210,7 +210,7 @@ public class InventoryActivity extends AppCompatActivity {
             }
         });
 
-        adapter = new InventoryItemAdapter(this, new ArrayList<>());
+        adapter = new InventoryItemAdapter(this, new ArrayList<>(), mInventory.getId());
         searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
             for (Item it : newCart.getItemList()) {
                 if (it.getId().equals(object)) {
@@ -273,6 +273,7 @@ public class InventoryActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 searchListAdapter.clear();
+                // todo: implement point 9 to remove this error
                 for(String s : mInventory.getItems()) {
                     if (s.toLowerCase().startsWith(editable.toString().toLowerCase()) && !editable.toString().isEmpty()) {
                         searchListAdapter.add(s);

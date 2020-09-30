@@ -1,7 +1,5 @@
 package com.visionio.sabpay.models;
 
-import android.util.Log;
-
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
@@ -28,6 +26,13 @@ public class Item {
 
     public Item() {
 
+    }
+
+    public Double getCost(String inventory_id){
+        if (cost.containsKey(inventory_id)){
+            return cost.get(inventory_id);
+        }
+        return cost.get("default");
     }
 
     public HashMap<String, Double> getCost() { return cost; }
