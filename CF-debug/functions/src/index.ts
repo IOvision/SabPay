@@ -15,10 +15,16 @@ const default_api_key = 'qIEvxBbP8V6e1YLXICde';
 admin.initializeApp()
 
 export const getItems =
-functions.https.onRequest(async (req, res) => {
-    res.setHeader('Content-Type', 'aplication/json')
+functions.region('asia-east2').https.onRequest(async (req, res) => {
+    res.contentType('json');
+    const resp = (status, data) => {
+        return {
+            'status_code': status,
+            'data': data
+        }
+    }
     if(req.method !== 'GET'){
-        res.status(403).send(null);
+        res.status(402).send(resp(402, null));
         return;
     }
     var lastTitle = <string> req.query.after;
@@ -28,7 +34,7 @@ functions.https.onRequest(async (req, res) => {
     if(lastTitle === undefined || 
         tags === undefined || 
         tags.length === 0){
-        res.status(403).send(null);
+        res.status(403).send(resp(403, null));
         return;
     }
     lastTitle = lastTitle.replace('+', ' ');
@@ -54,7 +60,7 @@ functions.https.onRequest(async (req, res) => {
             }
         })
     }
-    res.status(200).send(items);
+    res.status(200).send(resp(200, items));
   
 })
 
