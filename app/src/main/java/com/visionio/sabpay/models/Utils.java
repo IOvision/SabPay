@@ -160,7 +160,7 @@ public class Utils {
     public static double getBaseAmount(List<Item> items){
         double baseAmount = 0;
         for(Item i: items){
-            baseAmount += (i.getCart_qty()*i.getCost());
+            baseAmount += (i.getCart_qty()*i.getCost(null));
         }
         return baseAmount;
     }

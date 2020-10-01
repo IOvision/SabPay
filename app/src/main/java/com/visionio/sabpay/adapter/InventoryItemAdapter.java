@@ -54,6 +54,13 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
         return position;
     }
 
+    public String get_last_title(){
+        if(itemList==null | getItemCount()==0){
+            return "+";
+        }
+        return itemList.get(getItemCount()-1).getTitle();
+    }
+
     @NonNull
     @Override
     public InventoryItemAdapter.InventoryItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

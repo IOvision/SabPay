@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -42,10 +40,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.smarteist.autoimageslider.SliderView;
@@ -108,8 +103,7 @@ public class InventoryActivity extends AppCompatActivity {
 
 
     // pagination query
-    Query loadItemQuery;
-    long itemLimit = 10;
+    int itemLimit = 3;
     boolean isAllItemsLoaded = false;
 
     // dialog views
@@ -267,22 +261,7 @@ public class InventoryActivity extends AppCompatActivity {
             search.setText("");
         });
 
-        search.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}  @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-            @Override
-            public void afterTextChanged(Editable editable) {
-                searchListAdapter.clear();
-                // todo: implement point 9 to remove this error
-                for(String s : mInventory.getItems()) {
-                    if (s.toLowerCase().startsWith(editable.toString().toLowerCase()) && !editable.toString().isEmpty()) {
-                        searchListAdapter.add(s);
-                    } else if (editable.toString().isEmpty()) {
-                        searchListAdapter.clear();
-                    }
-                }
-            }
-        });
+        // todo implement search here
 
         cart_fab.setOnClickListener(v -> {
             if(newCart.getItemCount() == 0){
@@ -297,14 +276,13 @@ public class InventoryActivity extends AppCompatActivity {
                     View view = nestedScrollView.getChildAt(nestedScrollView.getChildCount() - 1);
                     int diff = (view.getBottom() - (nestedScrollView.getHeight() + nestedScrollView.getScrollY()));
                     if (diff == 0) {
-                        isLoading = true;
-                        loadItems(mInventory.getId());
+                        loadItems();
                         Toast.makeText(InventoryActivity.this, "Loading more items", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
 
-        loadItems(mInventory.getId());
+        loadItems();
     }
 
     private void showInfoDialog() {
@@ -342,54 +320,51 @@ public class InventoryActivity extends AppCompatActivity {
                 });
     }
 
-    void loadItems(String inv_id) {
-        Log.d("testing", "loadItems: Loading Items");
-        if(loadItemQuery==null){
-            loadItemQuery = mRef.collection("item")
-                    .orderBy("title")
-                    .whereArrayContains("inventories", inv_id)
-                    .limit(itemLimit);
+
+
+    void loadItems(){
+        if (isLoading){
+            Utils.toast(this, "Result already loading", Toast.LENGTH_LONG);
+            return;
         }
         if(isAllItemsLoaded){
-            Utils.toast(this, "No more items", Toast.LENGTH_SHORT);
+            Utils.toast(this, "No more items", Toast.LENGTH_LONG);
             isLoading = false;
             return;
         }
-        loadItemQuery.get()
-                .addOnCompleteListener(task -> {
-                    isLoading = false;
-                    if (task.isSuccessful()) {
-                        QuerySnapshot querySnapshot = task.getResult();
-
-                        assert querySnapshot != null;
-
-                        List<Item> itemList = new ArrayList<>();
-                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                            itemList.add(documentSnapshot.toObject(Item.class));
-                        }
-
-                        if(itemList.size()!=0){
-                            DocumentSnapshot lastVisible = querySnapshot.getDocuments()
-                                    .get(querySnapshot.size() -1);
-                            loadItemQuery = mRef.collection("item")
-                                    .orderBy("title")
-                                    .whereArrayContains("inventories", inv_id)
-                                    .startAfter(lastVisible)
-                                    .limit(itemLimit);
-                            adapter.setItemList(itemList);
-                            if(itemList.size()<itemLimit){
-                                isAllItemsLoaded = true;
-                                loadItemQuery = null;
-                            }
-                        }else{
-                            loadItemQuery = null;
-                            isAllItemsLoaded = true;
-                        }
-                    } else {
-                        Utils.toast(InventoryActivity.this,
-                                Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
+        isLoading = true;
+        String lastTitle = adapter.get_last_title();
+        String tags = mInventory.getCompoundTag();
+        Call<Map<String, Object>> getItemsCall = API.getApiService().getItems(lastTitle, tags, itemLimit);
+        getItemsCall.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                isLoading = false;
+                if(response.code()==200){
+                    Map<String, Object> map = response.body();
+                    List<Objects> items = (List<Objects>)map.get("data");
+                    List<Item> res = new ArrayList<>();
+                    for(Object items_obj: items){
+                        String item_js = new Gson().toJson(items_obj);
+                        Item item = new Gson().fromJson(item_js, Item.class);
+                        res.add(item);
                     }
-                });
+                    if(res.size()==0){
+                        isAllItemsLoaded = true;
+                    }
+                    adapter.setItemList(res);
+                }else{
+                    String error = response.errorBody().toString();
+                    Utils.toast(InventoryActivity.this, error, Toast.LENGTH_LONG);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                isLoading = false;
+                Log.i("inventory_activity", "onFailure: "+t.getLocalizedMessage());
+            }
+        });
     }
 
     void showCart(){

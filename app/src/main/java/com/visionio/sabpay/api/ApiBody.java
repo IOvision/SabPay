@@ -34,7 +34,6 @@ public class ApiBody {
         for(Item i: items){
             Map<String, Object> iMap = new HashMap<>();
             iMap.put("id", i.getId());
-            iMap.put("inventoryId", i.getInventory_id());
             iMap.put("title", i.getTitle());
             iMap.put("description", i.getDescription());
             iMap.put("unit", i.getUnit());

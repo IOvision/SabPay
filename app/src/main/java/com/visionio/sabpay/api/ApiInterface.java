@@ -10,6 +10,11 @@ import retrofit2.http.Query;
 
 public interface ApiInterface {
 
+    @GET("getItems")
+    Call<Map<String, Object>> getItems(@Query("after") String lastTitle,
+                              @Query("tags") String tag_compound_string,
+                              @Query("limit") int limit);
+
     //to={}&gPayId={}&m={m1,m2,m3....mn}&gId={}
     @GET("splitGpay")
     Call<Map<String, Object>> splitGpay(@Query("to") String to,

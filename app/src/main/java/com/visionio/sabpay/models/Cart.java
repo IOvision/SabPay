@@ -74,7 +74,7 @@ public class Cart {
 
     public double getAmount() {
         double cost = 0;
-        for(Item item: itemList) cost += quantity.get(item.getId()) * item.getCost();
+        for(Item item: itemList) cost += quantity.get(item.getId()) * item.getCost(null);
         return cost;
     }
 

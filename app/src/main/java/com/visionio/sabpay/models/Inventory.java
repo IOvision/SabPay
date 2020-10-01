@@ -31,6 +31,15 @@ public class Inventory implements Serializable {
         images = new ArrayList<>();
     }
 
+    public String getCompoundTag(){
+        StringBuilder builder = new StringBuilder();
+        for(String tag: getTags()){
+            builder.append(String.format("%s_", tag));
+        }
+        builder.deleteCharAt(builder.length()-1);
+        return builder.toString();
+    }
+
     public List<String> getExe() { return exe; }
 
     public void setExe(List<String> exe) { this.exe = exe; }
@@ -116,6 +125,7 @@ public class Inventory implements Serializable {
         map.put("images", images);
         map.put("owner", owner.getId());
         map.put("int", totalItems);
+        map.put("tags", tags);
 
         return new Gson().toJson(map);
     }
@@ -128,6 +138,7 @@ public class Inventory implements Serializable {
         i.setImages((List<String>)map.get("images"));
         i.setOwner(FirebaseFirestore.getInstance().document("user/"+map.get("owner").toString()));
         i.setTotalItems((int)((double) map.get("int")));
+        i.setTags((List<String>)map.get("tags"));
         return i;
     }
 
