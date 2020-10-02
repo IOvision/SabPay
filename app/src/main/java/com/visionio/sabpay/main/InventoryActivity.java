@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -31,7 +33,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -39,7 +40,9 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
@@ -81,7 +84,6 @@ public class InventoryActivity extends AppCompatActivity {
 
     SliderView inv_images_sv;
 
-    CollapsingToolbarLayout collapsingToolbarLayout;
     AppBarLayout appBarLayout;
 
     MaterialToolbar toolbar;
@@ -147,7 +149,11 @@ public class InventoryActivity extends AppCompatActivity {
             }
         }
     };
+
+    // state management objects
     boolean isLoading = false;
+    boolean isSearchQueryLoaded = false; // use to check if searchString is already loaded to avoid multiple calls
+    boolean isSearchQueryLoading = false; // use to block server req until previous is finished
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,9 +199,6 @@ public class InventoryActivity extends AppCompatActivity {
         appBarLayout = findViewById(R.id.inv_activity_app_bar_layout);
         appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             verticalOffset = Math.abs(verticalOffset)/5;
-            float flexibleSpace = appBarLayout.getTotalScrollRange() - verticalOffset;
-            Log.i("tes", "space: "+appBarLayout.getTotalScrollRange());
-            Log.i("test", "onCreate: "+verticalOffset);
             cart_fab.animate().translationY(verticalOffset).start();
             if(verticalOffset>=132 && verticalOffset<=170){
                 item_counter_cl.setVisibility(View.VISIBLE);
@@ -244,10 +247,7 @@ public class InventoryActivity extends AppCompatActivity {
                 return true;
             }
             else if (item.getItemId() == R.id.inventory_appbar_search) {
-                searchClose.setVisibility(View.VISIBLE);
-                search.setVisibility(View.VISIBLE);
-                searchRecycler.setVisibility(View.VISIBLE);
-                search.requestFocus();
+                loadSearchString();
                 return true;
             }
             return false;
@@ -262,6 +262,21 @@ public class InventoryActivity extends AppCompatActivity {
         });
 
         // todo implement search here
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}  @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                searchListAdapter.clear();
+                for(String s : searchList) {
+                    if (s.toLowerCase().startsWith(editable.toString().toLowerCase()) && !editable.toString().isEmpty()) {
+                        searchListAdapter.add(s);
+                    } else if (editable.toString().isEmpty()) {
+                        searchListAdapter.clear();
+                    }
+                }
+            }
+        });
 
         cart_fab.setOnClickListener(v -> {
             if(newCart.getItemCount() == 0){
@@ -320,8 +335,6 @@ public class InventoryActivity extends AppCompatActivity {
                 });
     }
 
-
-
     void loadItems(){
         if (isLoading){
             Utils.toast(this, "Result already loading", Toast.LENGTH_LONG);
@@ -364,6 +377,50 @@ public class InventoryActivity extends AppCompatActivity {
                 isLoading = false;
                 Log.i("inventory_activity", "onFailure: "+t.getLocalizedMessage());
             }
+        });
+    }
+
+    void loadSearchString(){
+        if(isSearchQueryLoading){
+            Utils.toast(getApplicationContext(), "Loading...!", Toast.LENGTH_LONG);
+            return;
+        }
+        if(isSearchQueryLoaded){
+            searchClose.setVisibility(View.VISIBLE);
+            search.setVisibility(View.VISIBLE);
+            searchRecycler.setVisibility(View.VISIBLE);
+            search.requestFocus();
+            return;
+        }
+        isSearchQueryLoading = true;
+        mRef.runTransaction(transaction -> {
+
+            List<String> search_string = new ArrayList<>();
+            CollectionReference collectionReference = mRef.collection("search");
+
+            for(String tag: mInventory.getTags()){
+                DocumentReference ref = collectionReference.document(tag);
+                DocumentSnapshot snap = transaction.get(ref);
+
+                search_string.addAll((List<String>) Objects.requireNonNull(snap.get("query_string")));
+            }
+
+            return search_string;
+        }).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                List<String> strings = task.getResult();
+                assert strings!=null;
+                searchList.addAll(strings);
+                searchClose.setVisibility(View.VISIBLE);
+                search.setVisibility(View.VISIBLE);
+                searchRecycler.setVisibility(View.VISIBLE);
+                search.requestFocus();
+                isSearchQueryLoaded = true;
+            }else {
+                Utils.toast(getApplicationContext(),
+                        Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
+            }
+            isSearchQueryLoading = false;
         });
     }
 
