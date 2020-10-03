@@ -109,7 +109,7 @@ public class InvoiceActivity extends AppCompatActivity {
             for (Item i : items) {
                 i.setCart_qty(i.getQty());
             }
-            invoice = Invoice.fromItems(items);
+            invoice = Invoice.fromItems(items, order.getFromInventory());
             setTextViewsWhenInvoiceIsNotGenerated();
             setUpInvoice();
         }

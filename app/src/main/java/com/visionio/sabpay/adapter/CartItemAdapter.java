@@ -23,11 +23,13 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
     Map<String, Integer> quantity;
     Context context;
     CartListener clickListener;
+    String inventoryId;
 
-    public CartItemAdapter(List<Item> itemList, Context context, Map<String, Integer> quantity) {
+    public CartItemAdapter(List<Item> itemList, Context context, Map<String, Integer> quantity, String inventoryId) {
         this.itemList = itemList;
         this.context = context;
         this.quantity = quantity;
+        this.inventoryId = inventoryId;
     }
 
     public void setItemList(List<Item> itemList) {
@@ -57,8 +59,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
     @Override
     public void onBindViewHolder(@NonNull CartItemViewHolder holder, int position) {
         Item curr = itemList.get(position);
-
-        holder.detail_tv.setText(String.format("%s ₹%s/%s", curr.getTitle(), curr.getCost(null), curr.getUnit()));
+        holder.detail_tv.setText(String.format("%s ₹%s/%s", curr.getTitle(), curr.getCost(inventoryId), curr.getUnit()));
         holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
         holder.increase_btn.setOnClickListener(v -> {
             clickListener.onIncreaseQty(curr);
