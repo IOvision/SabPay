@@ -63,8 +63,9 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     TextView base_amount_tv, delivery_charge_tv;
     TextView total_tv, discount_tv, payable_amount_tv;
     Button payAndOrder_bt, confirmOrder_bt;
+    String inventoryId;
 
-    public InvoiceDialog(@NonNull Context context, Order order) {
+    public InvoiceDialog(@NonNull Context context, Order order, String inventoryId) {
         super(context);
         if(order.items != null) {
             this.items = order.items;
@@ -74,6 +75,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         this.orderIdString = order.getOrderId();
         this.orderStatus = order.getStatus();
         this.mContext = context;
+        this.inventoryId = inventoryId;
     }
 
     @Override
@@ -103,7 +105,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
             Cart cart = new Cart();
             cart.setItemList(order.getItems());
             cart.itemQtyToCartQty();
-            invoice = Invoice.fromItems(cart.getItemList());
+            invoice = Invoice.fromItems(cart.getItemList(), inventoryId);
             setTextViewsWhenInvoiceIsNotGenerated();
 
             setUpInvoice();

@@ -112,18 +112,18 @@ public class Invoice {
     }
 
     @Exclude
-    public static Invoice fromItems(List<Item> items){
+    public static Invoice fromItems(List<Item> items, String inventoryId){
         Invoice invoice = new Invoice();
-        invoice.setAmounts(Utils.getBaseAmount(items), 0);
+        invoice.setAmounts(Utils.getBaseAmount(items, inventoryId), 0);
         invoice.setItems(items);
         return invoice;
     }
 
     @Exclude
-    public static Invoice fromCart(Cart cart) {
+    public static Invoice fromCart(Cart cart, String inventoryId) {
         Invoice invoice = new Invoice();
         cart.finalizeQuantity();
-        invoice.setAmounts(Utils.getBaseAmount(cart.getItemList()), 0);
+        invoice.setAmounts(Utils.getBaseAmount(cart.getItemList(), inventoryId), 0);
         invoice.setItems(cart.getItemList());
         return invoice;
     }

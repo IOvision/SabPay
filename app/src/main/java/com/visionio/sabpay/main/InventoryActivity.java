@@ -445,7 +445,7 @@ public class InventoryActivity extends AppCompatActivity {
         dialog_items_rv.setLayoutManager(new LinearLayoutManager(this));
         dialog_items_rv.setHasFixedSize(false);
 
-        dialog_cart_adapter = new CartItemAdapter(newCart.getItemList(), InventoryActivity.this, newCart.getQuantity());
+        dialog_cart_adapter = new CartItemAdapter(newCart.getItemList(), InventoryActivity.this, newCart.getQuantity(), mInventory.getId());
         dialog_cart_adapter.setClickListener(cartListener);
 
 //        dialog_cart_adapter.setClickListener((item, pos, view) -> {
@@ -479,7 +479,7 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     void showInvoice(){
-        mInvoice = Invoice.fromCart(newCart);
+        mInvoice = Invoice.fromCart(newCart, mInventory.getId());
         if(invoice_dialog!=null){
             updateInvoice();
             invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -523,7 +523,6 @@ public class InventoryActivity extends AppCompatActivity {
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
             }
         });
 
