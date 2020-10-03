@@ -103,9 +103,8 @@ public class InventoryActivity extends AppCompatActivity {
     CoordinatorLayout item_counter_cl;
     TextView item_counter_tv;
 
-
     // pagination query
-    int itemLimit = 3;
+    int itemLimit = 10;
     boolean isAllItemsLoaded = false;
 
     // dialog views
