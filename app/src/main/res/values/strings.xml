@@ -17,6 +17,12 @@
     <string name="enter_delivery_address">Enter Delivery Address</string>
     <string name="show_more">Show More</string>
     <string name="_0">0</string>
+    <string name="order_date">Order date</string>
+    <string name="order">Order #</string>
+    <string name="order_total">Order total</string>
+    <string name="rupees">₹</string>
+    <string name="payment_status">Payment Status</string>
+    <string name="shipping_address">Shipping Address</string>
 
     <string-array name="category">
         <item>Select one</item>

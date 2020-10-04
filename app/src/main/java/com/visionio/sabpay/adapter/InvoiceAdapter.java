@@ -1,24 +1,30 @@
 package com.visionio.sabpay.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.models.Item;
+import com.visionio.sabpay.models.CompressedItem;
+
 import java.util.List;
 
 public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceViewHolder> {
 
-    List<Item> items;
+    List<CompressedItem> items;
     int position = 0;
+    Context context;
 
-    public InvoiceAdapter(List<Item> items) {
+    public InvoiceAdapter(List<CompressedItem> items, Context context) {
         this.items = items;
+        this.context = context;
         setHasStableIds(true);
     }
 
@@ -33,10 +39,12 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
 
     @Override
     public void onBindViewHolder(@NonNull InvoiceViewHolder holder, int position) {
-        Item current = items.get(position);
+        CompressedItem current = items.get(position);
 
         holder.title.setText(current.getTitle());
-        holder.quantity.setText(String.valueOf(current.getQty()));
+        holder.quantity.setText(String.format("Qty %s", current.getQty()));
+        holder.cost.setText(String.format("\u20B9%s", current.getCost()));
+        Glide.with(context).load(current.getImg()).centerCrop().into(holder.image);
     }
 
     @Override
@@ -47,22 +55,25 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
         return items.size();
     }
 
-    public void add(Item item) {
+    public void add(CompressedItem item) {
         items.add(item);
         notifyItemInserted(position++);
     }
 
-    public void setList(List<Item> list){
+    public void setList(List<CompressedItem> list){
         this.items = list;
     }
 
     public class InvoiceViewHolder extends RecyclerView.ViewHolder{
-        TextView title, quantity;
+        TextView title, quantity, cost;
+        ImageView image;
         public InvoiceViewHolder(@NonNull View itemView) {
             super(itemView);
 
             title = itemView.findViewById(R.id.invoice_list_item_title);
-            quantity = itemView.findViewById(R.id.invoice_list_item_quantity);
+            quantity = itemView.findViewById(R.id.invoice_list_item_quantity_tv);
+            cost = itemView.findViewById(R.id.invoice_list_item_price_tv);
+            image = itemView.findViewById(R.id.invoice_list_item_image_iv);
 
         }
     }

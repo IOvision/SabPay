@@ -17,14 +17,12 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -34,8 +32,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -56,6 +52,7 @@ import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.api.SabPayNotify;
 import com.visionio.sabpay.interfaces.CartListener;
 import com.visionio.sabpay.models.Cart;
+import com.visionio.sabpay.models.CompressedItem;
 import com.visionio.sabpay.models.Inventory;
 import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
@@ -117,10 +114,6 @@ public class InventoryActivity extends AppCompatActivity {
     CartItemAdapter dialog_cart_adapter;
 
     // bottom sheet for invoice and its related layout
-    BottomSheetDialog invoice_dialog;
-    TextView item_count_tv, entity_count_tv, order_from_tv;
-    TextView base_amount_tv, delivery_charge_tv;
-    TextView total_tv, discount_tv, payable_amount_tv;
     Button payAndOrder_bt, confirmOrder_bt;
     Invoice mInvoice;
 
@@ -448,18 +441,6 @@ public class InventoryActivity extends AppCompatActivity {
         dialog_cart_adapter = new CartItemAdapter(newCart.getItemList(), InventoryActivity.this, newCart.getQuantity(), mInventory.getId());
         dialog_cart_adapter.setClickListener(cartListener);
 
-//        dialog_cart_adapter.setClickListener((item, pos, view) -> {
-//            if(pos==-1){
-//                cart.clear();
-//                cart_fab.setText(String.format("%s", cart.size()));
-//                cart_dialog.dismiss();
-//            }else if(pos==-2){
-//                cart.clear();
-//                cart = dialog_cart_adapter.getItemList();
-//                cart_fab.setText(String.format("%s", cart.size()));
-//            }
-//        });
-
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
         dialog_confirm_bt.setOnClickListener(v -> {
@@ -469,136 +450,12 @@ public class InventoryActivity extends AppCompatActivity {
             } else{
                 delivery_address_til.setErrorEnabled(false);
                 delivery_address = address;
-                showInvoice();
+                // todo: showInvoice();
             }
         });
         cart_dialog.setOnShowListener(dialog -> {
-
         });
         cart_dialog.show();
-    }
-
-    void showInvoice(){
-        mInvoice = Invoice.fromCart(newCart, mInventory.getId());
-        if(invoice_dialog!=null){
-            updateInvoice();
-            invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-            invoice_dialog.show();
-            return;
-        }
-        setUpInvoice();
-    }
-
-    void setUpInvoice(){
-
-        invoice_dialog = new BottomSheetDialog(this);
-        invoice_dialog.setContentView(R.layout.invoice_layout);
-        Window window = invoice_dialog.getWindow();
-        assert window!=null;
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        window.setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-
-        item_count_tv = invoice_dialog.findViewById(R.id.invoice_itemCount_tv);
-        entity_count_tv = invoice_dialog.findViewById(R.id.invoice_entityCount_tv);
-        order_from_tv = invoice_dialog.findViewById(R.id.invoice_orderFrom_tv);
-        base_amount_tv = invoice_dialog.findViewById(R.id.invoice_baseAmt_tv);
-        delivery_charge_tv = invoice_dialog.findViewById(R.id.invoice_deliveryCharge_tv);
-        total_tv = invoice_dialog.findViewById(R.id.invoice_totalAmt_tv);
-        discount_tv = invoice_dialog.findViewById(R.id.invoice_discount_tv);
-        payable_amount_tv = invoice_dialog.findViewById(R.id.invoice_payableAmt_tv);
-        //promo_tv = invoice_dialog.findViewById(R.id.invoice_promo_tv);
-
-        payAndOrder_bt = invoice_dialog.findViewById(R.id.invoice_pay_and_confirm_bt);
-        confirmOrder_bt = invoice_dialog.findViewById(R.id.invoice_confirm_bt);
-
-        BottomSheetBehavior<FrameLayout> behavior = invoice_dialog.getBehavior();
-
-        behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if(newState == BottomSheetBehavior.STATE_COLLAPSED){
-                    invoice_dialog.dismiss();
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            }
-        });
-
-
-        payAndOrder_bt.setOnClickListener(v -> {
-            if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
-                Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
-            } else {
-                new AlertDialog.Builder(InventoryActivity.this)
-                        .setTitle("Proceed Further")
-                        .setMessage("Are you sure? Money will be automatically deducted from your SabPay wallet ")
-
-                        .setPositiveButton("Continue", (dialog, which) -> {
-                            invoice_dialog.dismiss();
-                            pay();
-                        })
-
-                        .setNegativeButton("Cancel", null)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-            }
-        });
-        confirmOrder_bt.setOnClickListener(v -> {
-            if(item_count_tv.getText().equals(Invoice.STR_ITEM_COUNT+" 0")) {
-                Toast.makeText(InventoryActivity.this, "There are no items in the cart. ", Toast.LENGTH_SHORT).show();
-            } else {
-                new AlertDialog.Builder(InventoryActivity.this)
-                        .setTitle("Proceed Further")
-                        .setMessage("Are you sure?")
-
-                        .setPositiveButton("Continue", (dialog, which) -> {
-                            invoice_dialog.dismiss();
-                            placeOrder(null);
-                        })
-
-                        .setNegativeButton("Cancel", null)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-
-            }
-        });
-
-        //invoice_dialog.getBehavior().setFitToContents(true);
-        //invoice_dialog.getBehavior().setHalfExpandedRatio(0.5f);
-        invoice_dialog.getBehavior().setPeekHeight(0);
-        invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-
-        invoice_dialog.setCancelable(false);
-
-        updateInvoice();
-        invoice_dialog.show();
-
-    }
-    void updateInvoice(){
-        String item_count = Invoice.STR_ITEM_COUNT+" "+newCart.getUniqueItemCount();
-        String entity_count = Invoice.STR_ENTITY_COUNT+" "+newCart.getItemCount();
-        String order_from = Invoice.STR_ORDER_FROM+" "+mInventory.getName();
-
-        String base_amt = Utils.equalize(mInvoice.getBase_amount(), Invoice.STR_BASE_AMOUNT);
-        String delivery_charge = Utils.equalize(0, Invoice.STR_DELIVERY_CHARGE);
-
-        String total = Utils.equalize(mInvoice.getTotal_amount(), Invoice.STR_TOTAL);
-        String discount = Utils.equalize(mInvoice.getDiscount(), Invoice.STR_DISCOUNT);
-
-        String payable_amt = Utils.equalize(mInvoice.getTotal_amount(), Invoice.STR_PAYABLE_AMOUNT);
-
-
-        item_count_tv.setText(item_count);
-        entity_count_tv.setText(entity_count);
-        order_from_tv.setText(order_from);
-        base_amount_tv.setText(base_amt);
-        delivery_charge_tv.setText(delivery_charge);
-        total_tv.setText(total);
-        discount_tv.setText(discount);
-        payable_amount_tv.setText(payable_amt);
-
     }
 
     void pay(){
@@ -606,7 +463,7 @@ public class InventoryActivity extends AppCompatActivity {
         payAndOrder_bt.setEnabled(false);
         cart_dialog_pb.setVisibility(View.VISIBLE);
         Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
-               mInventory.getOwner().getId(), mInvoice.getTotal_amount(), API.api_key);
+               mInventory.getOwner().getId(), newCart.getAmount(), API.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(@NotNull Call<Map<String, Object>> call,
@@ -659,7 +516,7 @@ public class InventoryActivity extends AppCompatActivity {
         cart_dialog_pb.setVisibility(View.VISIBLE);
         Order order = new Order();
         order.setOrderId(mRef.collection("order").document().getId());
-        order.setAmount(mInvoice.getTotal_amount());
+        order.setAmount(mInvoice.getAmount());
         order.setActive(false);
         order.setFromInventory(mInventory.getId());
         order.setFromInventoryName(mInventory.getName());
@@ -673,13 +530,7 @@ public class InventoryActivity extends AppCompatActivity {
         }});
         order.setTimestamp(new Timestamp(new Date()));
         order.setStatus(Order.STATUS.ORDER_RECEIVED);
-        List<Item> it = new ArrayList<>(mInvoice.getItems());
-        for(Item i:it){
-            i.setQty(i.getCart_qty());
-            if(i.getQty()==0){
-                it.remove(i);
-            }
-        }
+        List<CompressedItem> it = newCart.getCompressedItem(mInventory.getId());
         order.setItems(it);
         if(transactionId==null){
             order.setTransactionId(null);
@@ -689,7 +540,6 @@ public class InventoryActivity extends AppCompatActivity {
             order.setTransactionId(transactionId);
             order.setInvoiceId(invoiceId);
             mInvoice.setId(invoiceId);
-            mInvoice.setPromo(null);
             mInvoice.setTimestamp(new Timestamp(new Date()));
             mInvoice.setTransaction(transactionId);
         }

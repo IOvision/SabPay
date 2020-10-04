@@ -37,4 +37,12 @@
         <item name="android:layout_marginTop">8dp</item>
     </style>
 
+    <style name="order_detail_amount_text_style" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/dimen_15sp</item>
+        <item name="android:text">\u20B930</item>
+        <item name="android:textAlignment">viewEnd</item>
+    </style>
+
 </resources>

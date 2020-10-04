@@ -1,7 +1,5 @@
 package com.visionio.sabpay.models;
 
-import android.util.Log;
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 
@@ -27,13 +25,10 @@ public class Invoice {
     public final static String STR_PAYABLE_AMOUNT = "Payable Amount:";
 
     String id;
-    double base_amount;
-    double discount;
-    double total_amount;
+    double amount;
     Timestamp timestamp;
     String transactionId;
-    Promotions promo;
-    List<Item> items;
+    List<CompressedItem> items;
 
     public Invoice() {
     }
@@ -46,36 +41,24 @@ public class Invoice {
         this.id = id;
     }
 
-    public double getBase_amount() {
-        return base_amount;
-    }
-
-    public List<Item> getItems() {
+    public List<CompressedItem> getItems() {
         return items;
     }
 
-    public void setItems(List<Item> items) {
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public void setItems(List<CompressedItem> items) {
         this.items = items;
-    }
-
-    public void setBase_amount(double base_amount) {
-        this.base_amount = base_amount;
-    }
-
-    public double getDiscount() {
-        return discount;
-    }
-
-    public void setDiscount(double discount) {
-        this.discount = discount;
-    }
-
-    public double getTotal_amount() {
-        return total_amount;
-    }
-
-    public void setTotal_amount(double total_amount) {
-        this.total_amount = total_amount;
     }
 
     public Timestamp getTimestamp() {
@@ -86,7 +69,6 @@ public class Invoice {
         this.timestamp = timestamp;
     }
 
-
     public String getTransactionId() {
         return transactionId;
     }
@@ -95,51 +77,16 @@ public class Invoice {
         this.transactionId = transactionId;
     }
 
-    public Promotions getPromo() {
-        return promo;
-    }
-
-    public void setPromo(Promotions promo) {
-        this.promo = promo;
-        applyPromo();
-    }
-
     @Exclude
-    public void setAmounts(double base_amount, double discountPercent){
-        this.base_amount = base_amount;
-        this.discount = discountPercent;
-        this.total_amount= base_amount - (base_amount*discountPercent/100.0);
-    }
-
-    @Exclude
-    public static Invoice fromItems(List<Item> items, String inventoryId){
+    public static Invoice getInstance(List<CompressedItem> items){
         Invoice invoice = new Invoice();
-        invoice.setAmounts(Utils.getBaseAmount(items, inventoryId), 0);
+        double amount = 0.0;
+        for(CompressedItem item: items){
+            amount += item.getCost();
+        }
+        invoice.setAmount(amount);
         invoice.setItems(items);
         return invoice;
     }
 
-    @Exclude
-    public static Invoice fromCart(Cart cart, String inventoryId) {
-        Invoice invoice = new Invoice();
-        cart.finalizeQuantity();
-        invoice.setAmounts(Utils.getBaseAmount(cart.getItemList(), inventoryId), 0);
-        invoice.setItems(cart.getItemList());
-        return invoice;
-    }
-
-    @Exclude
-    private void applyPromo(){
-        if (promo==null){
-            return;
-        }
-        if(promo.getType()==Promotions.FLAT_DISCOUNT){
-            discount = (promo.getValue()/base_amount)*100;
-            if(discount>100){
-                discount = 100;
-            }
-        }else if (promo.getType()==Promotions.PERCENTAGE_DISCOUNT){
-            setAmounts(base_amount, promo.value);
-        }
-    }
 }

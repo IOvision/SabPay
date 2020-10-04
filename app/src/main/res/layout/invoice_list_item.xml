@@ -1,38 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/dimen_8dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:elevation="1dp"
         android:layout_marginTop="5dp">
+
+        <ImageView
+            android:id="@+id/invoice_list_item_image_iv"
+            android:layout_width="@dimen/dimen_50dp"
+            android:layout_height="@dimen/dimen_50dp"
+            android:src="@drawable/ic_cart"
+            android:scaleY="0.8"
+            android:scaleX="0.8"/>
 
         <TextView
             android:id="@+id/invoice_list_item_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bread"
-            android:textSize="15sp"
+            android:text="DiSano Durum Wheat Pasta, Penne, 1 kg (2 x 500g)"
+            android:textSize="16sp"
+            android:maxLines="4"
+            android:ellipsize="start"
+            android:layout_toEndOf="@id/invoice_list_item_image_iv"
+            android:layout_toStartOf="@id/invoice_list_item_price_tv"
             android:textColor="@android:color/black"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="@dimen/dimen_12dp"
+            android:layout_marginEnd="@dimen/dimen_32dp"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/invoice_list_item_quantity_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Quantity:  "
-            android:textSize="15sp"
-            android:textColor="@android:color/black"
-            android:layout_alignEnd="@id/invoice_list_item_quantity"
-            android:layout_marginEnd="10dp"/>
+            android:text="Qty: 1"
+            android:layout_below="@id/invoice_list_item_title"
+            android:layout_toEndOf="@id/invoice_list_item_image_iv"
+            android:layout_marginStart="@dimen/dimen_12dp"/>
 
         <TextView
-            android:id="@+id/invoice_list_item_quantity"
+            android:id="@+id/invoice_list_item_price_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="10"
+            android:text="Rs. 150.00"
             android:textSize="15sp"
             android:textColor="@android:color/black"
             android:layout_alignParentEnd="true"
@@ -40,4 +55,4 @@
 
     </RelativeLayout>
 
-</RelativeLayout>
+</androidx.cardview.widget.CardView>

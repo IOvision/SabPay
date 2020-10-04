@@ -32,7 +32,7 @@ public class Order {
     }
 
     String orderId;
-    List<Item> items = new ArrayList<>();
+    List<CompressedItem> items = new ArrayList<>();
     Timestamp timestamp;
     String fromInventory;
     String fromInventoryName;
@@ -92,11 +92,11 @@ public class Order {
         this.user = user;
     }
 
-    public List<Item> getItems() {
+    public List<CompressedItem> getItems() {
         return items;
     }
 
-    public void setItems(List<Item> items) {
+    public void setItems(List<CompressedItem> items) {
         this.items = items;
     }
 

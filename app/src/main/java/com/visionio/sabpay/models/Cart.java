@@ -9,35 +9,18 @@ import java.util.Map;
 public class Cart {
     private Map<String, Integer> quantity;
     private List<Item> itemList;
-    private static Cart cart;
-
-    public enum CONSTRUCTOR {
-        CartQtyFromQty, QtyFromCartQty
-    }
 
     public Cart() {
         quantity = new HashMap<>();
         itemList = new ArrayList<>();
     }
 
-    public Cart(List<Item> items) {
-        itemList = items;
-    }
-
-    public static void loadCart() {
-        cart = new Cart();
-    }
-
-    public static Cart getInstance() {
-        if(cart != null) {
-            return cart;
-        } else {
-            return new Cart();
-        }
-    }
-
     public List<Item> getItemList() {
         return itemList;
+    }
+
+    public int getQuantity(String item_id) {
+        return quantity.get(item_id);
     }
 
     public Map<String, Integer> getQuantity() {
@@ -66,6 +49,16 @@ public class Cart {
         int i = 0;
         for(Item item: itemList) i += quantity.get(item.getId());
         return i;
+    }
+
+    public List<CompressedItem> getCompressedItem(String inv_id){
+        List<CompressedItem> compressedItems = new ArrayList<>();
+        for(Item it: itemList){
+            CompressedItem item = CompressedItem.compress(it, inv_id);
+            item.setQty(getQuantity(it.getId()));
+            compressedItems.add(item);
+        }
+        return compressedItems;
     }
 
     public int getUniqueItemCount() {

@@ -1,8 +1,6 @@
 package com.visionio.sabpay.main;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +22,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.Gson;
-import com.visionio.sabpay.InvoiceActivity;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.OrderAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
@@ -81,6 +77,7 @@ public class TransactionHistoryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mRef = FirebaseFirestore.getInstance();
         toggleButton.setSingleSelection(true);
+
 
         orderAdapter = new OrderAdapter(new ArrayList<>(), (order, position, view1) -> {
             InvoiceDialog invoiceDialog = new InvoiceDialog(getContext(), order, order.getFromInventory());

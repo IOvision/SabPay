@@ -8,9 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,8 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -45,12 +41,12 @@ import retrofit2.Response;
 public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
     String invoiceId, orderIdString, orderStatus;
-    TextView orderTime, orderId, orderAmount, paymentStatus, baseAmount, discount, promoCode, totalAmount;
+    TextView orderTime, orderId, orderAmount, paymentStatus, shipmentAddress;
     Invoice invoice;
     Order order;
     RecyclerView itemListRecycler;
     InvoiceAdapter adapter;
-    List<Item> items;
+    List<CompressedItem> items;
     ProgressBar progressBar;
     Button pay_bt;
 
@@ -58,11 +54,6 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     FirebaseAuth mAuth;
     Context mContext;
 
-    BottomSheetDialog invoice_dialog;
-    TextView item_count_tv, entity_count_tv, order_from_tv;
-    TextView base_amount_tv, delivery_charge_tv;
-    TextView total_tv, discount_tv, payable_amount_tv;
-    Button payAndOrder_bt, confirmOrder_bt;
     String inventoryId;
 
     public InvoiceDialog(@NonNull Context context, Order order, String inventoryId) {
@@ -93,150 +84,14 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         orderId = findViewById(R.id.order_id);
         orderAmount = findViewById(R.id.order_amount);
         paymentStatus = findViewById(R.id.payment_status);
-        baseAmount = findViewById(R.id.base_amount);
-        discount = findViewById(R.id.discount);
-        promoCode = findViewById(R.id.promo_code);
-        totalAmount = findViewById(R.id.total_amount);
         itemListRecycler = findViewById(R.id.items_recycler_view);
 
-        if (order.isPaymentDone()) {
-            loadInvoice();
-        }else {
-            Cart cart = new Cart();
-            cart.setItemList(order.getItems());
-            cart.itemQtyToCartQty();
-            invoice = Invoice.fromItems(cart.getItemList(), inventoryId);
-            setTextViewsWhenInvoiceIsNotGenerated();
-
-            setUpInvoice();
-        }
-    }
-
-    private void loadInvoice() {
-        FirebaseFirestore.getInstance().collection("user")
-                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                .collection("invoice").document(invoiceId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    invoice = documentSnapshot.toObject(Invoice.class);
-                    Log.d("invoice", "invoice" + invoice.getId());
-                    items = invoice.getItems();
-                    setTextViews();
-                })
-                .addOnFailureListener(e -> {
-
-                });
-    }
-
-    void setUpInvoice() {
-        if(invoice_dialog!=null){
-            return;
-        }
-        if(!order.isPaymentDone() &&
-                !order.status.equalsIgnoreCase(Order.STATUS.ORDER_RECEIVED) &&
-                !order.status.equalsIgnoreCase(Order.STATUS.ORDER_CANCELLED)){
-            pay_bt.setVisibility(View.VISIBLE);
-        }
-
-        pay_bt.setOnClickListener(v -> {
-            invoice_dialog.show();
-            invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-        });
-
-        invoice_dialog = new BottomSheetDialog(mContext);
-        invoice_dialog.setContentView(R.layout.invoice_layout);
-        invoice_dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        invoice_dialog.getWindow().setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-
-        item_count_tv = invoice_dialog.findViewById(R.id.invoice_itemCount_tv);
-        entity_count_tv = invoice_dialog.findViewById(R.id.invoice_entityCount_tv);
-        order_from_tv = invoice_dialog.findViewById(R.id.invoice_orderFrom_tv);
-        base_amount_tv = invoice_dialog.findViewById(R.id.invoice_baseAmt_tv);
-        delivery_charge_tv = invoice_dialog.findViewById(R.id.invoice_deliveryCharge_tv);
-        total_tv = invoice_dialog.findViewById(R.id.invoice_totalAmt_tv);
-        discount_tv = invoice_dialog.findViewById(R.id.invoice_discount_tv);
-        payable_amount_tv = invoice_dialog.findViewById(R.id.invoice_payableAmt_tv);
-        //promo_tv = invoice_dialog.findViewById(R.id.invoice_promo_tv);
-
-        payAndOrder_bt = invoice_dialog.findViewById(R.id.invoice_pay_and_confirm_bt);
-        confirmOrder_bt = invoice_dialog.findViewById(R.id.invoice_confirm_bt);
-
-        BottomSheetBehavior<FrameLayout> behavior = invoice_dialog.getBehavior();
-
-        behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    invoice_dialog.dismiss();
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-            }
-        });
-
-
-        payAndOrder_bt.setOnClickListener(v -> {
-            invoice_dialog.dismiss();
-            fetchAndPay();
-        });
-
-        confirmOrder_bt.setVisibility(View.GONE);
-        payAndOrder_bt.setText("Pay");
-
-        //invoice_dialog.getBehavior().setFitToContents(true);
-        //invoice_dialog.getBehavior().setHalfExpandedRatio(0.5f);
-        invoice_dialog.getBehavior().setPeekHeight(0);
-        invoice_dialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-
-        invoice_dialog.setCancelable(false);
-        updateInvoice();
-    }
-
-    void updateInvoice() {
-        String item_count = Invoice.STR_ITEM_COUNT + " " + items.size();
-        String entity_count = Invoice.STR_ENTITY_COUNT + " " + Utils.getEntityCount(items);
-        String order_from = Invoice.STR_ORDER_FROM + " " + order.getFromInventoryName();
-
-        String base_amt = Utils.equalize(invoice.getBase_amount(), Invoice.STR_BASE_AMOUNT);
-        String delivery_charge = Utils.equalize(0, Invoice.STR_DELIVERY_CHARGE);
-
-        String total = Utils.equalize(invoice.getTotal_amount(), Invoice.STR_TOTAL);
-        String discount = Utils.equalize(invoice.getDiscount(), Invoice.STR_DISCOUNT);
-
-        String payable_amt = Utils.equalize(invoice.getTotal_amount(), Invoice.STR_PAYABLE_AMOUNT);
-
-
-        item_count_tv.setText(item_count);
-        entity_count_tv.setText(entity_count);
-        order_from_tv.setText(order_from);
-        base_amount_tv.setText(base_amt);
-        delivery_charge_tv.setText(delivery_charge);
-        total_tv.setText(total);
-        discount_tv.setText(discount);
-        payable_amount_tv.setText(payable_amt);
-
-    }
-
-    void fetchAndPay() {
-        progressBar.setVisibility(View.VISIBLE);
-        mRef.document(String.format("inventory/%s", order.getFromInventory())).get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Inventory inventory = Objects.requireNonNull(task.getResult()).toObject(Inventory.class);
-                    assert inventory != null;
-                    pay(inventory.getOwner().getId());
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    Utils.toast(mContext, Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
-                }
-            });
+        setTextViews();
     }
 
     void pay(String receiverId) {
         Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
-                receiverId, invoice.getTotal_amount(), API.api_key);
+                receiverId, invoice.getAmount(), API.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
@@ -298,7 +153,6 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         }
 
         invoice.setId(invoiceId);
-        invoice.setPromo(null);
         invoice.setTimestamp(new Timestamp(new Date()));
         invoice.setTransaction(transactionId);
 
@@ -329,34 +183,23 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     private void setTextViews() {
         orderTime.setText(String.valueOf(invoice.getTimestamp().toDate()));
         orderId.setText(orderIdString);
-        orderAmount.setText("\u20B9" + String.valueOf(invoice.getTotal_amount()));
-        paymentStatus.setText("\u20B9" + String.valueOf(invoice.getBase_amount()));
-        baseAmount.setText("\u20B9" + String.valueOf(invoice.getBase_amount()));
-        discount.setText("\u20B9" + String.valueOf(invoice.getDiscount()));
-        promoCode.setText(String.valueOf(invoice.getPromo()));
-        totalAmount.setText("\u20B9" + String.valueOf(invoice.getTotal_amount()));
-        loadItems();
-    }
+        orderAmount.setText(String.format("\u20B9%s", invoice.getAmount()));
+        if(order.getInvoiceId() != null){
+            paymentStatus.setText("Completed using Sabpay");
+        }else{
+            paymentStatus.setText("Pending");
+        }
 
-    private void setTextViewsWhenInvoiceIsNotGenerated() {
-        orderTime.setText(String.valueOf(order.getTimestamp().toDate()));
-        orderId.setText(order.getOrderId());
-        orderAmount.setText("\u20B9" + String.valueOf(order.getAmount()));
-        paymentStatus.setText(String.valueOf(order.getStatus()));
-        baseAmount.setText("N.A.");
-        discount.setText("N.A.");
-        promoCode.setText("N.A.");
-        totalAmount.setText("\u20B9" + String.valueOf(order.getAmount()));
         loadItems();
     }
 
     private void loadItems() {
-        adapter = new InvoiceAdapter(new ArrayList<>());
+        adapter = new InvoiceAdapter(new ArrayList<>(), mContext);
         itemListRecycler.setLayoutManager(new LinearLayoutManager(mContext));
         itemListRecycler.setHasFixedSize(false);
         itemListRecycler.setAdapter(adapter);
 
-        for (Item item : items) {
+        for (CompressedItem item : items) {
             adapter.add(item);
         }
     }
