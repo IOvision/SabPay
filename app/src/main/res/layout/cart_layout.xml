@@ -31,15 +31,34 @@
         android:layout_height="match_parent"
         tools:listitem="@layout/cart_item"
         android:layout_below="@id/cart_layout_deliveryAddress_til"
-        android:layout_above="@id/cart_layout_confirm_bt"/>
+        android:layout_above="@id/cart_layout_button_container_ll"/>
 
-    <Button
-        android:id="@+id/cart_layout_confirm_bt"
+    <LinearLayout
+        android:id="@+id/cart_layout_button_container_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:text="@string/confirm_order" />
+        android:orientation="horizontal">
+
+        <Button
+            style="?android:attr/buttonStyle"
+            android:id="@+id/cart_layout_pay_order_bt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="16dp"
+            android:text="@string/pay_order" />
+
+        <Button
+            style="?android:attr/buttonStyle"
+            android:id="@+id/cart_layout_cod_order_bt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="16dp"
+            android:text="@string/place_order" />
+
+    </LinearLayout>
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/order_placing_pb"

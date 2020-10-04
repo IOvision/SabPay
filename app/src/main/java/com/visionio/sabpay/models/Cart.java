@@ -9,10 +9,12 @@ import java.util.Map;
 public class Cart {
     private Map<String, Integer> quantity;
     private List<Item> itemList;
+    private String inv_id;
 
-    public Cart() {
+    public Cart(String inv_id) {
         quantity = new HashMap<>();
         itemList = new ArrayList<>();
+        this.inv_id = inv_id;
     }
 
     public List<Item> getItemList() {
@@ -51,7 +53,7 @@ public class Cart {
         return i;
     }
 
-    public List<CompressedItem> getCompressedItem(String inv_id){
+    public List<CompressedItem> getCompressedItem(){
         List<CompressedItem> compressedItems = new ArrayList<>();
         for(Item it: itemList){
             CompressedItem item = CompressedItem.compress(it, inv_id);
@@ -60,35 +62,12 @@ public class Cart {
         }
         return compressedItems;
     }
-
-    public int getUniqueItemCount() {
-        return itemList.size();
-    }
+    
 
     public double getAmount() {
         double cost = 0;
-        for(Item item: itemList) cost += quantity.get(item.getId()) * item.getCost(null);
+        for(Item item: itemList) cost += getQuantity(item.getId()) * item.getCost(inv_id);
         return cost;
     }
 
-    public void setCartNull() {
-        quantity.clear();
-        itemList.clear();
-    }
-
-    public void finalizeQuantity() {
-        for(Item item: itemList) item.setCart_qty(quantity.get(item.getId()));
-    }
-
-    public void setItemList(List<Item> itemList) {
-        this.itemList = itemList;
-    }
-
-    public void itemQtyToCartQty() {
-        for (Item item : itemList) item.setCart_qty(item.getQty());
-    }
-
-    public void itemCartQtyToQty() {
-        for (Item item : itemList) item.setQty(item.getCart_qty());
-    }
 }

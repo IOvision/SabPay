@@ -40,7 +40,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.smarteist.autoimageslider.SliderView;
 import com.visionio.sabpay.R;
@@ -54,7 +53,6 @@ import com.visionio.sabpay.interfaces.CartListener;
 import com.visionio.sabpay.models.Cart;
 import com.visionio.sabpay.models.CompressedItem;
 import com.visionio.sabpay.models.Inventory;
-import com.visionio.sabpay.models.Invoice;
 import com.visionio.sabpay.models.Item;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.User;
@@ -109,13 +107,10 @@ public class InventoryActivity extends AppCompatActivity {
     ProgressBar cart_dialog_pb;
     TextInputLayout delivery_address_til;
     String delivery_address;
-    Button dialog_confirm_bt;
+    Button dialog_pay_order_bt, dialog_cod_order_bt;
     RecyclerView dialog_items_rv;
     CartItemAdapter dialog_cart_adapter;
 
-    // bottom sheet for invoice and its related layout
-    Button payAndOrder_bt, confirmOrder_bt;
-    Invoice mInvoice;
 
     List<String> searchList;
 
@@ -173,7 +168,7 @@ public class InventoryActivity extends AppCompatActivity {
 
         mInventory = Inventory.formJson(json);
         Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
-        newCart = new Cart();
+        newCart = new Cart(mInventory.getId());
 
         searchRecycler = findViewById(R.id.inventory_search_recycler);
         searchClose = findViewById(R.id.inventory_image_close);
@@ -432,7 +427,8 @@ public class InventoryActivity extends AppCompatActivity {
         window.setLayout(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
         cart_dialog_pb = cart_dialog.findViewById(R.id.order_placing_pb);
-        dialog_confirm_bt = cart_dialog.findViewById(R.id.cart_layout_confirm_bt);
+        dialog_pay_order_bt = cart_dialog.findViewById(R.id.cart_layout_pay_order_bt);
+        dialog_cod_order_bt = cart_dialog.findViewById(R.id.cart_layout_cod_order_bt);
         delivery_address_til = cart_dialog.findViewById(R.id.cart_layout_deliveryAddress_til);
         dialog_items_rv = cart_dialog.findViewById(R.id.cart_layout_itemList_rv);
         dialog_items_rv.setLayoutManager(new LinearLayoutManager(this));
@@ -443,14 +439,24 @@ public class InventoryActivity extends AppCompatActivity {
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
-        dialog_confirm_bt.setOnClickListener(v -> {
+        dialog_pay_order_bt.setOnClickListener(v -> {
             String address = Objects.requireNonNull(delivery_address_til.getEditText()).getText().toString().trim();
             if(address.equals("")){
                 delivery_address_til.setError("Address Can't be empty");
             } else{
                 delivery_address_til.setErrorEnabled(false);
                 delivery_address = address;
-                // todo: showInvoice();
+                placeOrder(null);
+            }
+        });
+        dialog_pay_order_bt.setOnClickListener(v -> {
+            String address = Objects.requireNonNull(delivery_address_til.getEditText()).getText().toString().trim();
+            if(address.equals("")){
+                delivery_address_til.setError("Address Can't be empty");
+            } else{
+                delivery_address_til.setErrorEnabled(false);
+                delivery_address = address;
+                pay();
             }
         });
         cart_dialog.setOnShowListener(dialog -> {
@@ -459,8 +465,8 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     void pay(){
-        confirmOrder_bt.setEnabled(false);
-        payAndOrder_bt.setEnabled(false);
+        dialog_pay_order_bt.setEnabled(false);
+        dialog_cod_order_bt.setEnabled(false);
         cart_dialog_pb.setVisibility(View.VISIBLE);
         Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
                mInventory.getOwner().getId(), newCart.getAmount(), API.api_key);
@@ -468,8 +474,6 @@ public class InventoryActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NotNull Call<Map<String, Object>> call,
                                    @NotNull Response<Map<String, Object>> response) {
-                confirmOrder_bt.setEnabled(true);
-                payAndOrder_bt.setEnabled(true);
                 cart_dialog_pb.setVisibility(View.GONE);
                 Map<String, Object> result;
                 if(!response.isSuccessful()){
@@ -501,8 +505,8 @@ public class InventoryActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NotNull Call<Map<String, Object>> call, @NotNull Throwable t) {
-                confirmOrder_bt.setEnabled(true);
-                payAndOrder_bt.setEnabled(true);
+                dialog_cod_order_bt.setEnabled(true);
+                dialog_pay_order_bt.setEnabled(true);
                 cart_dialog_pb.setVisibility(View.GONE);
                 //Log.i("test", "onFailure: "+t.getLocalizedMessage());
                 Utils.toast(InventoryActivity.this, t.getLocalizedMessage(), Toast.LENGTH_LONG);
@@ -511,12 +515,12 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     void placeOrder(String transactionId){
-        confirmOrder_bt.setEnabled(false);
-        payAndOrder_bt.setEnabled(false);
+        dialog_cod_order_bt.setEnabled(false);
+        dialog_pay_order_bt.setEnabled(false);
         cart_dialog_pb.setVisibility(View.VISIBLE);
         Order order = new Order();
         order.setOrderId(mRef.collection("order").document().getId());
-        order.setAmount(mInvoice.getAmount());
+        order.setAmount(newCart.getAmount());
         order.setActive(false);
         order.setFromInventory(mInventory.getId());
         order.setFromInventoryName(mInventory.getName());
@@ -530,7 +534,7 @@ public class InventoryActivity extends AppCompatActivity {
         }});
         order.setTimestamp(new Timestamp(new Date()));
         order.setStatus(Order.STATUS.ORDER_RECEIVED);
-        List<CompressedItem> it = newCart.getCompressedItem(mInventory.getId());
+        List<CompressedItem> it = newCart.getCompressedItem();
         order.setItems(it);
         if(transactionId==null){
             order.setTransactionId(null);
@@ -539,24 +543,9 @@ public class InventoryActivity extends AppCompatActivity {
             String invoiceId = mRef.collection(String.format("user/%s/invoice", mAuth.getUid())).document().getId();
             order.setTransactionId(transactionId);
             order.setInvoiceId(invoiceId);
-            mInvoice.setId(invoiceId);
-            mInvoice.setTimestamp(new Timestamp(new Date()));
-            mInvoice.setTransaction(transactionId);
         }
         order.updateActiveState();
-        mRef.runTransaction((Transaction.Function<Void>) transaction -> {
-            DocumentReference orderRef = mRef.document("order/"+order.getOrderId());
-            if(order.getInvoiceId()!=null){
-                String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), order.getInvoiceId());
-                DocumentReference invoiceRef = mRef.document(path);
-
-                transaction.set(orderRef, order);
-                transaction.set(invoiceRef, mInvoice);
-            }else{
-                transaction.set(orderRef, order);
-            }
-            return null;
-        }).addOnCompleteListener(task -> {
+        mRef.document(String.format("order/%s", order.getOrderId())).set(order).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 Utils.toast(InventoryActivity.this, "Order Placed Successfully", Toast.LENGTH_LONG);
                 String msg = String.format("Address: %s\nOrder Id: %s\nAmount: Rs. %s\nFrom: %s",
@@ -578,7 +567,6 @@ public class InventoryActivity extends AppCompatActivity {
                 cart_dialog.dismiss();
                 finish();
             }, 1500);
-
         });
     }
 

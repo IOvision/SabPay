@@ -16,19 +16,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.InvoiceAdapter;
 import com.visionio.sabpay.api.API;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +39,6 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
     String invoiceId, orderIdString, orderStatus;
     TextView orderTime, orderId, orderAmount, paymentStatus, shipmentAddress;
-    Invoice invoice;
     Order order;
     RecyclerView itemListRecycler;
     InvoiceAdapter adapter;
@@ -84,14 +80,20 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         orderId = findViewById(R.id.order_id);
         orderAmount = findViewById(R.id.order_amount);
         paymentStatus = findViewById(R.id.payment_status);
+        shipmentAddress = findViewById(R.id.shipment_address);
         itemListRecycler = findViewById(R.id.items_recycler_view);
+
+        if(order.getInvoiceId() == null){
+
+            pay_bt.setVisibility(View.VISIBLE);
+        }
 
         setTextViews();
     }
 
     void pay(String receiverId) {
         Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
-                receiverId, invoice.getAmount(), API.api_key);
+                receiverId, order.getAmount(), API.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
@@ -146,28 +148,11 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
             orderUpdate.put("items", null);
 
         }
-
         if(order.getStatus().equalsIgnoreCase(Order.STATUS.ORDER_DELIVERED)){
             order.setStatus(Order.STATUS.ORDER_COMPLETE);
-            orderUpdate.put("items", null);
         }
 
-        invoice.setId(invoiceId);
-        invoice.setTimestamp(new Timestamp(new Date()));
-        invoice.setTransaction(transactionId);
-
-
-        mRef.runTransaction((Transaction.Function<Void>) transaction -> {
-            DocumentReference orderRef = mRef.document("order/" + order.getOrderId());
-
-            String path = String.format("user/%s/invoice/%s", order.getUser().get("userId"), invoiceId);
-            DocumentReference invoiceRef = mRef.document(path);
-
-            transaction.update(orderRef, orderUpdate);
-            transaction.set(invoiceRef, invoice);
-
-            return null;
-        }).addOnCompleteListener(task -> {
+        mRef.document(String.format("order/%s", order.getOrderId())).set(order).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Utils.toast(getContext(), "Paid Successfully", Toast.LENGTH_LONG);
                 pay_bt.setVisibility(View.GONE);
@@ -178,12 +163,16 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
             }
             progressBar.setVisibility(View.GONE);
         });
+
     }
 
     private void setTextViews() {
-        orderTime.setText(String.valueOf(invoice.getTimestamp().toDate()));
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy");
+        String date = simpleDateFormat.format(order.getTimestamp().toDate());
+        orderTime.setText(date);
         orderId.setText(orderIdString);
-        orderAmount.setText(String.format("\u20B9%s", invoice.getAmount()));
+        orderAmount.setText(String.format("\u20B9%s", order.getAmount()));
+        shipmentAddress.setText(order.getUser().get("address"));
         if(order.getInvoiceId() != null){
             paymentStatus.setText("Completed using Sabpay");
         }else{
