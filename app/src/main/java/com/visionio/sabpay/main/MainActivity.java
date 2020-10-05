@@ -35,6 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
+import com.visionio.sabpay.helper.InvoiceGenerator;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.User;
@@ -112,10 +113,10 @@ public class MainActivity extends AppCompatActivity{
 
     void setUp() {
         TokenManager.handle(this);
-//        new SabPayNotify.Builder()
-//                .setTitle("Success")
-//                .setMessage("Congratulations")
-//                .send(getApplicationContext(), "9956102484", true);
+
+        InvoiceGenerator generator = new InvoiceGenerator("new.pdf", null, getApplicationContext());
+        boolean isSuccess = generator.generate();
+
 
         frameLayout = findViewById(R.id.main_frame);
         bottomNavigationView = findViewById(R.id.main_bottom_navigation);

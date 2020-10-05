@@ -148,5 +148,20 @@ public class Order {
     public void setInvoiceId(String invoiceId) {
         this.invoiceId = invoiceId;
     }
+
+    @Exclude
+    public String shopAddress;
+    @Exclude
+    public String getAddress(){
+        return getUser().get("address");
+    }
+    @Exclude
+    public  String getPhone(){
+        return getUser().get("phone");
+    }
+    @Exclude
+    public String getUserName(){
+        return String.format("5s %s",getUser().get("firstname"), getUser().get("lastname"));
+    }
 }
 
