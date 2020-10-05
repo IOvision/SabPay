@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class InvoiceGenerator {
 
@@ -50,7 +49,7 @@ public class InvoiceGenerator {
         canvas = page1.getCanvas();
 
         // static variables
-        file_name = (new SimpleDateFormat("dd-mm-yy").format(new Date()));
+        file_name = order.getOrderId();
         String base_path = "/SabPay-Invoice/";
         String f = Environment.getExternalStorageDirectory().getAbsolutePath()+ base_path;
         File root = new File(f);
