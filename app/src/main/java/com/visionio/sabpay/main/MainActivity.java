@@ -88,6 +88,15 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
+    public void onBackPressed() {
+        if(bottomNavigationView.getSelectedItemId() == R.id.bottom_app_bar_main_home) {
+            super.onBackPressed();
+        } else {
+            bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
