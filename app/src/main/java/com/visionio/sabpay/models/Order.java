@@ -161,7 +161,7 @@ public class Order {
     }
     @Exclude
     public String getUserName(){
-        return String.format("5s %s",getUser().get("firstname"), getUser().get("lastname"));
+        return getUser().get("firstName") + " " +getUser().get("lastName");
     }
 }
 

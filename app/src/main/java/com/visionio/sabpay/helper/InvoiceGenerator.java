@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Environment;
 
 import com.visionio.sabpay.R;
@@ -21,6 +22,15 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 public class InvoiceGenerator {
+
+    private static String base_path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/SabPay-Invoice/";
+
+    public static boolean isInvoiceGenerated(String orderId){
+        return (new File(getFilePath(String.format("%s.pdf", orderId)))).exists();
+    }
+    public static File getOutputFile(String orderId){
+        return new File(getFilePath(orderId+".pdf"));
+    }
 
     // instance variables
     private String file_name;
@@ -34,11 +44,11 @@ public class InvoiceGenerator {
     public InvoiceGenerator(Order order, Context context) {
         this.order = order;
         this.context = context;
+        file_name = order.getOrderId()+".pdf";
         init();
     }
     public Order getOrder() { return order; }
     public void setOrder(Order order) { this.order = order; }
-
     private void init(){
         pdfDocument = new PdfDocument();
         int page_width = 2480;
@@ -49,17 +59,14 @@ public class InvoiceGenerator {
         canvas = page1.getCanvas();
 
         // static variables
-        file_name = order.getOrderId();
-        String base_path = "/SabPay-Invoice/";
-        String f = Environment.getExternalStorageDirectory().getAbsolutePath()+ base_path;
-        File root = new File(f);
+        File root = new File(base_path);
         if(!root.exists()){
             root.mkdirs();
         }
-        file = new File(f+file_name);
+        file = new File(getFilePath(file_name));
 
     }
-    public boolean generate(){
+    public Uri generate(){
         writeStatic();
         writeDynamic();
         pdfDocument.finishPage(page1);
@@ -67,18 +74,19 @@ public class InvoiceGenerator {
             pdfDocument.writeTo(new FileOutputStream(file));
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
         pdfDocument.close();
-        return true;
+        return Uri.fromFile(file);
     }
-
+    private static String getFilePath(String file_name){
+        return base_path+file_name;
+    }
     private static String getShippingAddress(String address, String userName, String number){
         String[] words = address.split(" ");
         StringBuilder builder = new StringBuilder();
-        builder.append(userName).append(" ").append(number).append(", ");
+        builder.append(userName).append(" ").append(number).append(",\n");
         int i = words.length/4;
-        int curr_line = 1;
+        int curr_line = 0;
         for(String word: words){
             if (curr_line == i){
                 curr_line = 0;
@@ -118,7 +126,7 @@ public class InvoiceGenerator {
         String oId = order.getOrderId();
         String totItems = String.format("%s",order.getItems().size());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a");
-        String date = simpleDateFormat.format(order.getTimestamp());
+        String date = simpleDateFormat.format(order.getTimestamp().toDate());
 
         writeText(POSITION.left_x, POSITION.invId_y, SIZE.invId, inv_id, context.getResources().getColor(R.color.light_grey));
         writeText(POSITION.getX_69(cost.length()), POSITION.orderHeader_y, SIZE.ordDet, cost);
@@ -212,7 +220,7 @@ public class InvoiceGenerator {
         static int img_x = 1513, img_y = 78;
         static int orderHeader_y = 844;
         static int line1_y = 932;
-        static int ordId_y = 1097, ordIdVal_x = 1641;
+        static int ordId_y = 1097, ordIdVal_x = 1420;
         static int totItems_y = 1244;
         static int date_y = 1391, dateVal_x = 1520;
         private static int details_header_sep = 80;

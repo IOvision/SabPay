@@ -7,11 +7,36 @@
     android:padding="@dimen/dimen_20dp">
 
     <ScrollView
+        android:id="@+id/order_detail_root_sv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/order_detail_download_ibt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/click_to_download_invoice"
+            android:layout_marginEnd="@dimen/dimen_18dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/contact_circle"
+            android:tint="@color/white"
+            android:src="@drawable/ic_baseline_arrow_downward_24"
+            android:elevation="5dp"/>
+        <ImageButton
+            android:id="@+id/order_detail_share_ibt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/click_to_share_invoice"
+            android:layout_marginEnd="@dimen/dimen_18dp"
+            android:layout_toStartOf="@id/order_detail_download_ibt"
+            android:background="@drawable/contact_circle"
+            android:tint="@color/white"
+            android:src="@drawable/ic_baseline_share_24"
+            android:elevation="5dp"/>
 
         <TextView
             android:id="@+id/order_detail_tv"
@@ -190,7 +215,7 @@
             android:layout_below="@id/items_recycler_view"
             android:visibility="gone"/>
         <com.github.ybq.android.spinkit.SpinKitView
-            android:id="@+id/invoice_activity_progressBar_pb"
+            android:id="@+id/order_detail_progressBar_pb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/SpinKitView.Large.Circle"

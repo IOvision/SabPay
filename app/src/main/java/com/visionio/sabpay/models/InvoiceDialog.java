@@ -2,13 +2,17 @@ package com.visionio.sabpay.models;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +26,9 @@ import com.google.gson.Gson;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.InvoiceAdapter;
 import com.visionio.sabpay.api.API;
+import com.visionio.sabpay.helper.InvoiceGenerator;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,8 +43,10 @@ import retrofit2.Response;
 
 public class InvoiceDialog extends Dialog implements View.OnClickListener {
 
+    ScrollView root_sv;
     String invoiceId, orderIdString, orderStatus;
     TextView orderTime, orderId, orderAmount, paymentStatus, shipmentAddress;
+    ImageButton download_bt, share_bt;
     Order order;
     RecyclerView itemListRecycler;
     InvoiceAdapter adapter;
@@ -69,12 +77,13 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_invoice);
+        setContentView(R.layout.order_detail_layout);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         mRef = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        progressBar = findViewById(R.id.invoice_activity_progressBar_pb);
+        root_sv = findViewById(R.id.order_detail_root_sv);
+        progressBar = findViewById(R.id.order_detail_progressBar_pb);
         pay_bt = findViewById(R.id.invoice_activity_pay_bt);
         orderTime = findViewById(R.id.order_time);
         orderId = findViewById(R.id.order_id);
@@ -82,13 +91,72 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         paymentStatus = findViewById(R.id.payment_status);
         shipmentAddress = findViewById(R.id.shipment_address);
         itemListRecycler = findViewById(R.id.items_recycler_view);
+        download_bt = findViewById(R.id.order_detail_download_ibt);
+        share_bt = findViewById(R.id.order_detail_share_ibt);
 
         if(order.getInvoiceId() == null){
 
             pay_bt.setVisibility(View.VISIBLE);
         }
 
+        download_bt.setOnClickListener(v -> {
+            if(InvoiceGenerator.isInvoiceGenerated(order.getOrderId())){
+                Utils.toast(getContext(), "Invoice Already Downloaded", Toast.LENGTH_SHORT);
+                return;
+            }
+            downloadInvoice(false);
+        });
+
+        share_bt.setOnClickListener(v -> {
+            if(!InvoiceGenerator.isInvoiceGenerated(order.getOrderId())){
+                downloadInvoice(true);
+                return;
+            }
+            File outputFile = InvoiceGenerator.getOutputFile(order.getOrderId());
+            Uri uri = Uri.fromFile(outputFile);
+            shareInvoice(uri);
+        });
+
+        root_sv.fullScroll(ScrollView.FOCUS_UP);
+
         setTextViews();
+    }
+
+    void downloadInvoice(boolean toShare){
+        if(invoiceId == null){
+            Utils.toast(mContext, "Complete payment to generate invoice", Toast.LENGTH_LONG);
+            return;
+        }
+        pay_bt.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
+        mRef.collection("inventory").document(order.getFromInventory())
+                .get().addOnCompleteListener(task -> {
+            pay_bt.setEnabled(true);
+            progressBar.setVisibility(View.GONE);
+            if(task.isSuccessful()){
+                order.shopAddress = task.getResult().getString("address");
+                InvoiceGenerator generator = new InvoiceGenerator(order, getContext());
+                Uri uri = generator.generate();
+                if(uri == null){
+                    Utils.toast(mContext, "App Error", Toast.LENGTH_LONG);
+                }else {
+                    Utils.toast(mContext, "Invoice Downloaded To "+uri.getPath(), Toast.LENGTH_LONG);
+                    if (toShare){
+                       shareInvoice(uri);
+                    }
+                }
+            }else{
+                Utils.toast(getContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT);
+            }
+        });
+    }
+    void shareInvoice(Uri uri){
+        Intent share = new Intent();
+        share.setAction(Intent.ACTION_SEND);
+        share.setType("application/pdf");
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+        share.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getContext().getApplicationContext().startActivity(share);
     }
 
     void pay(String receiverId) {
