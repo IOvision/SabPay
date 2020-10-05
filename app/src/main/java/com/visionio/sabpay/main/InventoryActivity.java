@@ -439,7 +439,7 @@ public class InventoryActivity extends AppCompatActivity {
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
-        dialog_pay_order_bt.setOnClickListener(v -> {
+        dialog_cod_order_bt.setOnClickListener(v -> {
             String address = Objects.requireNonNull(delivery_address_til.getEditText()).getText().toString().trim();
             if(address.equals("")){
                 delivery_address_til.setError("Address Can't be empty");

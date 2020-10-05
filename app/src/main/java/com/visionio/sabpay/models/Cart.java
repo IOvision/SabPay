@@ -62,7 +62,7 @@ public class Cart {
         }
         return compressedItems;
     }
-    
+
 
     public double getAmount() {
         double cost = 0;
