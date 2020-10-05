@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
@@ -439,14 +441,23 @@ public class InventoryActivity extends AppCompatActivity {
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
 
-        dialog_pay_order_bt.setOnClickListener(v -> {
+        dialog_cod_order_bt.setOnClickListener(v -> {
             String address = Objects.requireNonNull(delivery_address_til.getEditText()).getText().toString().trim();
             if(address.equals("")){
                 delivery_address_til.setError("Address Can't be empty");
             } else{
                 delivery_address_til.setErrorEnabled(false);
                 delivery_address = address;
-                placeOrder(null);
+                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(InventoryActivity.this);
+                alert.setTitle("Order Confirmation");
+                alert.setMessage("Total Items: " + String.valueOf(newCart.getItemCount()) + "\nTotal Amount: " + String.valueOf(newCart.getAmount()));
+                alert.setPositiveButton("Yes", (dialog, which) -> {
+                    placeOrder(null);
+                });
+                alert.setNegativeButton("No", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+                alert.show();
             }
         });
         dialog_pay_order_bt.setOnClickListener(v -> {
@@ -456,7 +467,16 @@ public class InventoryActivity extends AppCompatActivity {
             } else{
                 delivery_address_til.setErrorEnabled(false);
                 delivery_address = address;
-                pay();
+                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(InventoryActivity.this);
+                alert.setTitle("Order Confirmation");
+                alert.setMessage("Total Items: " + String.valueOf(newCart.getItemCount()) + "\nTotal Amount: " + String.valueOf(newCart.getAmount()));
+                alert.setPositiveButton("Yes", (dialog, which) -> {
+                    pay();
+                });
+                alert.setNegativeButton("No", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+                alert.show();
             }
         });
         cart_dialog.setOnShowListener(dialog -> {
