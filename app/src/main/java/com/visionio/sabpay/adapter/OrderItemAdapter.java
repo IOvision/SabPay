@@ -16,13 +16,13 @@ import com.visionio.sabpay.models.CompressedItem;
 
 import java.util.List;
 
-public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceViewHolder> {
+public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.InvoiceViewHolder> {
 
     List<CompressedItem> items;
     int position = 0;
     Context context;
 
-    public InvoiceAdapter(List<CompressedItem> items, Context context) {
+    public OrderItemAdapter(List<CompressedItem> items, Context context) {
         this.items = items;
         this.context = context;
         setHasStableIds(true);

@@ -24,7 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.visionio.sabpay.R;
-import com.visionio.sabpay.adapter.InvoiceAdapter;
+import com.visionio.sabpay.adapter.OrderItemAdapter;
 import com.visionio.sabpay.api.API;
 import com.visionio.sabpay.helper.InvoiceGenerator;
 
@@ -49,7 +49,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     ImageButton download_bt, share_bt;
     Order order;
     RecyclerView itemListRecycler;
-    InvoiceAdapter adapter;
+    OrderItemAdapter adapter;
     List<CompressedItem> items;
     ProgressBar progressBar;
     Button pay_bt;
@@ -251,7 +251,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
     }
 
     private void loadItems() {
-        adapter = new InvoiceAdapter(new ArrayList<>(), mContext);
+        adapter = new OrderItemAdapter(new ArrayList<>(), mContext);
         itemListRecycler.setLayoutManager(new LinearLayoutManager(mContext));
         itemListRecycler.setHasFixedSize(false);
         itemListRecycler.setAdapter(adapter);
