@@ -25,6 +25,7 @@
     <string name="shipping_address">Shipping Address</string>
     <string name="click_to_download_invoice">Click To Download Invoice</string>
     <string name="click_to_share_invoice">Click To Share Invoice</string>
+    <string name="authority">com.visionio.sabpay.provider</string>
 
     <string-array name="category">
         <item>Select one</item>

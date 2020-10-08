@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -113,8 +114,7 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
                 return;
             }
             File outputFile = InvoiceGenerator.getOutputFile(order.getOrderId());
-            Uri uri = Uri.fromFile(outputFile);
-            shareInvoice(uri);
+            shareInvoice(outputFile);
         });
 
         root_sv.fullScroll(ScrollView.FOCUS_UP);
@@ -136,13 +136,13 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
             if(task.isSuccessful()){
                 order.shopAddress = task.getResult().getString("address");
                 InvoiceGenerator generator = new InvoiceGenerator(order, getContext());
-                Uri uri = generator.generate();
-                if(uri == null){
+                File file = generator.generate();
+                if(file == null){
                     Utils.toast(mContext, "App Error", Toast.LENGTH_LONG);
                 }else {
-                    Utils.toast(mContext, "Invoice Downloaded To "+uri.getPath(), Toast.LENGTH_LONG);
+                    Utils.toast(mContext, "Invoice Downloaded To "+file.getPath(), Toast.LENGTH_LONG);
                     if (toShare){
-                       shareInvoice(uri);
+                       shareInvoice(file);
                     }
                 }
             }else{
@@ -150,8 +150,13 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
             }
         });
     }
-    void shareInvoice(Uri uri){
+    void shareInvoice(File file){
         Intent share = new Intent();
+        Uri uri = FileProvider.getUriForFile(
+                mContext,
+                mContext.getString(R.string.authority),
+                file
+        );
         share.setAction(Intent.ACTION_SEND);
         share.setType("application/pdf");
         share.putExtra(Intent.EXTRA_STREAM, uri);

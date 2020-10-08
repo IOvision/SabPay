@@ -10,8 +10,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
-import android.net.Uri;
 import android.os.Environment;
+import android.widget.Toast;
 
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.models.Order;
@@ -59,14 +59,14 @@ public class InvoiceGenerator {
         canvas = page1.getCanvas();
 
         // static variables
-        File root = new File(base_path);
-        if(!root.exists()){
-            root.mkdirs();
+        File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "SabPayInvoice");
+        if(!root.exists() && !root.mkdir()){
+            Toast.makeText(context, "Couldn't create invoice folder", Toast.LENGTH_SHORT).show();
         }
         file = new File(getFilePath(file_name));
 
     }
-    public Uri generate(){
+    public File generate(){
         writeStatic();
         writeDynamic();
         pdfDocument.finishPage(page1);
@@ -76,7 +76,7 @@ public class InvoiceGenerator {
             e.printStackTrace();
         }
         pdfDocument.close();
-        return Uri.fromFile(file);
+        return file;
     }
     private static String getFilePath(String file_name){
         return base_path+file_name;
