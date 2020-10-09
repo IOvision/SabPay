@@ -51,6 +51,7 @@ public class TransactionHistoryFragment extends Fragment {
     Query loadOrderQuery, loadTransactionQuery;
     FirebaseFirestore mRef;
     Chip loadMore_chip;
+    TextView orderTv, transactionTv;
     View.OnClickListener transactionLoadListener = v -> loadTransactions();
     View.OnClickListener orderLoadListener = v -> loadOrders();
     boolean isAllTransactionsLoaded = false;
@@ -61,6 +62,8 @@ public class TransactionHistoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_transaction_history, container, false);
 
         transactionRecyclerView = view.findViewById(R.id.transaction_fragment_recycler);
+        orderTv = view.findViewById(R.id.history_tv_order);
+        transactionTv = view.findViewById(R.id.history_tv_transaction);
         orderRecyclerView = view.findViewById(R.id.order_fragment_recycler);
         bg_txt_tv = view.findViewById(R.id.frag_txn_bg_txt_tv);
         progressBar = view.findViewById(R.id.transaction_fragment_pb);
@@ -93,8 +96,14 @@ public class TransactionHistoryFragment extends Fragment {
         transactionRecyclerView.setHasFixedSize(false);
         transactionRecyclerView.setAdapter(transactionAdapter);
 
-        transactions.setOnClickListener(view1 -> loadTransactionHistory() );
-        orders.setOnClickListener(view1 -> loadOrderHistory());
+        transactions.setOnClickListener(view1 -> {
+            loadTransactionHistory();
+            orderTv.setVisibility(View.GONE);
+        });
+        orders.setOnClickListener(view1 -> {
+            loadOrderHistory();
+            transactionTv.setVisibility(View.GONE);
+        });
 
         toggleButton.check(R.id.btn_order_history);
         orders.callOnClick();
@@ -155,6 +164,7 @@ public class TransactionHistoryFragment extends Fragment {
                         } else {
                             loadOrderQuery = null;
                             isAllOrdersLoaded = true;
+                            orderTv.setVisibility(View.VISIBLE);
                         }
                     } else {
                         Utils.toast(getActivity(), Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
@@ -227,6 +237,7 @@ public class TransactionHistoryFragment extends Fragment {
                             loadTransactionQuery = null;
                         }
                     } else {
+                        transactionTv.setVisibility(View.VISIBLE);
                         loadTransactionQuery = null;
                         isAllTransactionsLoaded = true;
                     }
