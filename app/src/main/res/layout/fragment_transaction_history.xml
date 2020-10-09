@@ -6,6 +6,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".main.TransactionHistoryFragment">
 
+    <TextView
+        android:id="@+id/history_tv_order"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No orders yet"
+        android:textSize="20sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/history_tv_transaction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No transactions yet"
+        android:textSize="20sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
