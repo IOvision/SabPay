@@ -27,15 +27,12 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -43,13 +40,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.zxing.Result;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.ContactAdapter;
 import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 import com.visionio.sabpay.helper.GroupSelectHandler;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.interfaces.Payment;
 import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.GroupPay;
@@ -140,8 +134,11 @@ public class PayFragment extends Fragment {
         allContactsRecyclerView = view.findViewById(R.id.pay_fragment_recycler);
 
         List<Contact> con = Paper.book().read("contacts");
+        if(con == null){
+             con = new ArrayList<>();
+        }
         selectedContactsAdapter = new SelectedContactsAdapter(new ArrayList<>());
-        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<Contact>(con), new ArrayList<Contact>(con));
+        allContactAdapter = new ContactAdapter(getContext(), new ArrayList<>(con), new ArrayList<>(con));
 
         recyclerViewContainer = view.findViewById(R.id.pay_fragment_recyclerViewsContainer_ll);
         selectedContactsRecyclerView = view.findViewById(R.id.pay_fragment_selectedContacts_rv);
@@ -160,44 +157,33 @@ public class PayFragment extends Fragment {
         allContactsRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
 
 
-        allContactAdapter.setClickListener(new OnItemClickListener<Contact>() {
-            @Override
-            public void onItemClicked(Contact contact, int position, View v) {
-                Log.i("Testing", "Select: "+position);
-                for(Contact c: selectedContactsAdapter.getContacts()){
-                    if(c.getNumber().equals(contact.getNumber())){
-                        Toast.makeText(getContext(), "Already added", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
-                allContactAdapter.select(position);
-                selectedContactsAdapter.add(contact);
-                if(selectedContactsAdapter.getItemCount()==1 && !selected){
-                    selected=true;
+        allContactAdapter.setClickListener((contact, position, v) -> {
+            Log.i("Testing", "Select: "+position);
+            for(Contact c: selectedContactsAdapter.getContacts()){
+                if(c.getNumber().equals(contact.getNumber())){
+                    Toast.makeText(getContext(), "Already added", Toast.LENGTH_SHORT).show();
+                    return;
                 }
             }
-
+            allContactAdapter.select(position);
+            selectedContactsAdapter.add(contact);
+            if(selectedContactsAdapter.getItemCount()==1 && !selected){
+                selected=true;
+            }
         });
 
-        selectedContactsAdapter.setClickListener(new OnItemClickListener<Contact>() {
-            @Override
-            public void onItemClicked(final Contact contact, final int position, View v) {
-                v.animate().scaleX(0).scaleY(0).setInterpolator(new DecelerateInterpolator()).setDuration(500).start();
-                (new Handler()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //allContactAdapter.addUserToContact(contact);
-                        selectedContactsAdapter.remove(contact);
-                        if(contact.positionInAdapter != 0){
-                            allContactAdapter.unSelect(contact.positionInAdapter);
-                        }
-                        if(selectedContactsAdapter.getItemCount()==0 && selected){
-                            selected = false;
-                        }
-                    }
-                }, 1000);
-            }
-
+        selectedContactsAdapter.setClickListener((contact, position, v) -> {
+            v.animate().scaleX(0).scaleY(0).setInterpolator(new DecelerateInterpolator()).setDuration(500).start();
+            (new Handler()).postDelayed(() -> {
+                //allContactAdapter.addUserToContact(contact);
+                selectedContactsAdapter.remove(contact);
+                if(contact.positionInAdapter != 0){
+                    allContactAdapter.unSelect(contact.positionInAdapter);
+                }
+                if(selectedContactsAdapter.getItemCount()==0 && selected){
+                    selected = false;
+                }
+            }, 1000);
         });
 
         selectedContactsRecyclerView.setAdapter(selectedContactsAdapter);
@@ -213,25 +199,19 @@ public class PayFragment extends Fragment {
             checkContactsAndPay();
         });
 
-        til_listener_show_keyboard = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideScanner();
-                et_number.setEnabled(true);
-                textInputLayout.setEndIconDrawable(R.drawable.ic_qr_scan);
-                textInputLayout.setEndIconOnClickListener(til_listener_hide_keyboard);
-            }
+        til_listener_show_keyboard = v -> {
+            hideScanner();
+            et_number.setEnabled(true);
+            textInputLayout.setEndIconDrawable(R.drawable.ic_qr_scan);
+            textInputLayout.setEndIconOnClickListener(til_listener_hide_keyboard);
         };
 
-        til_listener_hide_keyboard = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showScanner();
-                hideKeyboard();
-                et_number.setEnabled(false);
-                textInputLayout.setEndIconDrawable(R.drawable.ic_keyboard_white_24dp);
-                textInputLayout.setEndIconOnClickListener(til_listener_show_keyboard);
-            }
+        til_listener_hide_keyboard = v -> {
+            showScanner();
+            hideKeyboard();
+            et_number.setEnabled(false);
+            textInputLayout.setEndIconDrawable(R.drawable.ic_keyboard_white_24dp);
+            textInputLayout.setEndIconOnClickListener(til_listener_show_keyboard);
         };
 
         textInputLayout.setEndIconDrawable(R.drawable.ic_keyboard_white_24dp);
@@ -266,17 +246,14 @@ public class PayFragment extends Fragment {
         for (Contact c : selectedContactsAdapter.getContacts()){
             if (c.getUser()==null){
                 mRef.collection("user").whereEqualTo("phone", c.getNumber()).get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (!task.getResult().getDocuments().isEmpty()) {
-                                        DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-                                        User user = snapshot.toObject(User.class);
-                                        c.setName(user.getName());
-                                        c.setNumber(user.getPhone());
-                                        c.setUser(user);
-                                    }
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                if (!task.getResult().getDocuments().isEmpty()) {
+                                    DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                                    User user = snapshot.toObject(User.class);
+                                    c.setName(user.getName());
+                                    c.setNumber(user.getPhone());
+                                    c.setUser(user);
                                 }
                             }
                         });
@@ -303,22 +280,19 @@ public class PayFragment extends Fragment {
     void setUp(View view){
         contentFrame = (ViewGroup) view.findViewById(R.id.pay_fragment_frame);
         mScannerView = new ZXingScannerView(getContext());
-        mScannerView.setResultHandler(new ZXingScannerView.ResultHandler() {
-            @Override
-            public void handleResult(Result rawResult) {
-                String res = rawResult.getText();
-                if(Utils.getPaymentType(res)==0){
-                    et_number.setText(res);
-                    updateVariableData();
-                    searchUser();
-                }else{
-                    jsonFromQr = res;
-                    searchGroupOwner();
-                }
-
-                Log.i("Testing", "Payment type: "+Utils.getPaymentType(res));
-
+        mScannerView.setResultHandler(rawResult -> {
+            String res = rawResult.getText();
+            if(Utils.getPaymentType(res)==0){
+                et_number.setText(res);
+                updateVariableData();
+                searchUser();
+            }else{
+                jsonFromQr = res;
+                searchGroupOwner();
             }
+
+            Log.i("Testing", "Payment type: "+Utils.getPaymentType(res));
+
         });
         contentFrame.addView(mScannerView);
         startCamera();
@@ -366,42 +340,39 @@ public class PayFragment extends Fragment {
             return;
         }
         mRef.collection("user").whereEqualTo("phone", phoneNumber).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
-                            if(!task.getResult().getDocuments().isEmpty()){
-                                DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-                                User user = snapshot.toObject(User.class);
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        if(!task.getResult().getDocuments().isEmpty()){
+                            DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                            User user = snapshot.toObject(User.class);
 
-                                Contact c = new Contact();
-                                c.setName(user.getName());
-                                c.setNumber(user.getPhone());
-                                c.setUser(user);
+                            Contact c = new Contact();
+                            c.setName(user.getName());
+                            c.setNumber(user.getPhone());
+                            c.setUser(user);
 
-                                bufferedContacts.add(c);
+                            bufferedContacts.add(c);
 
-                                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
-                                alert
-                                        .setTitle("Confirm")
-                                        .setMessage("This wallet is linked to: "+user.getName())
-                                        .setNegativeButton("No", ((dialog, which) -> {
-                                            dialog.dismiss();
-                                        }))
-                                        .setPositiveButton("Yes", (dialog, which) -> {
-                                            selectedContactsAdapter.add(c);
-                                        }).show();
+                            MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
+                            alert
+                                    .setTitle("Confirm")
+                                    .setMessage("This wallet is linked to: "+user.getName())
+                                    .setNegativeButton("No", ((dialog, which) -> {
+                                        dialog.dismiss();
+                                    }))
+                                    .setPositiveButton("Yes", (dialog, which) -> {
+                                        selectedContactsAdapter.add(c);
+                                    }).show();
 
-                            }else{
-                                MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getActivity());
-                                alert.setTitle("No Wallet Found.").setMessage("No Wallet is linked to this Number.")
-                                        .setPositiveButton("Okay", (dialog, which) -> {
-                                            dialog.dismiss();
-                                        });
-                            }
                         }else{
-                            //
+                            MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getActivity());
+                            alert.setTitle("No Wallet Found.").setMessage("No Wallet is linked to this Number.")
+                                    .setPositiveButton("Okay", (dialog, which) -> {
+                                        dialog.dismiss();
+                                    });
                         }
+                    }else{
+                        //
                     }
                 });
     }
@@ -448,17 +419,14 @@ public class PayFragment extends Fragment {
 
         receiverDocRef.collection("group_pay")
                 .document("meta-data/transaction/"+groupPayData[1]).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            progressDialog.dismiss();
-                            GroupPay groupPay = task.getResult().toObject(GroupPay.class);
-                            splitIntoGroup(groupPay);
-                        }else{
-                            progressDialog.dismiss();
-                            Log.i("Testing", task.getException().getLocalizedMessage());
-                        }
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        progressDialog.dismiss();
+                        GroupPay groupPay = task.getResult().toObject(GroupPay.class);
+                        splitIntoGroup(groupPay);
+                    }else{
+                        progressDialog.dismiss();
+                        Log.i("Testing", task.getException().getLocalizedMessage());
                     }
                 });
     }
@@ -468,18 +436,10 @@ public class PayFragment extends Fragment {
             Utils.toast(getContext(), "Already Splited in group", Toast.LENGTH_LONG);
             return;
         }
-        DialogInterface.OnClickListener negativeListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getActivity(), "Canceled", Toast.LENGTH_SHORT).show();
-            }
-        };
+        DialogInterface.OnClickListener negativeListener = (dialog, which) -> Toast.makeText(getActivity(), "Canceled", Toast.LENGTH_SHORT).show();
 
-        DialogInterface.OnClickListener positiveListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final GroupSelectHandler groupSelectHandler = new GroupSelectHandler(getActivity(), groupPay);
-            }
+        DialogInterface.OnClickListener positiveListener = (dialog, which) -> {
+            final GroupSelectHandler groupSelectHandler = new GroupSelectHandler(getActivity(), groupPay);
         };
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getContext())
@@ -488,16 +448,13 @@ public class PayFragment extends Fragment {
                 .setPositiveButton("Yes", positiveListener)
                 .create();
 
-        receiverDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    User user = task.getResult().toObject(User.class);
-                    alertDialog.setMessage("Name: "+user.getName()+"\nTotal Amount: "+groupPay.getAmount());
-                    alertDialog.show();
-                }else {
-                    Log.i("Testing", task.getException().getLocalizedMessage());
-                }
+        receiverDocRef.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                User user = task.getResult().toObject(User.class);
+                alertDialog.setMessage("Name: "+user.getName()+"\nTotal Amount: "+groupPay.getAmount());
+                alertDialog.show();
+            }else {
+                Log.i("Testing", task.getException().getLocalizedMessage());
             }
         });
     }

@@ -26,12 +26,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.SelectedContactsAdapter;
 import com.visionio.sabpay.adapter.TransactionStatusAdapter;
 import com.visionio.sabpay.api.SabPayNotify;
-import com.visionio.sabpay.interfaces.OnItemClickListener;
 import com.visionio.sabpay.interfaces.Payment;
 import com.visionio.sabpay.models.Contact;
 import com.visionio.sabpay.models.Utils;
@@ -112,18 +110,15 @@ public class PaymentActivity extends AppCompatActivity {
 
         payment = Payment.getInstance();
         selectedContactsAdapter = payment.getAdapter();
-        selectedContactsAdapter.setClickListener(new OnItemClickListener<Contact>() {
-            @Override
-            public void onItemClicked(Contact object, int position, View view) {
-                int size = selectedContactsAdapter.getContacts().size();
-                if(size==1){
-                    Toast.makeText(PaymentActivity.this, "At least 1 payee need to be selected", Toast.LENGTH_LONG).show();
-                }else{
-                    selectedContactsAdapter.remove(object);
-                    name_tv.setText("Paying to "+selectedContactsAdapter.getContacts().size());
-                }
-
+        selectedContactsAdapter.setClickListener((object, position, view) -> {
+            int size = selectedContactsAdapter.getContacts().size();
+            if(size==1){
+                Toast.makeText(PaymentActivity.this, "At least 1 payee need to be selected", Toast.LENGTH_LONG).show();
+            }else{
+                selectedContactsAdapter.remove(object);
+                name_tv.setText("Paying to "+selectedContactsAdapter.getContacts().size());
             }
+
         });
 
         payeeList.setLayoutManager(new LinearLayoutManager(this){{
@@ -225,44 +220,36 @@ public class PaymentActivity extends AppCompatActivity {
         }};
 
         senderDocRef.collection("pending_transaction")
-                .document("transaction").set(transactionMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    String title = "Money Received";
-                    String msg = "Transaction Id: %s\nAmount: Rs. %s\nFrom: %s";
-                    int i=0;
-                    for(Contact c: payee){
-                        int finalI = i;
-                        String txId = Utils.getTransactionId(transactionMap.get("id").toString(), finalI);
-                        String userName = c.getUser().getName();
-                        adapter.add(new HashMap<String, String>(){{
-                            put("id", txId);
-                            put("to", userName);
-                        }});
-                        i++;
-                        new SabPayNotify.Builder()
-                                .setTitle(title)
-                                .setMessage(String.format(msg, txId, amount, userName))
-                                .send(getApplicationContext(), c.getUser().getUid(), false);
+                .document("transaction").set(transactionMap).addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        String title = "Money Received";
+                        String msg = "Transaction Id: %s\nAmount: Rs. %s\nFrom: %s";
+                        int i=0;
+                        for(Contact c: payee){
+                            int finalI = i;
+                            String txId = Utils.getTransactionId(transactionMap.get("id").toString(), finalI);
+                            String userName = c.getUser().getName();
+                            adapter.add(new HashMap<String, String>(){{
+                                put("id", txId);
+                                put("to", userName);
+                            }});
+                            i++;
+                            new SabPayNotify.Builder()
+                                    .setTitle(title)
+                                    .setMessage(String.format(msg, txId, amount, userName))
+                                    .send(getApplicationContext(), c.getUser().getUid(), false);
 
-                    }
-                    (new Handler()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            onBackPressed();
-                            finish();
                         }
-                    }, 3000);
-                }else{
-                }
-            }
-        });
-
-
-        final ListenerRegistration[] lr = {null};
-
-        List<Map<String, String>> status = new ArrayList<>();
+                        (new Handler()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                onBackPressed();
+                                finish();
+                            }
+                        }, 3000);
+                    }else{
+                    }
+                });
 
     }
 
