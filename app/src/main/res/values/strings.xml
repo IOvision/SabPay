@@ -26,6 +26,9 @@
     <string name="click_to_download_invoice">Click To Download Invoice</string>
     <string name="click_to_share_invoice">Click To Share Invoice</string>
     <string name="authority">com.visionio.sabpay.provider</string>
+    <string name="delivery_pending">(Delivery Pending)</string>
+    <string name="delivered">(Delivered)</string>
+    <string name="order_not_confirmed">(Order Not Confirmed)</string>
 
     <string-array name="category">
         <item>Select one</item>

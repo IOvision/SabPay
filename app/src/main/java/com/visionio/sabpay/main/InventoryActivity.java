@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -100,6 +99,8 @@ public class InventoryActivity extends AppCompatActivity {
     CoordinatorLayout item_counter_cl;
     TextView item_counter_tv;
 
+    ProgressBar progressBar;
+
     // pagination query
     int itemLimit = 10;
     boolean isAllItemsLoaded = false;
@@ -176,6 +177,7 @@ public class InventoryActivity extends AppCompatActivity {
         searchClose = findViewById(R.id.inventory_image_close);
         search = findViewById(R.id.inventory_search_et);
         toolbar = findViewById(R.id.inv_activity_toolbar);
+        progressBar = findViewById(R.id.inv_activity_progress);
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
         item_counter_cl = findViewById(R.id.inv_activity_item_counter_cl);
@@ -334,6 +336,7 @@ public class InventoryActivity extends AppCompatActivity {
             isLoading = false;
             return;
         }
+        progressBar.setVisibility(View.VISIBLE);
         isLoading = true;
         String lastTitle = adapter.get_last_title();
         String tags = mInventory.getCompoundTag();
@@ -359,12 +362,14 @@ public class InventoryActivity extends AppCompatActivity {
                     String error = response.errorBody().toString();
                     Utils.toast(InventoryActivity.this, error, Toast.LENGTH_LONG);
                 }
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
                 isLoading = false;
                 Log.i("inventory_activity", "onFailure: "+t.getLocalizedMessage());
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -381,6 +386,7 @@ public class InventoryActivity extends AppCompatActivity {
             search.requestFocus();
             return;
         }
+        progressBar.setVisibility(View.VISIBLE);
         isSearchQueryLoading = true;
         mRef.runTransaction(transaction -> {
 
@@ -410,6 +416,7 @@ public class InventoryActivity extends AppCompatActivity {
                         Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
             }
             isSearchQueryLoading = false;
+            progressBar.setVisibility(View.GONE);
         });
     }
 

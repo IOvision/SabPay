@@ -25,7 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.adapter.OrderAdapter;
 import com.visionio.sabpay.adapter.TransactionAdapter;
-import com.visionio.sabpay.models.InvoiceDialog;
+import com.visionio.sabpay.helper.InvoiceDialog;
 import com.visionio.sabpay.models.Order;
 import com.visionio.sabpay.models.Transaction;
 import com.visionio.sabpay.models.Utils;

@@ -90,11 +90,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/inventorty_item_list_item" />
-
+            <com.github.ybq.android.spinkit.SpinKitView
+                android:id="@+id/inv_activity_progress"
+                style="@style/SpinKitView.Large.Circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:SpinKit_Color="@color/purple"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="92dp"
+                android:visibility="visible"/>
         </RelativeLayout>
-
-
-
     </androidx.core.widget.NestedScrollView>
 
 
