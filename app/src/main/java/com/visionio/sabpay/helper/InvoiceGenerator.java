@@ -63,8 +63,7 @@ public class InvoiceGenerator {
         if(!root.exists() && !root.mkdir()){
             Toast.makeText(context, "Couldn't create invoice folder", Toast.LENGTH_SHORT).show();
         }
-        file = new File(getFilePath(file_name));
-
+        file = new File(root, file_name);
     }
     public File generate(){
         writeStatic();
