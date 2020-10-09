@@ -59,9 +59,10 @@
                         android:hint="Search items..."
                         android:textColor="@color/white"
                         android:textColorHint="#C7C7C7"
+                        android:imeOptions="actionSearch"
                         android:visibility="gone"
                         android:layout_toStartOf="@id/inventory_image_close"
-                        android:fontFamily="@font/product_sans_regular"/>
+                        android:fontFamily="@font/product_sans_regular" />
                     <ImageView
                         android:id="@+id/inventory_image_close"
                         android:layout_width="30dp"
@@ -103,7 +104,6 @@
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
 
-
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/inv_activity_cart_exFab"
         android:layout_width="wrap_content"
@@ -115,7 +115,6 @@
         app:layout_anchor="@id/inv_activity_app_bar_layout"
         app:layout_anchorGravity="end|bottom"
         android:text="@string/_0" />
-
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/inv_activity_item_counter_cl"
@@ -157,13 +156,22 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <View
+        android:id="@+id/inventory_separator_layer_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#8D000000"
+        android:visibility="gone"
+        android:layout_marginTop="52dp"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/inventory_search_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dimen_15dp"
-        android:layout_marginEnd="@dimen/dimen_96dp"
         android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginStart="@dimen/dimen_8dp"
+        android:layout_marginEnd="@dimen/dimen_8dp"
+        android:layout_marginBottom="@dimen/dimen_8dp"
         android:visibility="gone"
         tools:listitem="@layout/inventory_search_list"
         android:translationZ="@dimen/dimen_10dp"/>

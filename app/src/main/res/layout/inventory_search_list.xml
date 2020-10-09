@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white">
-    <TextView
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    app:cardCornerRadius="@dimen/dimen_10dp"
+    android:layout_marginStart="@dimen/dimen_8dp"
+    android:layout_marginEnd="@dimen/dimen_8dp"
+    android:layout_marginBottom="@dimen/dimen_8dp">
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Baigan"
-        android:textSize="@dimen/dimen_22sp"
-        android:fontFamily="@font/product_sans_regular"
-        android:padding="@dimen/dimen_10dp"
-        android:id="@+id/inventory_search_name"
-        android:background="?attr/selectableItemBackground"/>
-
-</RelativeLayout>
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Sunfeast YiPPee! Tricolor Pasta | Cheesy and Soft Suji, Rawa Pasta | Masala |65g Pack"
+            android:textSize="@dimen/dimen_18sp"
+            android:fontFamily="@font/product_sans_regular"
+            android:padding="@dimen/dimen_16dp"
+            android:maxLines="5"
+            android:ellipsize="start"
+            android:id="@+id/inventory_search_name"
+            android:layout_centerInParent="true"
+            android:background="?attr/selectableItemBackground"/>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

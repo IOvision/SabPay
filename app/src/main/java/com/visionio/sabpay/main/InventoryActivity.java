@@ -88,6 +88,8 @@ public class InventoryActivity extends AppCompatActivity {
     RecyclerView searchRecycler;
     SearchListAdapter searchListAdapter;
 
+    View sep_layer_view;
+
     InventoryItemAdapter adapter;
     RecyclerView recyclerView;
     NestedScrollView nestedScrollView;
@@ -175,6 +177,7 @@ public class InventoryActivity extends AppCompatActivity {
 
         searchRecycler = findViewById(R.id.inventory_search_recycler);
         searchClose = findViewById(R.id.inventory_image_close);
+        sep_layer_view = findViewById(R.id.inventory_separator_layer_view);
         search = findViewById(R.id.inventory_search_et);
         toolbar = findViewById(R.id.inv_activity_toolbar);
         progressBar = findViewById(R.id.inv_activity_progress);
@@ -186,6 +189,8 @@ public class InventoryActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.inv_activity_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
+
+        toolbar.bringToFront();
 
         appBarLayout = findViewById(R.id.inv_activity_app_bar_layout);
         appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
@@ -248,6 +253,7 @@ public class InventoryActivity extends AppCompatActivity {
             searchClose.setVisibility(View.GONE);
             search.setVisibility(View.GONE);
             searchRecycler.setVisibility(View.GONE);
+            sep_layer_view.setVisibility(View.GONE);
             searchListAdapter.clear();
             search.setText("");
         });
@@ -260,7 +266,7 @@ public class InventoryActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 searchListAdapter.clear();
                 for(String s : searchList) {
-                    if (s.toLowerCase().startsWith(editable.toString().toLowerCase()) && !editable.toString().isEmpty()) {
+                    if (s.toLowerCase().contains(editable.toString().toLowerCase()) && !editable.toString().isEmpty()) {
                         searchListAdapter.add(s);
                     } else if (editable.toString().isEmpty()) {
                         searchListAdapter.clear();
@@ -383,6 +389,7 @@ public class InventoryActivity extends AppCompatActivity {
             searchClose.setVisibility(View.VISIBLE);
             search.setVisibility(View.VISIBLE);
             searchRecycler.setVisibility(View.VISIBLE);
+            sep_layer_view.setVisibility(View.VISIBLE);
             search.requestFocus();
             return;
         }
@@ -409,6 +416,7 @@ public class InventoryActivity extends AppCompatActivity {
                 searchClose.setVisibility(View.VISIBLE);
                 search.setVisibility(View.VISIBLE);
                 searchRecycler.setVisibility(View.VISIBLE);
+                sep_layer_view.setVisibility(View.VISIBLE);
                 search.requestFocus();
                 isSearchQueryLoaded = true;
             }else {
@@ -630,4 +638,16 @@ public class InventoryActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if(sep_layer_view.getVisibility() == View.VISIBLE){
+            searchClose.setVisibility(View.GONE);
+            search.setVisibility(View.GONE);
+            searchRecycler.setVisibility(View.GONE);
+            sep_layer_view.setVisibility(View.GONE);
+            search.requestFocus();
+            return;
+        }
+        super.onBackPressed();
+    }
 }
