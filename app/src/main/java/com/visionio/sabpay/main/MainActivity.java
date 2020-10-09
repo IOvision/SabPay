@@ -22,22 +22,17 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.visionio.sabpay.R;
 import com.visionio.sabpay.authentication.AuthenticationActivity;
 import com.visionio.sabpay.group_pay.pending.PendingPaymentActivity;
 import com.visionio.sabpay.helper.TokenManager;
 import com.visionio.sabpay.models.Contact;
-import com.visionio.sabpay.models.User;
 import com.visionio.sabpay.models.Utils;
 
 import java.util.ArrayList;
@@ -55,6 +50,7 @@ public class MainActivity extends AppCompatActivity{
     BottomNavigationView bottomNavigationView;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseFirestore mRef = FirebaseFirestore.getInstance();
+    boolean isContactLoaded = false;
     private BroadcastReceiver mMessageReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -130,7 +126,7 @@ public class MainActivity extends AppCompatActivity{
                 //offers();
                 home();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
-                if(Utils.deviceContacts==null){
+                if(!isContactLoaded){
                   Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();
                 }else{
                     pay();
@@ -238,10 +234,7 @@ public class MainActivity extends AppCompatActivity{
 
     private List<String> getNumberArray(List<Contact> contacts){
         List<String> numbers = new ArrayList<>();
-        for(Contact c: contacts){
-            if (!numbers.contains(c.getNumber()))
-                numbers.add(c.getNumber());
-        }
+        for(Contact c: contacts){ if (!numbers.contains(c.getNumber())) numbers.add(c.getNumber()); }
         return numbers;
     }
 
@@ -263,57 +256,48 @@ public class MainActivity extends AppCompatActivity{
                 List<String> numbers = getNumberArray(allContacts);
 
                 if(numbers.size()==0){
-                    Utils.deviceContacts = new ArrayList<>();
+                    saveContact(new ArrayList<>());
                     return;
                 }
-
-                mRef.document("/public/registeredPhone").get()
-                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if(task.isSuccessful()){
-                                    List<String> numRegList;
-                                    try{
-                                        numRegList = (List<String>) task.getResult().get("number");
-                                    }catch (Exception e){
-                                        numRegList = new ArrayList<>();
-                                    }
-                                    List<Contact> commonContacts = new ArrayList<>();
-                                    for(String numReg: numRegList){
-                                        for(Contact inDeviceContact: allContacts){
-                                            if(inDeviceContact.getNumber().equals(numReg)){
-                                                mRef.collection("user").whereEqualTo("phone", inDeviceContact.getNumber()).get()
-                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                           @Override
-                                                           public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                               if (task.isSuccessful()) {
-                                                                   if (!task.getResult().getDocuments().isEmpty()) {
-                                                                       DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-                                                                       User user = snapshot.toObject(User.class);
-                                                                       inDeviceContact.setName(user.getName());
-                                                                       inDeviceContact.setNumber(user.getPhone());
-                                                                       inDeviceContact.setUser(user);
-                                                                   }
-                                                               }
-                                                           }
-                                                        });
-                                                commonContacts.add(inDeviceContact);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    Utils.deviceContacts = contactList;
-                                    Paper.book().write("contacts", commonContacts);
-                                    Toast.makeText(MainActivity.this, "Contacts loaded.", Toast.LENGTH_SHORT).show();
-                                }else{
-                                    Log.i("test", task.getException().getLocalizedMessage());
-                                }
-                            }
-                        });
-
-
+                loadingContactsServerCall(allContacts);
             }
         }
+    }
+    void loadingContactsServerCall(List<Contact> deviceContacts){
+        Toast.makeText(this, "loading contacts.", Toast.LENGTH_SHORT).show();
+        List<String> stringNumbers = getNumberArray(deviceContacts);
+        if(stringNumbers.size() == 0){
+            saveContact(new ArrayList<>());
+            return;
+        }
+        mRef.document("/public/registeredPhone").get()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()){
+                        Utils.toast(MainActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+                        saveContact(new ArrayList<>());
+                        return;
+                    }
+                    @SuppressWarnings("unchecked")
+                    List<String> numberArrayFromServer = (List<String>) task.getResult().get("number");
+                    if(numberArrayFromServer == null){
+                        saveContact(new ArrayList<>());
+                        return;
+                    }
+                    List<Contact> commonContacts = new ArrayList<>();
+                    for(String sc: numberArrayFromServer){
+                        for(Contact contact: deviceContacts){
+                            if(contact.getNumber().equalsIgnoreCase(sc)){
+                                commonContacts.add(contact);
+                            }
+                        }
+                    }
+                    saveContact(commonContacts);
+                });
+    }
+
+    void saveContact(List<Contact> contacts){
+        isContactLoaded = true;
+        Paper.book().write("contacts", contacts);
     }
 
     void startPendingPayment(){
