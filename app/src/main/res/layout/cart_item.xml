@@ -5,9 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:layout_marginTop="8dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    app:cardCornerRadius="20dp"
     android:background="#D9DDDC">
 
     <RelativeLayout
@@ -27,7 +24,7 @@
         <LinearLayout
             android:id="@+id/cart_item_qty_group"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="20dp"
             android:layout_marginStart="10dp"
@@ -40,17 +37,20 @@
                 android:layout_height="40dp"
                 android:textColor="@color/purple"
                 android:text="-"
-                android:textSize="12sp"/>
+                android:textSize="12sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
 
-            <Button
+            <TextView
                 android:id="@+id/cart_item_qty_text"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="match_parent"
                 android:textColor="@color/white"
                 android:text="11"
                 android:textSize="@dimen/dimen_12sp"
-                android:backgroundTint="@color/purple"/>
+                android:gravity="center"
+                android:paddingHorizontal="@dimen/dimen_15dp"
+                android:background="@color/purple" />
 
             <Button
                 android:textColor="@color/purple"
@@ -61,7 +61,9 @@
                 android:outlineAmbientShadowColor="@color/purple"
                 android:text="+"
                 android:textSize="12sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
         </LinearLayout>
 
     </RelativeLayout>

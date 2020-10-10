@@ -91,7 +91,14 @@ functions.region('asia-east2').https.onRequest((req, res) => {
             token : push_token,
             notification : {
                 title: "OTP for Biometric Enrollment",
-                body: `Your OTP for biometric enrollment ${token} is valid for the next 5 minutes.`
+                body: `Your OTP for biometric enrollment ${token} is valid for the next 5 minutes.`,
+            },
+            android: {
+                notification: {
+                    title: "OTP for Biometric Enrollment",
+                    body: `Your OTP for biometric enrollment ${token} is valid for the next 5 minutes.`,
+                    sound: "default"
+                }
             }
         }
         return admin.messaging().send(payload)
@@ -174,9 +181,16 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
             token: push_token,
             notification: {
                   title: title,
-                  body: message
-                }
+                  body: message,
+            },
+            android: {
+                notification: {
+                    title: title,
+                    body: message,
+                    sound: 'default'
+              }
             }
+        }
         return admin.messaging().send(payload)
         .then(()=>{
             return res.send(template('Notified'));

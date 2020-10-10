@@ -90,11 +90,29 @@ public class TransactionHistoryFragment extends Fragment {
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderRecyclerView.setHasFixedSize(false);
         orderRecyclerView.setAdapter(orderAdapter);
+        orderRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1) && newState==RecyclerView.SCROLL_STATE_IDLE) {
+                    loadOrders();
+                }
+            }
+        });
 
         transactionAdapter = new TransactionAdapter(new ArrayList<>());
         transactionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         transactionRecyclerView.setHasFixedSize(false);
         transactionRecyclerView.setAdapter(transactionAdapter);
+        transactionRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1) && newState==RecyclerView.SCROLL_STATE_IDLE) {
+                    loadTransactions();
+                }
+            }
+        });
 
         transactions.setOnClickListener(view1 -> {
             loadTransactionHistory();

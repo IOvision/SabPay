@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 
 public class InvoiceGenerator {
 
-    private static String base_path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/SabPay-Invoice/";
+    private static String base_path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/SabPayInvoice/";
 
     public static boolean isInvoiceGenerated(String orderId){
         return (new File(getFilePath(String.format("%s.pdf", orderId)))).exists();
