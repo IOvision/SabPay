@@ -59,7 +59,7 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
     @Override
     public void onBindViewHolder(@NonNull CartItemViewHolder holder, int position) {
         Item curr = itemList.get(position);
-        holder.detail_tv.setText(String.format("%s ₹%s/%s", curr.getTitle(), curr.getCost(inventoryId), curr.getUnit()));
+        holder.detail_tv.setText(String.format("%s \n₹%s/%s", curr.getTitle(), curr.getCost(inventoryId), curr.getUnit()));
         holder.qty.setText(String.valueOf(quantity.get(curr.getId())));
         holder.increase_btn.setOnClickListener(v -> {
             clickListener.onIncreaseQty(curr);
@@ -79,7 +79,8 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartIt
     static class CartItemViewHolder extends RecyclerView.ViewHolder{
 
         TextView detail_tv;
-        Button qty, increase_btn, decrease_btn;
+        TextView qty;
+        Button increase_btn, decrease_btn;
         View v;
 
         public CartItemViewHolder(@NonNull View itemView) {
