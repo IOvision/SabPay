@@ -30,7 +30,7 @@ functions.region('asia-east2').https.onRequest(async (req, res) => {
     var lastTitle = <string> req.query.after;
     const limit = Number.parseInt(<string> req.query.limit);
     const tags_q = <string> req.query.tags;
-    const tags = tags_q.split('_')
+    const tags = tags_q.split('+')
     if(lastTitle === undefined || 
         tags === undefined || 
         tags.length === 0){

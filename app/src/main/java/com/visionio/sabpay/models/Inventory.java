@@ -34,7 +34,7 @@ public class Inventory implements Serializable {
     public String getCompoundTag(){
         StringBuilder builder = new StringBuilder();
         for(String tag: getTags()){
-            builder.append(String.format("%s_", tag));
+            builder.append(String.format("%s+", tag));
         }
         builder.deleteCharAt(builder.length()-1);
         return builder.toString();

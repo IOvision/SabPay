@@ -114,7 +114,8 @@
         app:icon="@drawable/ic_cart"
         app:layout_anchor="@id/inv_activity_app_bar_layout"
         app:layout_anchorGravity="end|bottom"
-        android:text="@string/_0" />
+        android:text="@string/_0"
+        android:alpha="0.8"/>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/inv_activity_item_counter_cl"
