@@ -396,20 +396,17 @@ public class InventoryActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         isSearchQueryLoading = true;
         mRef.runTransaction(transaction -> {
-
             List<String> search_string = new ArrayList<>();
             CollectionReference collectionReference = mRef.collection("search");
-
             for(String tag: mInventory.getTags()){
                 DocumentReference ref = collectionReference.document(tag);
                 DocumentSnapshot snap = transaction.get(ref);
-
-                search_string.addAll((List<String>) Objects.requireNonNull(snap.get("query_string")));
+                if (snap.contains("query_string"))
+                    search_string.addAll((List<String>) Objects.requireNonNull(snap.get("query_string")));
             }
-
             return search_string;
         }).addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
+            if(task.isSuccessful()) {
                 List<String> strings = task.getResult();
                 assert strings!=null;
                 searchList.addAll(strings);
@@ -421,7 +418,7 @@ public class InventoryActivity extends AppCompatActivity {
                 isSearchQueryLoaded = true;
             }else {
                 Utils.toast(getApplicationContext(),
-                        Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
+                        "hello", Toast.LENGTH_LONG);
             }
             isSearchQueryLoading = false;
             progressBar.setVisibility(View.GONE);
