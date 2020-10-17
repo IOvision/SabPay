@@ -110,7 +110,7 @@ public class InventoryActivity extends AppCompatActivity {
     // dialog views
     Dialog cart_dialog;
     ProgressBar cart_dialog_pb;
-    TextInputLayout delivery_address_til;
+    TextInputLayout delivery_address_til, delivery_address_til_1;
     String delivery_address;
     Button dialog_pay_order_bt, dialog_cod_order_bt;
     RecyclerView dialog_items_rv;
@@ -418,7 +418,7 @@ public class InventoryActivity extends AppCompatActivity {
                 isSearchQueryLoaded = true;
             }else {
                 Utils.toast(getApplicationContext(),
-                        "hello", Toast.LENGTH_LONG);
+                        task.getException().toString(), Toast.LENGTH_LONG);
             }
             isSearchQueryLoading = false;
             progressBar.setVisibility(View.GONE);
@@ -444,6 +444,7 @@ public class InventoryActivity extends AppCompatActivity {
         dialog_pay_order_bt = cart_dialog.findViewById(R.id.cart_layout_pay_order_bt);
         dialog_cod_order_bt = cart_dialog.findViewById(R.id.cart_layout_cod_order_bt);
         delivery_address_til = cart_dialog.findViewById(R.id.cart_layout_deliveryAddress_til);
+        delivery_address_til_1 = cart_dialog.findViewById(R.id.cart_layout_deliveryAddress_til_1);
         dialog_items_rv = cart_dialog.findViewById(R.id.cart_layout_itemList_rv);
         dialog_items_rv.setLayoutManager(new LinearLayoutManager(this));
         dialog_items_rv.setHasFixedSize(false);
@@ -455,11 +456,21 @@ public class InventoryActivity extends AppCompatActivity {
 
         dialog_cod_order_bt.setOnClickListener(v -> {
             String address = Objects.requireNonNull(delivery_address_til.getEditText()).getText().toString().trim();
+            String address1 = Objects.requireNonNull(delivery_address_til_1.getEditText()).getText().toString().trim();
             if(address.equals("")){
-                delivery_address_til.setError("Address Can't be empty");
-            } else{
+                delivery_address_til.setError("Flat Number Can't be empty");
+            }
+            if (address1.equals("")) {
+                delivery_address_til_1.setError("Building Number Can't be empty");
+            }
+            if(!address.equals("")){
                 delivery_address_til.setErrorEnabled(false);
-                delivery_address = address;
+            }
+            if(!address1.equals("")) {
+                delivery_address_til_1.setErrorEnabled(false);
+            }
+            if(!address.equals("") && !address1.equals("")) {
+                delivery_address = address + address1;
                 MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(InventoryActivity.this);
                 alert.setTitle("Order Confirmation");
                 alert.setMessage("Total Items: " + String.valueOf(newCart.getItemCount()) + "\nTotal Amount: " + String.valueOf(newCart.getAmount()));
