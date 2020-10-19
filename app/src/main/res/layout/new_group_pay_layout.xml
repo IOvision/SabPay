@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enter amount"
-        android:textColor="@color/purple"
+        android:textColor="@color/colorPrimary"
         android:layout_centerHorizontal="true"
         android:fontFamily="@font/product_sans_regular"
         android:layout_marginTop="140dp"

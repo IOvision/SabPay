@@ -92,7 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_centerInParent="true"
-        app:SpinKit_Color="@color/purple"
+        app:SpinKit_Color="@color/lightBlue"
         android:visibility="gone"/>
 
 </RelativeLayout>

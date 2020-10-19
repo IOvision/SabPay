@@ -470,7 +470,7 @@ public class InventoryActivity extends AppCompatActivity {
                 delivery_address_til_1.setErrorEnabled(false);
             }
             if(!address.equals("") && !address1.equals("")) {
-                delivery_address = address + address1;
+                delivery_address = "Flat: " + address +", Building: " +  address1;
                 MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(InventoryActivity.this);
                 alert.setTitle("Order Confirmation");
                 alert.setMessage("Total Items: " + String.valueOf(newCart.getItemCount()) + "\nTotal Amount: " + String.valueOf(newCart.getAmount()));

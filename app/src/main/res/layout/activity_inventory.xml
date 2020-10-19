@@ -46,7 +46,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:menu="@menu/inventory_appbar">
+                app:menu="@menu/inventory_appbar"
+                android:background="@color/colorPrimary">
 
                 <RelativeLayout
                     android:id="@+id/search_rl"
@@ -96,7 +97,7 @@
                 style="@style/SpinKitView.Large.Circle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:SpinKit_Color="@color/purple"
+                app:SpinKit_Color="@color/lightBlue"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="92dp"
@@ -110,7 +111,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:textStyle="bold"
-        app:backgroundTint="#9932CC"
+        app:backgroundTint="@color/colorPrimary"
         app:icon="@drawable/ic_cart"
         app:layout_anchor="@id/inv_activity_app_bar_layout"
         app:layout_anchorGravity="end|bottom"

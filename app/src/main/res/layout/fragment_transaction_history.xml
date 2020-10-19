@@ -42,16 +42,16 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/purple"
+                android:textColor="@color/lightBlue"
                 android:text="Transactions" />
 
             <Button
-                android:textColor="@color/purple"
+                android:textColor="@color/lightBlue"
                 android:id="@+id/btn_order_history"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:outlineAmbientShadowColor="@color/purple"
+                android:outlineAmbientShadowColor="@color/lightBlue"
                 android:text="Orders history" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_centerInParent="true"
-            app:SpinKit_Color="@color/purple"
+            app:SpinKit_Color="@color/lightBlue"
             android:visibility="gone"/>
 
         <TextView

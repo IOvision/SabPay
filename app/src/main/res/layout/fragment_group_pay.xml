@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".main.GroupPayFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleButton"
         android:layout_width="match_parent"
@@ -17,16 +16,16 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/purple"
+        android:textColor="@color/lightBlue"
         android:text="My Groups" />
 
     <Button
-        android:textColor="@color/purple"
+        android:textColor="@color/lightBlue"
         android:id="@+id/btn_pending_transactions"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:outlineAmbientShadowColor="@color/purple"
+        android:outlineAmbientShadowColor="@color/lightBlue"
         android:text="Pending Payments" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 

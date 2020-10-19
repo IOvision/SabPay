@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:text="Forgot Password?"
         android:textSize="15sp"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/tealGreen"
         android:layout_below="@id/et_login_password"
         android:layout_alignParentRight="true"
         android:layout_marginEnd="25dp"/>
@@ -96,7 +96,8 @@
         android:layout_below="@id/login_forgot_password"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
-        app:rippleColor="@color/white" />
+        app:rippleColor="@color/white"
+        android:backgroundTint="@color/tealGreen"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -112,7 +113,7 @@
             android:layout_height="wrap_content"
             android:text="Just a sec."
             style="@style/TextAppearance.MaterialComponents.Headline4"
-            android:textColor="@color/purple"/>
+            android:textColor="@color/lightBlue"/>
 
         <com.github.ybq.android.spinkit.SpinKitView
             android:id="@+id/login_progressBar"
@@ -121,7 +122,7 @@
             style="@style/SpinKitView.Large.Circle"
             android:layout_below="@id/login_progress_text"
             android:layout_centerHorizontal="true"
-            app:SpinKit_Color="@color/purple"/>
+            app:SpinKit_Color="@color/lightBlue"/>
 
     </RelativeLayout>
 
