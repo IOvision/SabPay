@@ -7,6 +7,63 @@ import { totp } from 'otplib'
 //comment
 admin.initializeApp()
 const default_api_key = 'qIEvxBbP8V6e1YLXICde';
+
+export const getItems =
+functions.region('asia-east2').https.onRequest(async (req, res) => {
+    res.contentType('json');
+    const resp = (status, data) => {
+        return {
+            'status_code': status,
+            'data': data
+        }
+    }
+    if(req.method !== 'GET'){
+        res.status(402).send(resp(402, null));
+        return;
+    }
+    var lastTitle = <string> req.query.after;
+    const limit = Number.parseInt(<string> req.query.limit);
+    const tags_q = <string> req.query.tags;
+    const tags = tags_q.split('+')
+    if(lastTitle === undefined || 
+        tags === undefined || 
+        tags.length === 0){
+        res.status(403).send(resp(403, null));
+        return;
+    }
+    lastTitle = lastTitle.replace('+', ' ');
+    const baseQuery = admin.firestore().collection('item');
+    const items: any[] = [];
+    for (let index = 0; index < tags.length; index++) {
+        const tag = tags[index];
+        const q = baseQuery.where(`tags.${tag}`, '==', true).orderBy('title')
+        .startAfter(lastTitle).limit(limit);
+        const result = await q.get();
+        result.forEach(snap => {
+            const it = snap.data();
+            let isIn = false;
+            for (let i = 0; i < items.length; i++) {
+                const _it = items[i];
+                if(it.id == _it.id){
+                    isIn = true;
+                    break;
+                }
+            }
+            if(!isIn){
+                items.push(it);
+            }
+        })
+    }
+    res.status(200).send(resp(200, items));
+  
+})
+
+export const resetDefaultBalance = 
+functions.region('asia-east2').firestore.document('user/{userid}/wallet/wallet')
+.onCreate(data => {
+    return data.ref.update({'balance':0});
+})
+
 export const generateOTP = 
 functions.region('asia-east2').https.onRequest((req, res) => {
     res.contentType('json');
@@ -130,28 +187,6 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
     }).catch((error) => {
         res.statusCode = 500;
         return res.send(template('Server Error'))});
-})
-export const test = 
-functions.region('asia-east2').https.onRequest((req, res)=>{
-    const json = {
-        "orders": [{
-            "inventoryId": "qIEvxBbP8V6e1YLXICde",
-            "discount": 50.0,
-            "items": [{
-                "unit": "L",
-                "cost": 14.0,
-                "qty": 2,
-                "inventoryId": "uWcOQvpGl3nwyhWviGgE",
-                "description": "Thanda pani ka botle",
-                "id": "1Spe5y6MNL4jYdV8Q7Ok",
-                "title": "Bislerie"
-            }]
-        }]
-    };
-    res.contentType('json');
-    res.statusCode = 422;
-    res.send({status: res.statusCode, error: `Missing field ${res.statusCode}`, order: json});
-    
 })
 export const generateInvoice =
 functions.region('asia-east2').https.onRequest((req, res)=>{
