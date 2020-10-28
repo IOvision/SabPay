@@ -32,7 +32,7 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:textColor="@color/purple"
+                android:textColor="@color/lightBlue"
                 android:text="+"
                 android:textSize="12sp"/>
 
@@ -44,15 +44,15 @@
                 android:textColor="@color/white"
                 android:text="11"
                 android:textSize="@dimen/dimen_12sp"
-                android:backgroundTint="@color/purple"/>
+                android:backgroundTint="@color/lightBlue"/>
 
             <Button
-                android:textColor="@color/purple"
+                android:textColor="@color/lightBlue"
                 android:id="@+id/cart_item_decrease_qty"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:outlineAmbientShadowColor="@color/purple"
+                android:outlineAmbientShadowColor="@color/lightBlue"
                 android:text="-"
                 android:textSize="12sp"
                 android:textStyle="bold"/>

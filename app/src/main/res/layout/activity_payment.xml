@@ -17,7 +17,7 @@
             android:layout_height="50dp"
             app:navigationIcon="@drawable/icon_back"
             app:title="Paying to"
-            android:backgroundTint="@color/grey"
+            android:backgroundTint="@color/colorPrimary"
             app:titleTextColor="@color/white"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
             />
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:text="Balance:"
             android:textStyle="bold"
-            android:textColor="@color/purple"
+            android:textColor="@color/lightBlue"
             android:textSize="28sp"
             android:layout_marginLeft="8dp"/>
         <TextView
@@ -114,7 +114,7 @@
         style="@style/SpinKitView.Large.Circle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:SpinKit_Color="@color/purple"
+        app:SpinKit_Color="@color/lightBlue"
         android:layout_centerInParent="true"
         android:visibility="gone"/>
 

@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_centerInParent="true"
-        app:SpinKit_Color="@color/purple" />
+        app:SpinKit_Color="@color/lightBlue" />
 
     <LinearLayout
         android:id="@+id/linear_layout"
@@ -33,8 +33,8 @@
             android:id="@+id/main_bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:itemIconTint="@color/purple"
-            app:itemTextColor="@color/purple"
+            app:itemIconTint="@color/lightBlue"
+            app:itemTextColor="@color/lightBlue"
             app:itemRippleColor="@color/mustard"
             app:menu="@menu/bottom_app_bar" />
     </LinearLayout>

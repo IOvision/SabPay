@@ -15,7 +15,9 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
+        android:layout_centerInParent="true"
+        app:cardUseCompatPadding="true"
+        app:cardElevation="2dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -45,7 +47,7 @@
         </RelativeLayout>
 
     </com.google.android.material.card.MaterialCardView>
-    
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

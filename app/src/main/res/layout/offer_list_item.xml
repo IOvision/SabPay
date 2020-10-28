@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/product_sans_regular"
             android:text="Offer Name"
-            android:textColor="@color/purple"
+            android:textColor="@color/lightBlue"
             android:textSize="24sp" />
 
         <TextView

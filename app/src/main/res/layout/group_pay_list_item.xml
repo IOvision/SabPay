@@ -11,7 +11,7 @@
         android:id="@+id/gPay_item_mainContainer_rl"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:background="@color/grey">
+        android:background="@color/lightBlue">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

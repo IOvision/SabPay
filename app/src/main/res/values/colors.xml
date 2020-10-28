@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#8021EB</color>
-    <color name="purple">#8021EB</color>
-    <color name="light_purple">#808021EB</color>
+<!--    <color name="colorPrimary">#8021EB</color>-->
+<!--    <color name="purple">#8021EB</color>-->
+    <color name="colorPrimary">#477d90</color>
+    <color name="lightBlue">#9AC0CD</color>
+    <color name="tealGreen">#477d90</color>
+    <color name="darkBlue">#4c516d</color>
     <color name="white">#FFFFFF</color>
     <color name="grey">#3C3851</color>
     <color name="light_grey">#9A9A9A</color>

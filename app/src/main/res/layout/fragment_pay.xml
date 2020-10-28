@@ -116,7 +116,7 @@
             android:layout_height="wrap_content"
             android:text="Pay"
             android:textAlignment="center"
-            app:backgroundTint="@color/purple"
+            app:backgroundTint="@color/colorPrimary"
             android:textColor="@color/white"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
@@ -135,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:SpinKit_Color="@color/purple"
+            app:SpinKit_Color="@color/lightBlue"
             android:layout_centerInParent="true"
             android:layout_marginTop="50dp"
             android:visibility="gone"/>
