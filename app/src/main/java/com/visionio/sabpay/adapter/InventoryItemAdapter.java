@@ -33,6 +33,10 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
         notifyDataSetChanged();
     }
 
+    public void setItemListNull() {
+        this.itemList = null;
+    }
+
     public void setClickListener(CartListener clickListener) {
         this.clickListener = clickListener;
     }
@@ -103,7 +107,7 @@ public class InventoryItemAdapter  extends RecyclerView.Adapter<InventoryItemAda
             inventoryName = itemView.findViewById(R.id.item_inventoryName_tv);
             inventoryLocation = itemView.findViewById(R.id.item_inventoryLocation_tv);
             quantity = itemView.findViewById(R.id.item_qty_tv);
-            symbol = itemView.findViewById(R.id.items_image_sv);
+                symbol = itemView.findViewById(R.id.items_image_sv);
         }
     }
 }

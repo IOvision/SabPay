@@ -32,6 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -78,7 +80,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     Inventory mInventory;
 
-    SliderView inv_images_sv;
+//    SliderView inv_images_sv;
 
     AppBarLayout appBarLayout;
 
@@ -115,7 +117,10 @@ public class InventoryActivity extends AppCompatActivity {
     Button dialog_pay_order_bt, dialog_cod_order_bt;
     RecyclerView dialog_items_rv;
     CartItemAdapter dialog_cart_adapter;
+    ChipGroup categoryFilter;
 
+    String tags;
+    Boolean filterChanged = false;
 
     List<String> searchList;
 
@@ -175,6 +180,8 @@ public class InventoryActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
         newCart = new Cart(mInventory.getId());
 
+        tags = mInventory.getCompoundTag();
+
         searchRecycler = findViewById(R.id.inventory_search_recycler);
         searchClose = findViewById(R.id.inventory_image_close);
         sep_layer_view = findViewById(R.id.inventory_separator_layer_view);
@@ -185,8 +192,9 @@ public class InventoryActivity extends AppCompatActivity {
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
         item_counter_cl = findViewById(R.id.inv_activity_item_counter_cl);
         item_counter_tv = findViewById(R.id.inv_activity_item_counter_tv);
-        inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
+//        inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
+        categoryFilter = findViewById(R.id.inv_activity_chip);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
@@ -200,6 +208,30 @@ public class InventoryActivity extends AppCompatActivity {
                 item_counter_cl.setVisibility(View.VISIBLE);
             }else{
                 item_counter_cl.setVisibility(View.GONE);
+            }
+        });
+
+
+        for(String s : mInventory.getTags()) {
+            Chip category = new Chip(this);
+            category.setText(s);
+            categoryFilter.addView(category, categoryFilter.getChildCount());
+        }
+        Chip all = new Chip(this);
+        all.setText("All");
+        categoryFilter.addView(all, 0);
+        categoryFilter.check(all.getId());
+
+        categoryFilter.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(ChipGroup group, int checkedId) {
+                Chip chip = categoryFilter.findViewById(checkedId);
+                if (chip != null) {
+                    if(chip.getText().toString().equalsIgnoreCase("All")) tags = mInventory.getCompoundTag();
+                    else tags = chip.getText().toString();
+                    filterChanged = true;
+                    loadItems();
+                }
             }
         });
 
@@ -233,9 +265,9 @@ public class InventoryActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
 
-        inv_images_sv.setSliderAdapter(new SimpleImageAdapter(this) {{
-            setImageUrls(mInventory.getImages());
-        }});
+//        inv_images_sv.setSliderAdapter(new SimpleImageAdapter(this) {{
+//            setImageUrls(mInventory.getImages());
+//        }});
 
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.inventory_appbar_info){
@@ -337,15 +369,14 @@ public class InventoryActivity extends AppCompatActivity {
             Utils.toast(this, "Result already loading", Toast.LENGTH_LONG);
             return;
         }
-        if(isAllItemsLoaded){
+        if(isAllItemsLoaded && !filterChanged){
             Utils.toast(this, "No more items", Toast.LENGTH_LONG);
             isLoading = false;
             return;
         }
         progressBar.setVisibility(View.VISIBLE);
         isLoading = true;
-        String lastTitle = adapter.get_last_title();
-        String tags = mInventory.getCompoundTag();
+        String lastTitle = filterChanged ? "+" : adapter.get_last_title();
         Call<Map<String, Object>> getItemsCall = API.getApiService().getItems(lastTitle, tags, itemLimit);
         getItemsCall.enqueue(new Callback<Map<String, Object>>() {
             @Override
@@ -363,8 +394,11 @@ public class InventoryActivity extends AppCompatActivity {
                     if(res.size()==0){
                         isAllItemsLoaded = true;
                     }
+                    if(filterChanged) adapter.setItemListNull();
                     adapter.setItemList(res);
+                    filterChanged = false;
                 }else{
+                    filterChanged = false;
                     String error = response.errorBody().toString();
                     Utils.toast(InventoryActivity.this, error, Toast.LENGTH_LONG);
                 }
