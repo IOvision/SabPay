@@ -80,8 +80,6 @@ public class InventoryActivity extends AppCompatActivity {
 
     Inventory mInventory;
 
-//    SliderView inv_images_sv;
-
     AppBarLayout appBarLayout;
 
     MaterialToolbar toolbar;
@@ -101,7 +99,6 @@ public class InventoryActivity extends AppCompatActivity {
 
     ExtendedFloatingActionButton cart_fab;
     CoordinatorLayout item_counter_cl;
-    TextView item_counter_tv;
 
     ProgressBar progressBar;
 
@@ -130,14 +127,12 @@ public class InventoryActivity extends AppCompatActivity {
         public void onIncreaseQty(Item item) {
             newCart.addItem(item);
             cart_fab.setText(String.format("%s", newCart.getItemCount()));
-            item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
         }
 
         @Override
         public void onDecreaseQty(Item item) {
             newCart.decreaseItem(item);
             cart_fab.setText(String.format("%s", newCart.getItemCount()));
-            item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
             if (dialog_cart_adapter != null) {
                 dialog_cart_adapter.notifyDataSetChanged();
                 if(dialog_cart_adapter.getItemCount()==0){
@@ -190,8 +185,8 @@ public class InventoryActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.inv_activity_progress);
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
-        item_counter_cl = findViewById(R.id.inv_activity_item_counter_cl);
-        item_counter_tv = findViewById(R.id.inv_activity_item_counter_tv);
+//        item_counter_cl = findViewById(R.id.inv_activity_item_counter_cl);
+//        item_counter_tv = findViewById(R.id.inv_activity_item_counter_tv);
 //        inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
         categoryFilter = findViewById(R.id.inv_activity_chip);
@@ -201,15 +196,15 @@ public class InventoryActivity extends AppCompatActivity {
         toolbar.bringToFront();
 
         appBarLayout = findViewById(R.id.inv_activity_app_bar_layout);
-        appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
-            verticalOffset = Math.abs(verticalOffset)/5;
-            cart_fab.animate().translationY(verticalOffset).start();
-            if(verticalOffset>=132 && verticalOffset<=170){
-                item_counter_cl.setVisibility(View.VISIBLE);
-            }else{
-                item_counter_cl.setVisibility(View.GONE);
-            }
-        });
+//        appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
+//            verticalOffset = Math.abs(verticalOffset)/5;
+//            cart_fab.animate().translationY(verticalOffset).start();
+//            if(verticalOffset>=132 && verticalOffset<=170){
+//                item_counter_cl.setVisibility(View.VISIBLE);
+//            }else{
+//                item_counter_cl.setVisibility(View.GONE);
+//            }
+//        });
 
 
         for(String s : mInventory.getTags()) {
@@ -241,7 +236,6 @@ public class InventoryActivity extends AppCompatActivity {
                 if (it.getId().equals(object)) {
                     newCart.addItem(it);
                     cart_fab.setText(String.format("%s", newCart.getItemCount()));
-                    item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
                     Utils.toast(InventoryActivity.this, String.format("%s already in cart", it.getTitle()), Toast.LENGTH_SHORT);
                     return;
                 }
@@ -252,7 +246,6 @@ public class InventoryActivity extends AppCompatActivity {
                 assert item != null;
                 newCart.addItem(item);
                 cart_fab.setText(String.format("%s", newCart.getItemCount()));
-                item_counter_tv.setText(String.format("%s", newCart.getItemCount()));
             });
         });
 
