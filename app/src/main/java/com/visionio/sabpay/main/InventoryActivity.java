@@ -15,11 +15,14 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +79,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class InventoryActivity extends AppCompatActivity {
+public class InventoryActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     Inventory mInventory;
 
@@ -120,6 +123,10 @@ public class InventoryActivity extends AppCompatActivity {
     Boolean filterChanged = false;
 
     List<String> searchList;
+
+
+    Spinner spinner;
+
 
     Cart newCart;
     CartListener cartListener = new CartListener() {
@@ -185,50 +192,63 @@ public class InventoryActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.inv_activity_progress);
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
-//        item_counter_cl = findViewById(R.id.inv_activity_item_counter_cl);
-//        item_counter_tv = findViewById(R.id.inv_activity_item_counter_tv);
-//        inv_images_sv = findViewById(R.id.inv_activity_items_image_sv);
         recyclerView = findViewById(R.id.inv_activity_rv);
-        categoryFilter = findViewById(R.id.inv_activity_chip);
+//        categoryFilter = findViewById(R.id.inv_activity_chip);
+        spinner = findViewById(R.id.inventory_activity_spinner);
+        List<String> list = new ArrayList<>();
+        list.add("All");
+        for(String s : mInventory.getTags()) {
+            s = s.replace("_", " ");
+            s = s.replace("1", "-");
+            s = s.replace("2", "&");
+            s = s.replace("3", ",");
+            s = s.replace("4", ".");
+            list.add(s);
+        }
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+        spinnerAdapter.notifyDataSetChanged();
+
+        spinner.setOnItemSelectedListener(this);
+
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(false);
 
         toolbar.bringToFront();
 
         appBarLayout = findViewById(R.id.inv_activity_app_bar_layout);
-//        appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
-//            verticalOffset = Math.abs(verticalOffset)/5;
-//            cart_fab.animate().translationY(verticalOffset).start();
-//            if(verticalOffset>=132 && verticalOffset<=170){
-//                item_counter_cl.setVisibility(View.VISIBLE);
-//            }else{
-//                item_counter_cl.setVisibility(View.GONE);
+
+
+//        for(String s : mInventory.getTags()) {
+//            Chip category = new Chip(this);
+//            s = s.replace("_", " ");
+//            s = s.replace("1", "-");
+//            s = s.replace("2", "&");
+//            s = s.replace("3", " ");
+//            s = s.replace("4", ".");
+//            category.setText(s);
+//            categoryFilter.addView(category, categoryFilter.getChildCount());
+//        }
+//        Chip all = new Chip(this);
+//        all.setText("All");
+//        categoryFilter.addView(all, 0);
+//        categoryFilter.check(all.getId());
+//
+//        categoryFilter.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(ChipGroup group, int checkedId) {
+//                Chip chip = categoryFilter.findViewById(checkedId);
+//                if (chip != null) {
+//                    if(chip.getText().toString().equalsIgnoreCase("All")) tags = mInventory.getCompoundTag();
+//                    else tags = chip.getText().toString();
+//                    filterChanged = true;
+//                    loadItems();
+//                }
 //            }
 //        });
-
-
-        for(String s : mInventory.getTags()) {
-            Chip category = new Chip(this);
-            category.setText(s);
-            categoryFilter.addView(category, categoryFilter.getChildCount());
-        }
-        Chip all = new Chip(this);
-        all.setText("All");
-        categoryFilter.addView(all, 0);
-        categoryFilter.check(all.getId());
-
-        categoryFilter.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(ChipGroup group, int checkedId) {
-                Chip chip = categoryFilter.findViewById(checkedId);
-                if (chip != null) {
-                    if(chip.getText().toString().equalsIgnoreCase("All")) tags = mInventory.getCompoundTag();
-                    else tags = chip.getText().toString();
-                    filterChanged = true;
-                    loadItems();
-                }
-            }
-        });
 
         adapter = new InventoryItemAdapter(this, new ArrayList<>(), mInventory.getId());
         searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
@@ -684,5 +704,28 @@ public class InventoryActivity extends AppCompatActivity {
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//        parent.getItemAtPosition(position);
+        Log.d("testing", "testing: " + String.valueOf(parent.getSelectedItem().toString()));
+        if(String.valueOf(parent.getSelectedItem()) == "All") {
+            tags = mInventory.getCompoundTag();
+        } else {
+            tags = String.valueOf(parent.getSelectedItem());
+            tags = tags.replace(" ", "_");
+            tags = tags.replace("-", "1");
+            tags = tags.replace("&", "2");
+            tags = tags.replace(",", "3");
+            tags = tags.replace(".", "4");
+        }
+        filterChanged = true;
+        loadItems();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
