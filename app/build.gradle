@@ -11,7 +11,7 @@ android {
            keyAlias 'upload'
            keyPassword 'Vision.io@9654'
            //storeFile file('C:\\Users\\Rakshit\\keystore_encrypted.jks')
-           storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
+           //storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
        }
    }
     compileSdkVersion 29

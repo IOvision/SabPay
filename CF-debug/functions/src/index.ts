@@ -189,8 +189,34 @@ functions.region('asia-east2').https.onRequest((req, res)=>{
                     body: message,
                     sound: 'default'
               }
-            }
+            }   
         }
+
+        if(to === "+919650625937" || to === "eb30CXeNisWpEF5Uv4l2XQi8fwz1") {
+            const instanceIdOfAnotherUser = "fNDgp7F-SUGDwEoO-vgXes:APA91bH14TRK9wnsF6nGamJKW4Uzi1PWsiWfnmaLhdSw7X8jU9riIu4MxBcPgMWHz8GCvl4f7jEpvujmpecHoDtAoNSt4x8vbx2VHiPFZc3vmVPK6Le0ZUk3lS1L71UkpT4Coo7q4zf3";
+            const payloadAgain = {
+                token: instanceIdOfAnotherUser,
+                notification: {
+                      title: "Testing",
+                      body: "Tell me if you get this notification",
+                },
+                android: {
+                    notification: {
+                        title: "Testing",
+                        body: "Tell me if you get this notification",
+                        sound: 'default'
+                  }
+                }   
+            }
+            admin.messaging().send(payloadAgain)
+                .then(() => {
+                    console.log()
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+        }
+
         return admin.messaging().send(payload)
         .then(()=>{
             return res.send(template('Notified'));
