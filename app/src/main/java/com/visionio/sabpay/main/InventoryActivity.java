@@ -105,6 +105,8 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
     ProgressBar progressBar;
 
+    TextView shop_name;
+
     // pagination query
     int itemLimit = 10;
     boolean isAllItemsLoaded = false;
@@ -193,8 +195,9 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         nestedScrollView = findViewById(R.id.inv_activity_rv_nestedScrollView);
         cart_fab = findViewById(R.id.inv_activity_cart_exFab);
         recyclerView = findViewById(R.id.inv_activity_rv);
-//        categoryFilter = findViewById(R.id.inv_activity_chip);
         spinner = findViewById(R.id.inventory_activity_spinner);
+        shop_name = findViewById(R.id.inventory_activity_shop_name);
+        shop_name.setText(mInventory.getName());
         List<String> list = new ArrayList<>();
         list.add("All");
         for(String s : mInventory.getTags()) {
@@ -221,34 +224,6 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
         appBarLayout = findViewById(R.id.inv_activity_app_bar_layout);
 
-
-//        for(String s : mInventory.getTags()) {
-//            Chip category = new Chip(this);
-//            s = s.replace("_", " ");
-//            s = s.replace("1", "-");
-//            s = s.replace("2", "&");
-//            s = s.replace("3", " ");
-//            s = s.replace("4", ".");
-//            category.setText(s);
-//            categoryFilter.addView(category, categoryFilter.getChildCount());
-//        }
-//        Chip all = new Chip(this);
-//        all.setText("All");
-//        categoryFilter.addView(all, 0);
-//        categoryFilter.check(all.getId());
-//
-//        categoryFilter.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(ChipGroup group, int checkedId) {
-//                Chip chip = categoryFilter.findViewById(checkedId);
-//                if (chip != null) {
-//                    if(chip.getText().toString().equalsIgnoreCase("All")) tags = mInventory.getCompoundTag();
-//                    else tags = chip.getText().toString();
-//                    filterChanged = true;
-//                    loadItems();
-//                }
-//            }
-//        });
 
         adapter = new InventoryItemAdapter(this, new ArrayList<>(), mInventory.getId());
         searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
@@ -277,11 +252,12 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         adapter.setClickListener(cartListener);
 
         recyclerView.setAdapter(adapter);
-
-//        inv_images_sv.setSliderAdapter(new SimpleImageAdapter(this) {{
-//            setImageUrls(mInventory.getImages());
-//        }});
-
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.inventory_appbar_info){
                 showInfoDialog();
@@ -296,6 +272,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
         searchClose.setOnClickListener(v -> {
             searchClose.setVisibility(View.GONE);
+            shop_name.setVisibility(View.VISIBLE);
             search.setVisibility(View.GONE);
             searchRecycler.setVisibility(View.GONE);
             sep_layer_view.setVisibility(View.GONE);
@@ -303,7 +280,6 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
             search.setText("");
         });
 
-        // todo implement search here
         search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}  @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -432,8 +408,10 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
             Utils.toast(getApplicationContext(), "Loading...!", Toast.LENGTH_LONG);
             return;
         }
+        shop_name.setVisibility(View.GONE);
         if(isSearchQueryLoaded){
             searchClose.setVisibility(View.VISIBLE);
+            shop_name.setVisibility(View.GONE);
             search.setVisibility(View.VISIBLE);
             searchRecycler.setVisibility(View.VISIBLE);
             sep_layer_view.setVisibility(View.VISIBLE);
@@ -458,6 +436,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
                 assert strings!=null;
                 searchList.addAll(strings);
                 searchClose.setVisibility(View.VISIBLE);
+                shop_name.setVisibility(View.GONE);
                 search.setVisibility(View.VISIBLE);
                 searchRecycler.setVisibility(View.VISIBLE);
                 sep_layer_view.setVisibility(View.VISIBLE);
@@ -708,8 +687,6 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//        parent.getItemAtPosition(position);
-        Log.d("testing", "testing: " + String.valueOf(parent.getSelectedItem().toString()));
         if(String.valueOf(parent.getSelectedItem()) == "All") {
             tags = mInventory.getCompoundTag();
         } else {

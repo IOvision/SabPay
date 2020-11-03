@@ -11,7 +11,7 @@ android {
            keyAlias 'upload'
            keyPassword 'Vision.io@9654'
            //storeFile file('C:\\Users\\Rakshit\\keystore_encrypted.jks')
-           //storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
+           storeFile file('C:\\Users\\user\\Documents\\confidential\\keystore_encrypted.jks')
        }
    }
     compileSdkVersion 29
@@ -21,7 +21,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 5
-        versionName "3.2.0"
+        versionName "3.2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }
