@@ -35,7 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_centerHorizontal="true">
+            android:layout_centerHorizontal="true"
+            android:visibility="gone">
 
             <Button
                 android:id="@+id/btn_transaction_history"
@@ -79,7 +80,8 @@
             android:layout_alignParentEnd="true"
             android:textColor="@color/blue_link"
             android:layout_marginEnd="@dimen/dimen_32dp"
-            android:layout_marginBottom="48dp"/>
+            android:layout_marginBottom="48dp"
+            android:visibility="gone"/>
         <com.github.ybq.android.spinkit.SpinKitView
             android:id="@+id/transaction_fragment_pb"
             style="@style/SpinKitView.Large.Circle"

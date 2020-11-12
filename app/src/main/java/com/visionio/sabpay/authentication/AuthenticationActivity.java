@@ -26,12 +26,12 @@ public class AuthenticationActivity extends AppCompatActivity {
     final int PERMISSION_ALL = 100;
     final int CAMERA_PERMISSION_CODE =101;
     String[] PERMISSIONS = {
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.CAMERA,
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_WIFI_STATE,
-            Manifest.permission.CHANGE_WIFI_STATE,
+//            Manifest.permission.READ_CONTACTS,
+//            Manifest.permission.CAMERA,
+//            Manifest.permission.BLUETOOTH,
+//            Manifest.permission.BLUETOOTH_ADMIN,
+//            Manifest.permission.ACCESS_WIFI_STATE,
+//            Manifest.permission.CHANGE_WIFI_STATE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CALL_PHONE

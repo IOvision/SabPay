@@ -11,7 +11,7 @@
     <string name="default_notification_channel_id">110bgd6c</string>
     <string name="confirm_order">Confirm Order</string>
     <string name="pay_order"><![CDATA[Pay & Order]]></string>
-    <string name="place_order">COD and order</string>
+    <string name="place_order">Place Order</string>
     <string name="view_order_details">Order Details</string>
     <string name="pay">Pay</string>
     <string name="enter_delivery_address">Enter Delivery Address</string>

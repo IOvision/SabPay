@@ -85,17 +85,17 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public void onBackPressed() {
-        if(bottomNavigationView.getSelectedItemId() == R.id.bottom_app_bar_main_home) {
+        if(bottomNavigationView.getSelectedItemId() == R.id.bottom_app_bar_main_offers) {
             super.onBackPressed();
         } else {
-            bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
+            bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_offers);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_home);
+        bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_offers);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mMessageReciever,
                 new IntentFilter("myFunction"));
     }
@@ -120,18 +120,19 @@ public class MainActivity extends AppCompatActivity{
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
 
-            if (item.getItemId() == R.id.bottom_app_bar_main_group){
-                groupPay();
-            } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
-                //offers();
-                home();
-            } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
-                if(!isContactLoaded){
-                  Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();
-                }else{
-                    pay();
-                }
-            } else if (item.getItemId() == R.id.bottom_app_bar_main_transaction){
+//            if (item.getItemId() == R.id.bottom_app_bar_main_group){
+//                groupPay();
+//            } else if (item.getItemId() == R.id.bottom_app_bar_main_home){
+//                //offers();
+//                home();
+//            } else if (item.getItemId() == R.id.bottom_app_bar_main_pay){
+//                if(!isContactLoaded){
+//                  Toast.makeText(MainActivity.this, "Contact still loading", Toast.LENGTH_SHORT).show();
+//                }else{
+//                    pay();
+//                }
+//            } else
+            if (item.getItemId() == R.id.bottom_app_bar_main_transaction){
                 transactionHistory();
             } else if (item.getItemId() == R.id.bottom_app_bar_main_offers){
                 offers();
@@ -308,7 +309,7 @@ public class MainActivity extends AppCompatActivity{
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==1){
-            bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_group);
+//            bottomNavigationView.setSelectedItemId(R.id.bottom_app_bar_main_group);
         }
     }
 
