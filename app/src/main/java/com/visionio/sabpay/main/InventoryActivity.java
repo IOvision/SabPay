@@ -676,7 +676,6 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
                     super.onAnimationEnd(animation);
                     dialog.dismiss();
                     view.setVisibility(View.INVISIBLE);
-
                 }
             });
 

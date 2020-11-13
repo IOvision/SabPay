@@ -52,7 +52,7 @@ public class TransactionHistoryFragment extends Fragment {
     FirebaseFirestore mRef;
     Chip loadMore_chip;
     TextView orderTv, transactionTv;
-    View.OnClickListener transactionLoadListener = v -> loadTransactions();
+//    View.OnClickListener transactionLoadListener = v -> loadTransactions();
     View.OnClickListener orderLoadListener = v -> loadOrders();
     boolean isAllTransactionsLoaded = false;
     boolean isAllOrdersLoaded = false;
@@ -100,24 +100,24 @@ public class TransactionHistoryFragment extends Fragment {
             }
         });
 
-        transactionAdapter = new TransactionAdapter(new ArrayList<>());
-        transactionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        transactionRecyclerView.setHasFixedSize(false);
-        transactionRecyclerView.setAdapter(transactionAdapter);
-        transactionRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (!recyclerView.canScrollVertically(1) && newState==RecyclerView.SCROLL_STATE_IDLE) {
-                    loadTransactions();
-                }
-            }
-        });
-
-        transactions.setOnClickListener(view1 -> {
-            loadTransactionHistory();
-            orderTv.setVisibility(View.GONE);
-        });
+//        transactionAdapter = new TransactionAdapter(new ArrayList<>());
+//        transactionRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        transactionRecyclerView.setHasFixedSize(false);
+//        transactionRecyclerView.setAdapter(transactionAdapter);
+//        transactionRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                if (!recyclerView.canScrollVertically(1) && newState==RecyclerView.SCROLL_STATE_IDLE) {
+//                    loadTransactions();
+//                }
+//            }
+//        });
+//
+//        transactions.setOnClickListener(view1 -> {
+//            loadTransactionHistory();
+//            orderTv.setVisibility(View.GONE);
+//        });
         orders.setOnClickListener(view1 -> {
             loadOrderHistory();
             transactionTv.setVisibility(View.GONE);
@@ -190,78 +190,78 @@ public class TransactionHistoryFragment extends Fragment {
                 });
     }
 
-    public void loadTransactionHistory() {
-        orderRecyclerView.setVisibility(View.GONE);
-        transactionRecyclerView.setVisibility(View.VISIBLE);
-        loadMore_chip.setOnClickListener(transactionLoadListener);
-        if(transactionAdapter.getItemCount()==0){
-            loadTransactions();
-        }
-
-    }
-
-    public void loadTransactions(){
-        progressBar.setVisibility(View.VISIBLE);
-        bg_txt_tv.setVisibility(View.GONE);
-        loadMore_chip.setEnabled(false);
-        if(loadTransactionQuery == null) {
-            String uid = FirebaseAuth.getInstance().getUid();
-            assert uid != null;
-            loadTransactionQuery = mRef.collection("user")
-                    .document(uid).collection("transaction")
-                    .orderBy("timestamp", Query.Direction.DESCENDING)
-                    .limit(itemLimit);
-        }
-        if (isAllTransactionsLoaded) {
-            Utils.toast(getContext(), "No more transactions", Toast.LENGTH_SHORT);
-            progressBar.setVisibility(View.GONE);
-            loadMore_chip.setEnabled(true);
-            loadMore_chip.setEnabled(true);
-            return;
-        }
-        loadTransactionQuery.get()
-            .addOnCompleteListener(task -> {
-                loadMore_chip.setEnabled(true);
-                progressBar.setVisibility(View.GONE);
-                loadMore_chip.setEnabled(true);
-                if (task.isSuccessful()) {
-                    QuerySnapshot querySnapshot = task.getResult();
-                    assert querySnapshot != null;
-                    List<Transaction> transactions = new ArrayList<>();
-                    for (DocumentSnapshot documentSnapshot: querySnapshot) {
-                        Transaction currentTransaction = documentSnapshot.toObject(Transaction.class);
-                        assert currentTransaction != null;
-                        if (currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getUid())){
-                            currentTransaction.setSendByMe(true);
-                        } else {
-                            currentTransaction.setSendByMe(false);
-                        }
-                        currentTransaction.loadUserDataFromReference(transactionAdapter);
-                        transactions.add(currentTransaction);
-                    }
-                    if (transactions.size()!=0) {
-                        DocumentSnapshot lastVisible = querySnapshot.getDocuments()
-                                .get(querySnapshot.size() - 1);
-                        String uid = FirebaseAuth.getInstance().getUid();
-                        assert uid!=null;
-                        loadTransactionQuery = mRef.collection("user")
-                                .document(uid).collection("transaction")
-                                .orderBy("timestamp", Query.Direction.DESCENDING)
-                                .startAfter(lastVisible)
-                                .limit(itemLimit);
-                        transactionAdapter.setTransactionList(transactions);
-                        if (transactions.size()<itemLimit) {
-                            isAllTransactionsLoaded = true;
-                            loadTransactionQuery = null;
-                        }
-                    } else {
-                        transactionTv.setVisibility(View.VISIBLE);
-                        loadTransactionQuery = null;
-                        isAllTransactionsLoaded = true;
-                    }
-                } else {
-                    Utils.toast(getActivity(), Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
-                }
-            });
-    }
+//    public void loadTransactionHistory() {
+//        orderRecyclerView.setVisibility(View.GONE);
+//        transactionRecyclerView.setVisibility(View.VISIBLE);
+//        loadMore_chip.setOnClickListener(transactionLoadListener);
+//        if(transactionAdapter.getItemCount()==0){
+//            loadTransactions();
+//        }
+//
+//    }
+//
+//    public void loadTransactions(){
+//        progressBar.setVisibility(View.VISIBLE);
+//        bg_txt_tv.setVisibility(View.GONE);
+//        loadMore_chip.setEnabled(false);
+//        if(loadTransactionQuery == null) {
+//            String uid = FirebaseAuth.getInstance().getUid();
+//            assert uid != null;
+//            loadTransactionQuery = mRef.collection("user")
+//                    .document(uid).collection("transaction")
+//                    .orderBy("timestamp", Query.Direction.DESCENDING)
+//                    .limit(itemLimit);
+//        }
+//        if (isAllTransactionsLoaded) {
+//            Utils.toast(getContext(), "No more transactions", Toast.LENGTH_SHORT);
+//            progressBar.setVisibility(View.GONE);
+//            loadMore_chip.setEnabled(true);
+//            loadMore_chip.setEnabled(true);
+//            return;
+//        }
+//        loadTransactionQuery.get()
+//            .addOnCompleteListener(task -> {
+//                loadMore_chip.setEnabled(true);
+//                progressBar.setVisibility(View.GONE);
+//                loadMore_chip.setEnabled(true);
+//                if (task.isSuccessful()) {
+//                    QuerySnapshot querySnapshot = task.getResult();
+//                    assert querySnapshot != null;
+//                    List<Transaction> transactions = new ArrayList<>();
+//                    for (DocumentSnapshot documentSnapshot: querySnapshot) {
+//                        Transaction currentTransaction = documentSnapshot.toObject(Transaction.class);
+//                        assert currentTransaction != null;
+//                        if (currentTransaction.getFrom().getId().equals(FirebaseAuth.getInstance().getUid())){
+//                            currentTransaction.setSendByMe(true);
+//                        } else {
+//                            currentTransaction.setSendByMe(false);
+//                        }
+//                        currentTransaction.loadUserDataFromReference(transactionAdapter);
+//                        transactions.add(currentTransaction);
+//                    }
+//                    if (transactions.size()!=0) {
+//                        DocumentSnapshot lastVisible = querySnapshot.getDocuments()
+//                                .get(querySnapshot.size() - 1);
+//                        String uid = FirebaseAuth.getInstance().getUid();
+//                        assert uid!=null;
+//                        loadTransactionQuery = mRef.collection("user")
+//                                .document(uid).collection("transaction")
+//                                .orderBy("timestamp", Query.Direction.DESCENDING)
+//                                .startAfter(lastVisible)
+//                                .limit(itemLimit);
+//                        transactionAdapter.setTransactionList(transactions);
+//                        if (transactions.size()<itemLimit) {
+//                            isAllTransactionsLoaded = true;
+//                            loadTransactionQuery = null;
+//                        }
+//                    } else {
+//                        transactionTv.setVisibility(View.VISIBLE);
+//                        loadTransactionQuery = null;
+//                        isAllTransactionsLoaded = true;
+//                    }
+//                } else {
+//                    Utils.toast(getActivity(), Objects.requireNonNull(task.getException()).getLocalizedMessage(), Toast.LENGTH_LONG);
+//                }
+//            });
+//    }
 }

@@ -99,26 +99,26 @@ public class InvoiceDialog extends Dialog implements View.OnClickListener {
         download_bt = findViewById(R.id.order_detail_download_ibt);
         share_bt = findViewById(R.id.order_detail_share_ibt);
 
-        if(order.getInvoiceId() == null){
-            pay_bt.setVisibility(View.VISIBLE);
-            pay_bt.setOnClickListener(v -> {
-                InvoiceDialog.this.setCancelable(false);
-                pay_bt.setEnabled(false);
-                progressBar.setVisibility(View.VISIBLE);
-                mRef.document(String.format("inventory/%s", order.getFromInventory())).get()
-                        .addOnCompleteListener(task -> {
-                            if(!task.isSuccessful()){
-                                InvoiceDialog.this.setCancelable(true);
-                                pay_bt.setEnabled(true);
-                                progressBar.setVisibility(View.GONE);
-                                Utils.toast(mContext, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
-                                return;
-                            }
-                            String inv_owner_id = task.getResult().getDocumentReference("owner").getId();
-                            pay(inv_owner_id);
-                        });
-            });
-        }
+//        if(order.getInvoiceId() == null){
+//            pay_bt.setVisibility(View.VISIBLE);
+//            pay_bt.setOnClickListener(v -> {
+//                InvoiceDialog.this.setCancelable(false);
+//                pay_bt.setEnabled(false);
+//                progressBar.setVisibility(View.VISIBLE);
+//                mRef.document(String.format("inventory/%s", order.getFromInventory())).get()
+//                        .addOnCompleteListener(task -> {
+//                            if(!task.isSuccessful()){
+//                                InvoiceDialog.this.setCancelable(true);
+//                                pay_bt.setEnabled(true);
+//                                progressBar.setVisibility(View.GONE);
+//                                Utils.toast(mContext, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG);
+//                                return;
+//                            }
+//                            String inv_owner_id = task.getResult().getDocumentReference("owner").getId();
+//                            pay(inv_owner_id);
+//                        });
+//            });
+//        }
         if(order.getStatus().equals(Order.STATUS.ORDER_RECEIVED)){
             shipment_delivery_status_tv.setText(R.string.order_not_confirmed);
         }else if(order.getStatus().equals(Order.STATUS.ORDER_PLACED)){
