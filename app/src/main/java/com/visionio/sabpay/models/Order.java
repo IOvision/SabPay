@@ -43,7 +43,6 @@ public class Order {
     Boolean active; // True: invoiceId is null/ payment is not done and status is delivered
     Map<String, String> user;
 
-    //todo: add arguments
     public Order() {
 
     }

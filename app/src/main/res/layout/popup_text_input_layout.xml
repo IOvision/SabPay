@@ -130,10 +130,6 @@
             android:inputType="text"/>
 
 
-
-
-        <!--TODO: Add suggested amounts-->
-
     </RelativeLayout>
 
 

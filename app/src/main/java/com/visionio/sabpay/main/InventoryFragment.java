@@ -102,7 +102,7 @@ public class InventoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_invnetory, container, false);
         recyclerView = view.findViewById(R.id.inventory_recycler);
         animation = view.findViewById(R.id.animationView);
-        ((MainActivity)getActivity()).setTitle("Shop");
+        ((MainActivity)getActivity()).setTitle("Store");
         return view;
     }
 

@@ -18,7 +18,6 @@ import com.visionio.sabpay.interfaces.OnItemClickListener;
 
 public class TextInputHandler {
 
-    // TODO: implement suggested amount
 
     Context context;
     OnItemClickListener<Integer> listener;
