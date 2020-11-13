@@ -101,7 +101,6 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
     FirebaseAuth mAuth;
 
     ExtendedFloatingActionButton cart_fab;
-    CoordinatorLayout item_counter_cl;
 
     ProgressBar progressBar;
 
@@ -119,9 +118,11 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
     Button dialog_pay_order_bt, dialog_cod_order_bt;
     RecyclerView dialog_items_rv;
     CartItemAdapter dialog_cart_adapter;
+
     ChipGroup categoryFilter;
 
-    String tags;
+    String tag;
+    List<String> tagsList;
     Boolean filterChanged = false;
 
     List<String> searchList;
@@ -129,19 +130,17 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
     Spinner spinner;
 
-
-    Cart newCart;
     CartListener cartListener = new CartListener() {
         @Override
         public void onIncreaseQty(Item item) {
-            newCart.addItem(item);
-            cart_fab.setText(String.format("%s", newCart.getItemCount()));
+            Cart.getInstance().addItem(item);
+            cart_fab.setText(String.format("%s", Cart.getInstance().getItemCount()));
         }
 
         @Override
         public void onDecreaseQty(Item item) {
-            newCart.decreaseItem(item);
-            cart_fab.setText(String.format("%s", newCart.getItemCount()));
+            Cart.getInstance().decreaseItem(item);
+            cart_fab.setText(String.format("%s", Cart.getInstance().getItemCount()));
             if (dialog_cart_adapter != null) {
                 dialog_cart_adapter.notifyDataSetChanged();
                 if(dialog_cart_adapter.getItemCount()==0){
@@ -176,15 +175,29 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         return true;
     }
 
+    public String getCompoundTag(List<String> tags) {
+        StringBuilder builder = new StringBuilder();
+        for(String tag: tags){
+            builder.append(String.format("%s+", tag));
+        }
+        builder.deleteCharAt(builder.length()-1);
+        return builder.toString();
+    }
+
     private void setup() {
+        Bundle bundle = this.getIntent().getExtras();
+        assert bundle != null;
+        tagsList = bundle.getStringArrayList("tags");
+        String header = bundle.getString("header");
+
         String json = Paper.book().read("json");
-        Paper.book().delete("json");
+        Log.d("testing", "setup: " + json);
 
         mInventory = Inventory.formJson(json);
-        Objects.requireNonNull(getSupportActionBar()).setTitle(mInventory.getName());
-        newCart = new Cart(mInventory.getId());
 
-        tags = mInventory.getCompoundTag();
+        Objects.requireNonNull(getSupportActionBar()).setTitle(header);
+
+        tag = getCompoundTag(tagsList);
 
         searchRecycler = findViewById(R.id.inventory_search_recycler);
         searchClose = findViewById(R.id.inventory_image_close);
@@ -197,10 +210,10 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         recyclerView = findViewById(R.id.inv_activity_rv);
         spinner = findViewById(R.id.inventory_activity_spinner);
         shop_name = findViewById(R.id.inventory_activity_shop_name);
-        shop_name.setText(mInventory.getName());
+        shop_name.setText(header);
         List<String> list = new ArrayList<>();
         list.add("All");
-        for(String s : mInventory.getTags()) {
+        for(String s : tagsList) {
             s = s.replace("_", " ");
             s = s.replace("1", "-");
             s = s.replace("2", "&");
@@ -208,7 +221,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
             s = s.replace("4", ".");
             list.add(s);
         }
-
+        cart_fab.setText(String.format("%s", Cart.getInstance().getItemCount()));
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerAdapter);
@@ -227,10 +240,10 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
         adapter = new InventoryItemAdapter(this, new ArrayList<>(), mInventory.getId());
         searchListAdapter = new SearchListAdapter(new ArrayList<>(), (object, position, view) -> {
-            for (Item it : newCart.getItemList()) {
+            for (Item it : Cart.getInstance().getItemList()) {
                 if (it.getId().equals(object)) {
-                    newCart.addItem(it);
-                    cart_fab.setText(String.format("%s", newCart.getItemCount()));
+                    Cart.getInstance().addItem(it);
+                    cart_fab.setText(String.format("%s", Cart.getInstance().getItemCount()));
                     Utils.toast(InventoryActivity.this, String.format("%s already in cart", it.getTitle()), Toast.LENGTH_SHORT);
                     return;
                 }
@@ -239,8 +252,8 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
                     .get().addOnSuccessListener(snapshot -> {
                 Item item = snapshot.toObject(Item.class);
                 assert item != null;
-                newCart.addItem(item);
-                cart_fab.setText(String.format("%s", newCart.getItemCount()));
+                Cart.getInstance().addItem(item);
+                cart_fab.setText(String.format("%s", Cart.getInstance().getItemCount()));
             });
         });
 
@@ -297,12 +310,11 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         });
 
         cart_fab.setOnClickListener(v -> {
-            if(newCart.getItemCount() == 0){
+            if(Cart.getInstance().getItemCount() == 0){
                 Utils.toast(InventoryActivity.this, "No items in cart", Toast.LENGTH_SHORT);
                 return;
             }
             showCart();
-            //View.OnClickListener listener = this;
         });
 
         nestedScrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
@@ -366,7 +378,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         progressBar.setVisibility(View.VISIBLE);
         isLoading = true;
         String lastTitle = filterChanged ? "+" : adapter.get_last_title();
-        Call<Map<String, Object>> getItemsCall = API.getApiService().getItems(lastTitle, tags, itemLimit);
+        Call<Map<String, Object>> getItemsCall = API.getApiService().getItems(lastTitle, tag, itemLimit);
         getItemsCall.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
@@ -423,7 +435,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         mRef.runTransaction(transaction -> {
             List<String> search_string = new ArrayList<>();
             CollectionReference collectionReference = mRef.collection("search");
-            for(String tag: mInventory.getTags()){
+            for(String tag: tagsList){
                 DocumentReference ref = collectionReference.document(tag);
                 DocumentSnapshot snap = transaction.get(ref);
                 if (snap.contains("query_string"))
@@ -453,7 +465,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
     void showCart(){
         if(cart_dialog!=null){
-            dialog_cart_adapter.setItemList(newCart.getItemList());
+            dialog_cart_adapter.setItemList(Cart.getInstance().getItemList());
             cart_dialog.show();
             return;
         }
@@ -475,7 +487,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         dialog_items_rv.setLayoutManager(new LinearLayoutManager(this));
         dialog_items_rv.setHasFixedSize(false);
 
-        dialog_cart_adapter = new CartItemAdapter(newCart.getItemList(), InventoryActivity.this, newCart.getQuantity(), mInventory.getId());
+        dialog_cart_adapter = new CartItemAdapter(Cart.getInstance().getItemList(), InventoryActivity.this, Cart.getInstance().getQuantity(), mInventory.getId());
         dialog_cart_adapter.setClickListener(cartListener);
 
         dialog_items_rv.setAdapter(dialog_cart_adapter);
@@ -499,7 +511,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
                 delivery_address = "Flat: " + address +", Building: " +  address1;
                 MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(InventoryActivity.this);
                 alert.setTitle("Order Confirmation");
-                alert.setMessage("Total Items: " + String.valueOf(newCart.getItemCount()) + "\nTotal Amount: " + String.valueOf(newCart.getAmount()));
+                alert.setMessage("Total Items: " + String.valueOf(Cart.getInstance().getItemCount()) + "\nTotal Amount: " + String.valueOf(Cart.getInstance().getAmount()));
                 alert.setPositiveButton("Yes", (dialog, which) -> {
                     placeOrder(null);
                 });
@@ -518,7 +530,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
                 delivery_address = address;
                 MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(InventoryActivity.this);
                 alert.setTitle("Order Confirmation");
-                alert.setMessage("Total Items: " + String.valueOf(newCart.getItemCount()) + "\nTotal Amount: " + String.valueOf(newCart.getAmount()));
+                alert.setMessage("Total Items: " + String.valueOf(Cart.getInstance().getItemCount()) + "\nTotal Amount: " + String.valueOf(Cart.getInstance().getAmount()));
                 alert.setPositiveButton("Yes", (dialog, which) -> {
                     pay();
                 });
@@ -538,7 +550,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         dialog_cod_order_bt.setEnabled(false);
         cart_dialog_pb.setVisibility(View.VISIBLE);
         Call<Map<String, Object>> pay = API.getApiService().pay(mAuth.getUid(),
-               mInventory.getOwner().getId(), newCart.getAmount(), API.api_key);
+               mInventory.getOwner().getId(), Cart.getInstance().getAmount(), API.api_key);
         pay.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(@NotNull Call<Map<String, Object>> call,
@@ -589,7 +601,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         cart_dialog_pb.setVisibility(View.VISIBLE);
         Order order = new Order();
         order.setOrderId(mRef.collection("order").document().getId());
-        order.setAmount(newCart.getAmount());
+        order.setAmount(Cart.getInstance().getAmount());
         order.setActive(false);
         order.setFromInventory(mInventory.getId());
         order.setFromInventoryName(mInventory.getName());
@@ -603,7 +615,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
         }});
         order.setTimestamp(new Timestamp(new Date()));
         order.setStatus(Order.STATUS.ORDER_RECEIVED);
-        List<CompressedItem> it = newCart.getCompressedItem();
+        List<CompressedItem> it = Cart.getInstance().getCompressedItem();
         order.setItems(it);
         if(transactionId==null){
             order.setTransactionId(null);
@@ -633,6 +645,7 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
             }
             cart_dialog_pb.setVisibility(View.GONE);
             new Handler().postDelayed(() -> {
+                Cart.getInstance().clear();
                 cart_dialog.dismiss();
                 finish();
             }, 1500);
@@ -669,7 +682,6 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
 
             anim.start();
         }
-
     }
 
     @Override
@@ -688,14 +700,14 @@ public class InventoryActivity extends AppCompatActivity implements AdapterView.
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if(String.valueOf(parent.getSelectedItem()) == "All") {
-            tags = mInventory.getCompoundTag();
+            tag = getCompoundTag(tagsList);
         } else {
-            tags = String.valueOf(parent.getSelectedItem());
-            tags = tags.replace(" ", "_");
-            tags = tags.replace("-", "1");
-            tags = tags.replace("&", "2");
-            tags = tags.replace(",", "3");
-            tags = tags.replace(".", "4");
+            tag = String.valueOf(parent.getSelectedItem());
+            tag = tag.replace(" ", "_");
+            tag = tag.replace("-", "1");
+            tag = tag.replace("&", "2");
+            tag = tag.replace(",", "3");
+            tag = tag.replace(".", "4");
         }
         filterChanged = true;
         loadItems();

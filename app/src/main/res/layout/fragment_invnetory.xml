@@ -18,12 +18,10 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/inventory_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/inventory_list_item"/>
-
+            tools:listitem="@layout/tags_list_item" />
     </RelativeLayout>
 </FrameLayout>

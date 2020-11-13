@@ -48,4 +48,56 @@
         <item>Other</item>
     </string-array>
 
+    <string-array name="tag_category">
+        <item>Beauty and Care</item>
+        <item>Beverages</item>
+        <item>Food and Grocery</item>
+        <item>Fresh Produce</item>
+        <item>Household</item>
+        <item>Snacks</item>
+    </string-array>
+
+    <string-array name="Beauty_and_Care">
+        <item>Baby</item>
+        <item>Moisturizers_and_Lotions</item>
+        <item>Personal_Care_1_shampoo3_toothpaste</item>
+        <item>Pet_Care</item>
+    </string-array>
+
+    <string-array name="Beverages">
+        <item>Beverages_1_Liquid</item>
+        <item>Beverages_1_Solid</item>
+    </string-array>
+
+    <string-array name="Food_and_Grocery">
+        <item>Frozen_Foods</item>
+        <item>Grains</item>
+        <item>Pasta_2_noodles</item>
+        <item>Meat_2_Seafood</item>
+        <item>Spice</item>
+        <item>Oils_2_Ghee</item>
+        <item>Sweetener</item>
+        <item>Canned_Goods_2_Soups</item>
+        <item>Dry_Fruits</item>
+        <item>Ready1to1Use</item>
+    </string-array>
+
+    <string-array name="Fresh_Produce">
+        <item>Fruits</item>
+        <item>Vegetable</item>
+        <item>Dairy</item>
+        <item>Bread_2_Bakery</item>
+    </string-array>
+
+    <string-array name="Household">
+        <item>Miscellaneous_1_gift_cards_2_wrap3_batteries3_etc4</item>
+        <item>Paper_Products</item>
+        <item>Cleaning_Supplies</item>
+    </string-array>
+
+    <string-array name="Snacks">
+        <item>Sweet_Snacks</item>
+        <item>Salted_Snacks</item>
+        <item>Cookies</item>
+    </string-array>
 </resources>

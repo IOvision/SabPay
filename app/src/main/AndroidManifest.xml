@@ -2,17 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.visionio.sabpay">
-
-<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
-<!--    <uses-permission android:name="android.permission.READ_CONTACTS" />-->
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-<!--    <uses-permission android:name="android.permission.CAMERA" />-->
-<!--    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH" />-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
-<!--    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />-->
-    <!--<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
+    <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
+    <!-- <uses-permission android:name="android.permission.READ_CONTACTS" /> -->
+    <uses-permission android:name="android.permission.CALL_PHONE" /> <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> -->
+    <!-- <uses-permission android:name="android.permission.BLUETOOTH" /> -->
+    <!-- <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> -->
+    <!-- <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> -->
+    <!--
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -28,11 +28,13 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
         android:screenOrientation="portrait"
-        android:requestLegacyExternalStorage="true">
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".main.ItemActivity"></activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.visionio.sabpay.provider"
@@ -42,18 +44,24 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"
-                tools:replace="android:resource"/>
+                tools:replace="android:resource" />
         </provider>
-        <activity android:name=".InvoiceActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".main.InventoryActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".GpayProcedureActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".helpdesk.HelpDeskActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".payment.PaymentActivity"
-            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".InvoiceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".main.InventoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".GpayProcedureActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".helpdesk.HelpDeskActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".payment.PaymentActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".services.FirebaseService"
@@ -64,11 +72,13 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".services.FeedbackActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".services.FeedbackActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".offpay.OffpayActivity" />
-        <activity android:name=".SplashActivity"
+        <activity
+            android:name=".SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -76,15 +86,21 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".group_pay.pending.PendingPaymentActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".group_pay.manageGroup.GroupManageActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".group_pay.manageTransactions.ManageTransactionsActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".authentication.AuthenticationActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".main.MainActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".group_pay.pending.PendingPaymentActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".group_pay.manageGroup.GroupManageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".group_pay.manageTransactions.ManageTransactionsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".authentication.AuthenticationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".main.MainActivity"
+            android:screenOrientation="portrait" />
     </application>
+
 </manifest>

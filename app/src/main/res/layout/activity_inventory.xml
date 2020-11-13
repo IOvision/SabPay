@@ -39,9 +39,9 @@
                         android:layout_height="wrap_content"
                         android:text="Shop Name"
                         android:textColor="@color/white"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/dimen_18sp"
                         android:fontFamily="@font/product_sans_regular"
-                        android:layout_centerInParent="true"/>
+                        android:layout_centerVertical="true"/>
 
                     <EditText
                         android:id="@+id/inventory_search_et"

@@ -5,16 +5,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.paperdb.Paper;
+
 
 public class Cart {
     private Map<String, Integer> quantity;
     private List<Item> itemList;
     private String inv_id;
 
-    public Cart(String inv_id) {
+    public static Cart cart;
+
+    public Cart() {
         quantity = new HashMap<>();
         itemList = new ArrayList<>();
-        this.inv_id = inv_id;
+    }
+
+    public void setInv_id(String id) {
+        this.inv_id = id;
+    }
+
+    public static Cart getInstance() {
+        if (cart != null)
+            return cart;
+        cart = Paper.book().read("cart", new Cart());
+        return cart;
+    }
+
+    public void saveInstance() {
+        Paper.book().write("cart", cart);
     }
 
     public List<Item> getItemList() {
@@ -36,6 +54,7 @@ public class Cart {
             quantity.put(item.getId(), 1);
             itemList.add(item);
         }
+        this.saveInstance();
     }
 
     public void decreaseItem(Item item) {
@@ -45,6 +64,12 @@ public class Cart {
         } else {
             quantity.put(item.getId(), quantity.get(item.getId()) - 1);
         }
+        this.saveInstance();
+    }
+
+    public void clear() {
+        cart = new Cart();
+        Paper.book().delete("cart");
     }
 
     public int getItemCount() {
